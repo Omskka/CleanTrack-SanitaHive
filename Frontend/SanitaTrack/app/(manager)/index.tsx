@@ -17,7 +17,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title" >Melike!!</ThemedText>
+        <ThemedText type="title" >Melikaaaa!!</ThemedText>
         <HelloWave />
       </ThemedView>
       <Link href="/taskpage" >
