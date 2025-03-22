@@ -9,7 +9,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import "../global.css";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -31,7 +31,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="login"/>
+        <Stack.Screen name="index"/>
         <Stack.Screen name="createTeam" />
         <Stack.Screen name="createAccount" />
         <Stack.Screen name="workerHomepage" />

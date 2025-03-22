@@ -4,10 +4,12 @@ import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+import { i18n } from '@/hooks/i18n';
+
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }}  />
+      <Stack.Screen options={{ title: i18n.t('greeting') }}  />
       <ThemedView style={styles.container}>
         <ThemedText type="title" className='text-green-600'>This screen doesn't exist.</ThemedText>
         <Link href="/createTeam" style={styles.link}>
