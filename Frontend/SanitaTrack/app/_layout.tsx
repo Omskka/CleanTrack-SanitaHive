@@ -5,9 +5,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { GluestackUIProvider } from "@gluestack-ui/themed"
+import { config } from "@gluestack-ui/config"
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import "../global.css";
 
 // the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,9 +30,9 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <GluestackUIProvider config={config}>
       <Stack>
-        <Stack.Screen name="index"/>
+        <Stack.Screen name="login"/>
         <Stack.Screen name="createTeam" />
         <Stack.Screen name="createAccount" />
         <Stack.Screen name="workerHomepage" />
@@ -40,6 +41,6 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </GluestackUIProvider>
   );
 }
