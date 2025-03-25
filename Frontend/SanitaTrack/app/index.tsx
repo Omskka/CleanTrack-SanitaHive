@@ -1,44 +1,183 @@
-import { Stack, Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
+import React, { useState } from 'react';
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Box,
+  VStack,
+  Heading,
+  Input,
+  InputField,
+  Button,
+  Text,
+  Pressable,
+  FormControl,
+  FormControlLabel,
+  FormControlError,
+  FormControlHelper,
+  Image,
+  Select,
+  SelectItem
+} from '@gluestack-ui/themed';
 import { i18n } from '@/hooks/i18n';
-import { Card, Heading, LinkText, Text } from '@gluestack-ui/themed';
+import { Link } from 'expo-router';
+import { Dimensions } from 'react-native';
 
-export default function NotFoundScreen() {
+export default function loginScreen() {
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [language, setLanguage] = useState('en');  // Dil durumu için state
+
+  const handleLogin = () => {
+    // trim() boşlukları temizlemek için (güvenli doğrulama)
+    if (!phone.trim()) { 
+      setError(i18n.t('enterPhone'));
+    } else if (!password.trim()) {
+      setError(i18n.t('enterPassword'));
+    } else {
+      setError('');
+      // burada yönlendirme yok çünkü Link ile yapılacak
+      setIsLoggedIn(true);  // Giriş başarılıysa durumu değiştir
+    }
+  };
+
+  const changeLanguage = (newLanguage: string) => {
+    setLanguage(newLanguage); // Dil değişikliği
+    i18n.locale = newLanguage; // i18n dilini güncelle
+  };
+
   return (
-    <>
-      <Stack.Screen options={{ title: i18n.t('greeting') }}  />
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={{ flex: 1 }}>
+        <Box flex={1} justifyContent="center" alignItems="center" bg="$blue100" position="relative">
+          {/* Üst Görsel */}
+          <Image
+            source={require('@/assets/images/login-img-top.png')}
+            alt="Top Image"
+            position="absolute"
+            top={0}
+            width={Dimensions.get('screen').width}
+            height={200}
+            resizeMode="contain"
+          />
 
-      <Card size="md" variant="elevated" m="$3">
-        <Heading mb="$1" size="md">
-          Quick Start
-        </Heading>
-        <Text size="sm">Start building your next project in minutes</Text>
-      </Card>
+          {/* Alt Görsel */}
+          <Image
+            source={require('@/assets/images/login-img-bottom.png')}
+            alt="Bottom Image"
+            position="absolute"
+            bottom={0}
+            width={Dimensions.get('screen').width}
+            height={190}
+            resizeMode="contain"
+          />
 
-        <Heading>This screen doesn't exist.</Heading>
-        <Link href="/createTeam" style={styles.link}>
-          <LinkText >Go to create team</LinkText>
-        </Link>
-        <Link href="/workerHomepage" style={styles.link}>
-          <LinkText >Go to worker app</LinkText>
-        </Link>
-        <Link href="/createAccount/melike" style={styles.link}>
-          <LinkText >Go to create account</LinkText>
-        </Link>
-    </>
+          {/* CleanTrack */}
+          <Text 
+          color="$blue600" 
+          fontWeight="bold"
+          top="$16"
+          left="$4"
+          position="absolute"
+          zIndex={1} 
+          >
+          CleanTrack
+          </Text>
+
+          {/* Dil Seçimi Butonu */}
+          <Pressable
+            position="absolute"
+            top="$16"
+            right="$6"
+            onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
+            zIndex={2}
+          >
+            <Text color="$blue600" fontWeight="bold">
+              {language === 'en' ? 'TR' : 'EN'}
+            </Text>
+          </Pressable>
+
+          {/* Login Form */}
+          <VStack space="xl" w="90%" maxWidth="$96" px="$10" py="$16" bg="$white" rounded="$2xl" boxShadow="$4" zIndex={1}>
+            <Heading size="xl" color="$blue800" textAlign="center">
+              {i18n.t('loginTitle')}
+            </Heading>
+
+            {/* Telefon */}
+            <FormControl isInvalid={!!error && !phone.trim()}>
+              <FormControlLabel>
+                <Text>{i18n.t('phoneLabel')}</Text>
+              </FormControlLabel>
+
+              <Input>
+                <InputField fontSize="$sm" keyboardType='phone-pad' placeholder={i18n.t('phonePlaceholder')} 
+                value={phone}
+                onChangeText={(text) => {
+                  setPhone(text);
+                  if (error) setError('');
+                }}
+                />
+              </Input>
+
+              {!!error && !phone.trim() ? (
+                <FormControlError>
+                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPhone')}</Text>
+                </FormControlError>
+              ) : null}
+            </FormControl>
+
+            {/* Şifre */}
+            <FormControl isInvalid={!!error && !password.trim()}>
+              <FormControlLabel>
+                <Text>{i18n.t('passwordLabel')}</Text>
+              </FormControlLabel>
+
+              <Input>
+                <InputField fontSize="$sm" type='password' placeholder={i18n.t('passwordPlaceholder')} 
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (error) setError('');
+                }}
+                secureTextEntry
+                />
+              </Input>
+
+              {!!error && !password.trim() ? (
+                <FormControlError>
+                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPassword')}</Text>
+                </FormControlError>
+              ) : null}
+            </FormControl>
+
+            {/* Giriş Butonu */}
+            <Button onPress={handleLogin} bg="$blue600" px={"$7"} rounded="$xl" alignSelf="center">
+              <Text color="$white" fontWeight="bold">{i18n.t('loginButton')}</Text>
+            </Button>
+
+            {/* Giriş Başarılıysa Worker Homepage'e yönlendirme */}
+            {isLoggedIn && (
+              <Link href="/workerHomepage">
+                <Pressable>
+                  <Text color="$blue600" fontWeight="bold" textAlign="center" mt="$2">
+                    {i18n.t('continue')}
+                  </Text>
+                </Pressable>
+              </Link>
+            )}
+
+            {/* Hesabın yok mu */}
+            <Box alignItems="center" mt="$2">
+              <Text fontSize="$sm">{i18n.t('isManager')}</Text>
+              <Link href="/createAccount/melike">
+                <Pressable>
+                  <Text color="$blue600" fontWeight="bold">{i18n.t('createTeam')}</Text>
+                </Pressable>
+              </Link>
+            </Box>
+          </VStack>
+        </Box>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});
