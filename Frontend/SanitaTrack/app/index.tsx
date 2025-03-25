@@ -28,16 +28,41 @@ export default function loginScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [language, setLanguage] = useState('en');  // Dil durumu için state
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // trim() boşlukları temizlemek için (güvenli doğrulama)
-    if (!phone.trim()) { 
+    if (!phone.trim()) {
       setError(i18n.t('enterPhone'));
     } else if (!password.trim()) {
       setError(i18n.t('enterPassword'));
     } else {
       setError('');
-      // burada yönlendirme yok çünkü Link ile yapılacak
-      setIsLoggedIn(true);  // Giriş başarılıysa durumu değiştir
+      try {
+        const response = await fetch('http://10.0.2.2:8080/api/v1/users', {
+          method: 'POST', // Sending data via POST method
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phoneNumber: phone, // Sending phone number
+            password: password, // Sending password
+            name: "null", // Sending user name
+            manager: false, // Sending manager status (true or false)
+            lang: "en", // Sending language (e.g., 'en', 'tr', etc.)
+          }),
+        });
+
+        const result = await response.json();
+        console.log('Response:', result); // This will show the response from the backend
+
+        if (response.ok) {
+          setIsLoggedIn(true); // Giriş başarılıysa durumu değiştir
+        } else {
+          setError(result.message || i18n.t('loginFailed'));
+        }
+      } catch (error) {
+        console.error('Login Error:', error); // Log the error for debugging
+        setError(i18n.t('serverError'));
+      }
     }
   };
 
@@ -73,15 +98,15 @@ export default function loginScreen() {
           />
 
           {/* CleanTrack */}
-          <Text 
-          color="$blue600" 
-          fontWeight="bold"
-          top="$16"
-          left="$4"
-          position="absolute"
-          zIndex={1} 
+          <Text
+            color="$blue600"
+            fontWeight="bold"
+            top="$16"
+            left="$4"
+            position="absolute"
+            zIndex={1}
           >
-          CleanTrack
+            CleanTrack
           </Text>
 
           {/* Dil Seçimi Butonu */}
@@ -110,12 +135,12 @@ export default function loginScreen() {
               </FormControlLabel>
 
               <Input>
-                <InputField fontSize="$sm" keyboardType='phone-pad' placeholder={i18n.t('phonePlaceholder')} 
-                value={phone}
-                onChangeText={(text) => {
-                  setPhone(text);
-                  if (error) setError('');
-                }}
+                <InputField fontSize="$sm" keyboardType='phone-pad' placeholder={i18n.t('phonePlaceholder')}
+                  value={phone}
+                  onChangeText={(text) => {
+                    setPhone(text);
+                    if (error) setError('');
+                  }}
                 />
               </Input>
 
@@ -133,13 +158,13 @@ export default function loginScreen() {
               </FormControlLabel>
 
               <Input>
-                <InputField fontSize="$sm" type='password' placeholder={i18n.t('passwordPlaceholder')} 
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (error) setError('');
-                }}
-                secureTextEntry
+                <InputField fontSize="$sm" type='password' placeholder={i18n.t('passwordPlaceholder')}
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (error) setError('');
+                  }}
+                  secureTextEntry
                 />
               </Input>
 
