@@ -65,7 +65,7 @@ export default function TeamInfoScreen() {
             rounded="$md"
             onPress={() => console.log('Edit pressed')}
           >
-            <Text color="$white" fontWeight="bold">{i18n.t('editButton')}</Text>
+            <Text color="$white" fontWeight="bold">{i18n.t('edit')}</Text>
           </Pressable>
         </HStack>
       </Box>

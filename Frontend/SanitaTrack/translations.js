@@ -48,7 +48,7 @@ export const translations = {
 
     teamTitle: 'TAKIM',
     searchMemberPlaceholder: 'Üye ara...',
-    editButton: 'Düzenle',
+    edit: 'Düzenle',
     addMemberButton: 'Takıma yeni üye ekle',
     noResults: 'Üye bulunamadı.',
 
