@@ -1,109 +1,174 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, Modal } from 'react-native';
+import {
+  Box,
+  VStack,
+  HStack,
+  Heading,
+  Input,
+  InputField,
+  Button,
+  Text,
+  Pressable,
+  Icon,
+  RadioGroup,
+  Radio,
+  RadioLabel,
+  RadioIndicator,
+} from '@gluestack-ui/themed';
+import { ChevronDown, ChevronUp, CircleIcon, Plus, RadioIcon } from 'lucide-react-native';
+import { i18n } from '@/hooks/i18n';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+const roomsData = [
+  { category: '1. Kat', rooms: ['Oda 101', 'Oda 102', 'Oda 103'] },
+  { category: '2. Kat', rooms: ['Oda 201', 'Oda 202', 'Oda 203'] },
+  { category: '3. Kat', rooms: ['Oda 301', 'Oda 302'] },
+];
 
-export default function TabTwoScreen() {
+export default function RoomsScreen() {
+  const [searchText, setSearchText] = useState('');
+  const [expanded, setExpanded] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newRoom, setNewRoom] = useState('');
+  const [rooms, setRooms] = useState(roomsData);
+
+  const toggleExpand = (category) => {
+    setExpanded((prev) => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  const filteredRooms = rooms.map((group) => ({
+    ...group,
+    rooms: group.rooms.filter((room) => room.toLowerCase().includes(searchText.toLowerCase())),
+  })).filter((group) => group.rooms.length > 0);
+
+  const addRoomOrCategory = () => {
+    if (selectedCategory === 'new' && newCategory) {
+      setRooms([...rooms, { category: newCategory, rooms: newRoom ? [newRoom] : [] }]);
+    } else if (selectedCategory) {
+      setRooms(rooms.map((group) =>
+        group.category === selectedCategory ? { ...group, rooms: [...group.rooms, newRoom] } : group
+      ));
+    }
+    setSelectedCategory('');
+    setNewCategory('');
+    setNewRoom('');
+    setModalVisible(false);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <Box flex={1} bg="$blue100">
+      {/* Başlık ve Arama Çubuğu */}
+      <Box px="$4" py="$6" bg="$white">
+        <Heading size="lg" color="$blue800">Rooms</Heading>
+
+        <HStack space="sm" mt="$4" alignItems="center">
+          <Input flex={1}>
+            <InputField
+              fontSize="$sm"
+              placeholder={i18n.t('searchRoomPlaceholder')}
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+          </Input>
+        </HStack>
+      </Box>
+
+      {/* Oda Listesi */}
+      <ScrollView style={{ flex: 1 }}>
+        <VStack space="md" p="$4">
+          {filteredRooms.length > 0 ? (
+            filteredRooms.map((group) => (
+              <Box key={group.category} bg="$white" rounded="$lg" p="$4">
+                <Pressable onPress={() => toggleExpand(group.category)}>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontWeight="bold">{group.category}</Text>
+                    <Icon as={expanded[group.category] ? ChevronUp : ChevronDown} size="lg" />
+                  </HStack>
+                </Pressable>
+                {expanded[group.category] && (
+                  <VStack mt="$2" space="sm">
+                    {group.rooms.map((room, index) => (
+                      <Text key={index} color="$gray500">{room}</Text>
+                    ))}
+                  </VStack>
+                )}
+              </Box>
+            ))
+          ) : (
+            <Text textAlign="center" color="$gray500">{i18n.t('noResultsRooms')}</Text>
+          )}
+        </VStack>
+      </ScrollView>
+
+      {/* Oda/Kategori Ekle Butonu */}
+      <Box px="$4" py="$4" bg="$white">
+        <Button bg="$blue600" rounded="$lg" onPress={() => setModalVisible(true)}>
+          <Icon as={Plus} color="$white" mr="$2" />
+          <Text color="$white" fontWeight="bold">{i18n.t('addRoomButton')}</Text>
+        </Button>
+      </Box>
+
+      {/* Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <Box flex={1} justifyContent="center" alignItems="center" bg="rgba(0,0,0,0.5)">
+          <Box bg="$white" p="$6" rounded="$lg" width="80%">
+            <Heading size="md">{i18n.t('addRoomCategory')}</Heading>
+
+            {/* Radio Group for Category Selection */}
+            <RadioGroup value={selectedCategory} onChange={setSelectedCategory}>
+                {rooms.map((group) => (
+                <Radio key={group.category} value={group.category}>
+                  <RadioIndicator mr="$2">
+                  {selectedCategory === group.category && (
+                    <RadioIcon>
+                      <CircleIcon fill="grey" />
+                    </RadioIcon>
+                  )}
+                  </RadioIndicator>
+                  <RadioLabel>{group.category}</RadioLabel>
+                </Radio>
+                ))}
+              <Radio value="new">
+                <RadioIndicator mr="$2">
+                  {selectedCategory === "new" && (
+                    <RadioIcon>
+                      <CircleIcon fill="grey" />
+                    </RadioIcon>
+                  )}
+                </RadioIndicator>
+                <RadioLabel>{i18n.t('newCategory')}</RadioLabel>
+              </Radio>
+            </RadioGroup>
+
+            {/* Show input field only when "New Category" is selected */}
+            {selectedCategory === 'new' && (
+              <Input mt="$4">
+                <InputField
+                  placeholder={i18n.t('newCategory')}
+                  value={newCategory}
+                  onChangeText={setNewCategory}
+                />
+              </Input>
+            )}
+
+            {/* Room Name Input */}
+            <Input mt="$4">
+              <InputField placeholder={i18n.t('newRoom')} value={newRoom} onChangeText={setNewRoom} />
+            </Input>
+
+            <HStack mt="$4" justifyContent="space-between">
+              <Button bg="$grey" onPress={() => setModalVisible(false)}>
+                <Text color="$white">{i18n.t('cancel')}</Text>
+              </Button>
+              <Button bg="$blue600" onPress={addRoomOrCategory}>
+                <Text color="$white">{i18n.t('save')}</Text>
+              </Button>
+            </HStack>
+          </Box>
+        </Box>
+      </Modal>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});

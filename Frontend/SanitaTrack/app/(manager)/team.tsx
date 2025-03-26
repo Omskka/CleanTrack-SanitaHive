@@ -12,6 +12,7 @@ import {
   Pressable,
   Avatar,
   Icon,
+  AvatarFallbackText,
 } from '@gluestack-ui/themed';
 import { Phone } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
@@ -79,7 +80,9 @@ export default function TeamInfoScreen() {
                 <HStack alignItems="center" justifyContent="space-between">
                   {/* Kullanıcı Bilgileri */}
                   <HStack alignItems="center" space="md">
-                    <Avatar bg="$blue600" size="md" />
+                    <Avatar bg="$blue600" size="md">
+                      <AvatarFallbackText>{user.firstName} {user.lastName}</AvatarFallbackText>
+                    </Avatar>
                     <VStack>
                       <Text fontWeight="bold">{user.firstName} {user.lastName}</Text>
                       <Text color="$gray500">{user.phone}</Text>
@@ -95,7 +98,7 @@ export default function TeamInfoScreen() {
             ))
           ) : (
             <Text textAlign="center" color="$gray500">
-              {i18n.t('noResults')}
+              {i18n.t('noResultsMember')}
             </Text>
           )}
         </VStack>
