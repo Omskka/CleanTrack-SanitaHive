@@ -1,109 +1,94 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React from 'react';
+import { ScrollView, Linking } from 'react-native';
+import {
+  Box,
+  VStack,
+  HStack,
+  Heading,
+  Input,
+  InputField,
+  Button,
+  Text,
+  Pressable,
+  Avatar,
+  Icon,
+} from '@gluestack-ui/themed';
+import { Phone } from 'lucide-react-native';
+import { i18n } from '@/hooks/i18n';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+const users = [
+  { id: 1, firstName: 'Bengisu', lastName: 'Su', phone: '800-***-38' },
+  { id: 2, firstName: 'Meli', lastName: 'Ke', phone: '900-***-45' },
+  { id: 3, firstName: 'Ömer', lastName: 'Murat', phone: '700-***-12' },
+  { id: 4, firstName: 'Bu', lastName: 'Se', phone: '800-***-38' },
+  { id: 5, firstName: 'Mehmet', lastName: 'Can', phone: '900-***-45' },
+  { id: 6, firstName: 'Elif', lastName: 'Deniz', phone: '700-***-12' },
+  { id: 7, firstName: 'Bengisu', lastName: 'Su', phone: '800-***-38' },
+  { id: 8, firstName: 'Ömer', lastName: 'Murat', phone: '700-***-12' },
+  { id: 9, firstName: 'Meli', lastName: 'Ke', phone: '900-***-45' },
+];
 
-export default function TabTwoScreen() {
+const callPhone = (phoneNumber: string) => {
+  Linking.openURL(`tel:${phoneNumber}`);
+};
+
+export default function TeamInfoScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <Box flex={1} bg="$blue100">
+      {/* Üst Kısım - Başlık ve Arama Çubuğu */}
+      <Box px="$4" py="$6" bg="$white">
+        <Heading size="lg" color="$blue800">
+          {i18n.t('teamTitle')}
+        </Heading>
+
+        <HStack space="sm" mt="$4" alignItems="center">
+          <Input flex={1}>
+            <InputField fontSize="$sm" placeholder={i18n.t('searchMemberPlaceholder')} />
+          </Input>
+
+          <Pressable
+            px="$4"
+            py="$2"
+            bg="$blue600"
+            rounded="$md"
+            onPress={() => console.log('Edit pressed')}
+          >
+            <Text color="$white" fontWeight="bold">{i18n.t('edit')}</Text>
+          </Pressable>
+        </HStack>
+      </Box>
+
+      {/* Kullanıcı Listesi */}
+      <ScrollView style={{ flex: 1 }}>
+        <VStack space="md" p="$4">
+          {users.map((user) => (
+            <Box key={user.id} p="$4" bg="$white" rounded="$lg">
+            <HStack alignItems="center" justifyContent="space-between">
+              {/* Kullanıcı Bilgileri */}
+              <HStack alignItems="center" space="md">
+                <Avatar bg="$blue600" size="md" />
+                <VStack>
+                  <Text fontWeight="bold">{user.firstName} {user.lastName}</Text>
+                  <Text color="$gray500">{user.phone}</Text>
+                </VStack>
+              </HStack>
+
+              {/* Telefon Arama Butonu */}
+              <Pressable onPress={() => callPhone(user.phone)}>
+                <Icon as={Phone} size="lg" color="$blue600" />
+              </Pressable>
+            </HStack>
+          </Box>
+        ))}
+        </VStack>
+      </ScrollView>
+
+      {/* Alt Kısım - Sabit Buton */}
+      <Box px="$4" py="$4" bg="$white">
+        <Button bg="$blue600" rounded="$lg">
+          <Text color="$white" fontWeight="bold">{i18n.t('addMemberButton')}</Text>
+        </Button>
+      </Box>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});

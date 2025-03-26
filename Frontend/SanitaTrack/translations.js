@@ -12,6 +12,10 @@ export const translations = {
     continue: 'Continue',
     isManager: 'Are you a manager?',
     createTeam: 'Create team',
+    teamTitle: 'TEAM',
+    searchMemberPlaceholder: 'Search member...',
+    edit: 'Edit',
+    addMemberButton: 'Add new member to team',
   },
   tr: {
     greeting: 'Merhaba',
@@ -26,5 +30,9 @@ export const translations = {
     continue: 'Devam Et',
     isManager: 'Yönetici misiniz?',
     createTeam: 'Takım oluşturun',
+    teamTitle: 'TAKIM',
+    searchMemberPlaceholder: 'Üye ara...',
+    editButton: 'Düzenle',
+    addMemberButton: 'Takıma yeni üye ekle',
   },
 };
