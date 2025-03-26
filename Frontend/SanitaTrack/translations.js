@@ -1,5 +1,6 @@
 export const translations = {
   en: {
+    // login
     greeting: 'Hello',
     loginTitle: 'Login',
     phoneLabel: 'Phone Number',
@@ -12,11 +13,24 @@ export const translations = {
     continue: 'Continue',
     isManager: 'Are you a manager?',
     createTeam: 'Create team',
+    
     teamTitle: 'TEAM',
     searchMemberPlaceholder: 'Search member...',
     edit: 'Edit',
     addMemberButton: 'Add new member to team',
     noResults: 'No members found.',
+
+    registerTitle: "Register",
+    name: "Name",
+    namePlaceholder: "Enter your name",
+    enterName: "Please enter your name",
+    surname: "Surname",
+    surnamePlaceholder: "Enter your surname",
+    enterSurname: "Please enter your surname",
+    registerButton: "Sign Up",
+    alreadyHaveAccount: "Already have an account?",
+    loginHere: "Login here",
+    allFieldsRequired: "Please fill in all fields."
   },
   tr: {
     greeting: 'Merhaba',
@@ -31,10 +45,23 @@ export const translations = {
     continue: 'Devam Et',
     isManager: 'Yönetici misiniz?',
     createTeam: 'Takım oluşturun',
+
     teamTitle: 'TAKIM',
     searchMemberPlaceholder: 'Üye ara...',
     editButton: 'Düzenle',
     addMemberButton: 'Takıma yeni üye ekle',
     noResults: 'Üye bulunamadı.',
+
+    registerTitle: "Kayıt Ol",
+    name: "Ad",
+    namePlaceholder: "Adınızı girin",
+    enterName: "Lütfen adınızı girin",
+    surname: "Soyad",
+    surnamePlaceholder: "Soyadınızı girin",
+    enterSurname: "Lütfen soyadınızı girin",
+    registerButton: "Kayıt Ol",
+    alreadyHaveAccount: "Zaten bir hesabın var mı?",
+    loginHere: "Buradan giriş yap",
+    allFieldsRequired: "Lütfen tüm alanları doldurun."
   },
 };

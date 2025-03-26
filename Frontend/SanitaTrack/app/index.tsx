@@ -12,10 +12,7 @@ import {
   FormControl,
   FormControlLabel,
   FormControlError,
-  FormControlHelper,
   Image,
-  Select,
-  SelectItem
 } from '@gluestack-ui/themed';
 import { i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
@@ -191,7 +188,7 @@ export default function loginScreen() {
               </Link>
             )}
 
-            {/* Hesabın yok mu */}
+            {/* Takım Oluştur */}
             <Box alignItems="center" mt="$2">
               <Text fontSize="$sm">{i18n.t('isManager')}</Text>
               <Link href="/createAccount/melike">
