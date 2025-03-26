@@ -1,6 +1,5 @@
 export const translations = {
   en: {
-    // login
     greeting: 'Hello',
     loginTitle: 'Login',
     phoneLabel: 'Phone Number',
@@ -13,7 +12,7 @@ export const translations = {
     continue: 'Continue',
     isManager: 'Are you a manager?',
     createTeam: 'Create team',
-    
+
     teamTitle: 'TEAM',
     searchMemberPlaceholder: 'Search member...',
     edit: 'Edit',
@@ -30,7 +29,13 @@ export const translations = {
     registerButton: "Sign Up",
     alreadyHaveAccount: "Already have an account?",
     loginHere: "Login here",
-    allFieldsRequired: "Please fill in all fields."
+    allFieldsRequired: "Please fill in all fields.",
+
+    createTeamTitle: "Create Your Team",
+    teamNameLabel: "Company Name",
+    teamNamePlaceholder: "Enter your company name",
+    createTeamButton: "Create Team",
+    enterTeamName: "Please enter your company name",
   },
   tr: {
     greeting: 'Merhaba',
@@ -62,6 +67,12 @@ export const translations = {
     registerButton: "Kayıt Ol",
     alreadyHaveAccount: "Zaten bir hesabın var mı?",
     loginHere: "Buradan giriş yap",
-    allFieldsRequired: "Lütfen tüm alanları doldurun."
+    allFieldsRequired: "Lütfen tüm alanları doldurun.",
+
+    createTeamTitle: "Kendi Takımınızı Oluşturun",
+    teamNameLabel: "Kurum Adı",
+    teamNamePlaceholder: "Kurum adınızı girin",
+    createTeamButton: "Takım Oluştur",
+    enterTeamName: "Lütfen kurum adınızı girin",
   },
 };

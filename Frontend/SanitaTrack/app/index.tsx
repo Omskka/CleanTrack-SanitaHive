@@ -191,7 +191,7 @@ export default function loginScreen() {
             {/* Takım Oluştur */}
             <Box alignItems="center" mt="$2">
               <Text fontSize="$sm">{i18n.t('isManager')}</Text>
-              <Link href="/createAccount/melike">
+              <Link href="/createTeam">
                 <Pressable>
                   <Text color="$blue600" fontWeight="bold">{i18n.t('createTeam')}</Text>
                 </Pressable>
