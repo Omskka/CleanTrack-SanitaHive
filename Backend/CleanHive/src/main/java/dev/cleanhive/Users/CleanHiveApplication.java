@@ -1,4 +1,4 @@
-package dev.cleanhive.CleanHive;
+package dev.cleanhive.Users;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
