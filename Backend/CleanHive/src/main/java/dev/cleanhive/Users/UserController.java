@@ -1,5 +1,4 @@
-package dev.cleanhive.CleanHive;
-
+package dev.cleanhive.Users;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
