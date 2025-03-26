@@ -16,6 +16,7 @@ export const translations = {
     searchMemberPlaceholder: 'Search member...',
     edit: 'Edit',
     addMemberButton: 'Add new member to team',
+    noResults: 'No members found.',
   },
   tr: {
     greeting: 'Merhaba',
@@ -34,5 +35,6 @@ export const translations = {
     searchMemberPlaceholder: 'Üye ara...',
     editButton: 'Düzenle',
     addMemberButton: 'Takıma yeni üye ekle',
+    noResults: 'Üye bulunamadı.',
   },
 };
