@@ -71,7 +71,7 @@ export default function loginScreen() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={{ flex: 1 }}>
-        <Box flex={1} justifyContent="center" alignItems="center" bg="$blue100" position="relative">
+        <Box flex={1} justifyContent="center" alignItems="center" bg="#E0F7FF" position="relative">
           {/* Üst Görsel */}
           <Image
             source={require('@/assets/images/login-img-top.png')}
@@ -120,7 +120,7 @@ export default function loginScreen() {
           </Pressable>
 
           {/* Login Form */}
-          <VStack space="xl" w="90%" maxWidth="$96" px="$10" py="$16" bg="$white" rounded="$2xl" boxShadow="$4" zIndex={1}>
+          <VStack space="xl" w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4" zIndex={1}>
             <Heading size="xl" color="$blue800" textAlign="center">
               {i18n.t('loginTitle')}
             </Heading>
@@ -191,11 +191,11 @@ export default function loginScreen() {
             {/* Takım Oluştur */}
             <Box alignItems="center" mt="$2">
               <Text fontSize="$sm">{i18n.t('isManager')}</Text>
-              <Link href="/(manager)">
-                <Pressable>
+              <Pressable>
+                <Link href="/createTeam">
                   <Text color="$blue600" fontWeight="bold">{i18n.t('createTeam')}</Text>
-                </Pressable>
-              </Link>
+                </Link>
+              </Pressable>
             </Box>
           </VStack>
         </Box>

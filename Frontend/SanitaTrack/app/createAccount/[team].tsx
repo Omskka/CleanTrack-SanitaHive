@@ -71,7 +71,7 @@ export default function CreateAccount() {
             </Pressable>
 
         {/* Form Alanı */}
-        <Box w="90%" maxWidth="$96" p="$4" bg="$white" rounded="$2xl" boxShadow="$4">
+        <Box w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4">
             <Heading size="xl" color="$blue800" textAlign="center">
             {i18n.t('registerTitle')}
             </Heading>
@@ -178,11 +178,11 @@ export default function CreateAccount() {
             {/* Giriş Ekranına Git */}
             <Box alignItems="center">
                 <Text fontSize="$sm">{i18n.t('alreadyHaveAccount')}</Text>
-                <Link href="/">
                 <Pressable>
-                    <Text color="$blue600" fontWeight="bold">{i18n.t('loginHere')}</Text>
+                    <Link href="/">
+                        <Text color="$blue600" fontWeight="bold">{i18n.t('loginHere')}</Text>
+                    </Link>
                 </Pressable>
-                </Link>
             </Box>
             </VStack>
         </Box>

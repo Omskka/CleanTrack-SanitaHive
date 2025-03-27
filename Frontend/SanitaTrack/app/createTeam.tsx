@@ -92,7 +92,7 @@ export default function CreateTeam() {
         </Pressable>
 
         {/* Form Alanı */}
-        <Box w="90%" maxWidth="$96" p="$4" bg="$white" rounded="$2xl" boxShadow="$4">
+        <Box w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4">
           <Heading size="xl" color="$blue800" textAlign="center">
             {i18n.t('createTeamTitle')}
           </Heading>
@@ -234,11 +234,11 @@ export default function CreateTeam() {
             {/* Login Sayfasına Git */}
             <Box alignItems="center">
               <Text fontSize="$sm">{i18n.t('alreadyHaveAccount')}</Text>
-              <Link href="/">
-                <Pressable>
+              <Pressable>
+                <Link href="/">
                   <Text color="$blue600" fontWeight="bold">{i18n.t('loginHere')}</Text>
-                </Pressable>
-              </Link>
+                </Link>
+              </Pressable>
             </Box>
           </VStack>
         </Box>
