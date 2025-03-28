@@ -14,7 +14,7 @@ FormControlLabel,
 FormControlError, 
 } from '@gluestack-ui/themed';
 import { LinearGradient } from 'expo-linear-gradient';
-import { i18n } from '@/hooks/i18n';  // Dil desteği için
+import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // Dil desteği için
 import { Link } from 'expo-router';
 
 export default function CreateAccount() {
@@ -23,7 +23,7 @@ export default function CreateAccount() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState('en'); 
+  const [language, setLanguage] = useState(getCurrentLanguage()); 
   const [loading, setLoading] = useState(false);
 
   const changeLanguage = (newLanguage: string) => {

@@ -14,16 +14,17 @@ import {
   FormControlError,
   Image,
 } from '@gluestack-ui/themed';
-import { i18n } from '@/hooks/i18n';
+import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';  // useRouter ile yönlendirme 
+import { Colors } from '../constants/Colors';
 
 export default function loginScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState('en');  // Dil durumu için state
+  const [language, setLanguage] = useState(getCurrentLanguage());  // Dil durumu için state
   const router = useRouter();  // useRouter hook'u ile yönlendirme işlemleri
 
   const handleLogin = async () => {
@@ -116,7 +117,7 @@ export default function loginScreen() {
 
           {/* Login Form */}
           <VStack space="xl" w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4" zIndex={1}>
-            <Heading size="xl" color="$blue800" textAlign="center">
+            <Heading size="xl" color={Colors.heading} textAlign="center">
               {i18n.t('loginTitle')}
             </Heading>
 
