@@ -17,6 +17,7 @@ import {
 import { i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
+import { useEffect } from 'react';
 
 export default function loginScreen() {
   const [phone, setPhone] = useState('');
@@ -26,7 +27,6 @@ export default function loginScreen() {
   const [language, setLanguage] = useState('en');  // Dil durumu için state
 
   const handleLogin = async () => {
-    // trim() boşlukları temizlemek için (güvenli doğrulama)
     if (!phone.trim()) {
       setError(i18n.t('enterPhone'));
     } else if (!password.trim()) {
@@ -34,30 +34,25 @@ export default function loginScreen() {
     } else {
       setError('');
       try {
-        const response = await fetch('http://10.0.2.2:8080/api/v1/users', {
-          method: 'POST', // Sending data via POST method
+        const response = await fetch('http://10.0.2.2:8080/api/v1/users/login', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            phoneNumber: phone, // Sending phone number
-            password: password, // Sending password
-            name: "null", // Sending user name
-            manager: false, // Sending manager status (true or false)
-            lang: "en", // Sending language (e.g., 'en', 'tr', etc.)
-          }),
+          body: JSON.stringify({ phoneNumber: phone, password: password }),
         });
 
         const result = await response.json();
-        console.log('Response:', result); // This will show the response from the backend
+
 
         if (response.ok) {
-          setIsLoggedIn(true); // Giriş başarılıysa durumu değiştir
+          setIsLoggedIn(true);
+          console.log('Login Successful', result);
         } else {
-          setError(result.message || i18n.t('loginFailed'));
+          setError(result || i18n.t('loginFailed'));
         }
       } catch (error) {
-        console.error('Login Error:', error); // Log the error for debugging
+        console.error('Login Failed');
         setError(i18n.t('serverError'));
       }
     }
@@ -67,6 +62,7 @@ export default function loginScreen() {
     setLanguage(newLanguage); // Dil değişikliği
     i18n.locale = newLanguage; // i18n dilini güncelle
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

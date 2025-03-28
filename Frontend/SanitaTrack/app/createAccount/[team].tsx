@@ -24,18 +24,51 @@ export default function CreateAccount() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [language, setLanguage] = useState('en'); 
+  const [loading, setLoading] = useState(false);
 
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim()) {
       setError(i18n.t('allFieldsRequired'));
-    } else {
-      setError('');
-      console.log('Hesap oluşturuldu!');
+      return;
+    }
+
+    setLoading(true); // Show loading state
+
+    try {
+      const response = await fetch('http://10.0.2.2:8080/api/v1/users', {
+        method: 'POST', // Sending data via POST
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          surname: surname.trim(),
+          phoneNumber: phone.trim(),
+          password: password.trim(),
+          isManager: false,
+          lang: language,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User registered successfully:', data);
+        setError('');
+        alert(i18n.t('registrationSuccess')); // Show success message
+      } else {
+        console.error('Registration failed:', response.status);
+        setError(i18n.t('registrationFailed'));
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setError(i18n.t('networkError'));
+    } finally {
+      setLoading(false);
     }
   };
 
