@@ -17,14 +17,14 @@ import {
 import { i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
-import { useEffect } from 'react';
+import { useRouter } from 'expo-router';  // useRouter ile yönlendirme 
 
 export default function loginScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [language, setLanguage] = useState('en');  // Dil durumu için state
+  const router = useRouter();  // useRouter hook'u ile yönlendirme işlemleri
 
   const handleLogin = async () => {
     if (!phone.trim()) {
@@ -44,10 +44,9 @@ export default function loginScreen() {
 
         const result = await response.json();
 
-
         if (response.ok) {
-          setIsLoggedIn(true);
           console.log('Login Successful', result);
+          router.push('/workerHomepage');  // Giriş başarılıysa workerHomepage'e yönlendirir
         } else {
           setError(result || i18n.t('loginFailed'));
         }
@@ -172,11 +171,6 @@ export default function loginScreen() {
             <Button onPress={handleLogin} bg="$blue600" px={"$7"} rounded="$xl" alignSelf="center">
               <Text color="$white" fontWeight="bold">{i18n.t('loginButton')}</Text>
             </Button>
-
-            {/* Giriş Başarılıysa Worker Homepage'e yönlendirme */}
-            {isLoggedIn && (
-              <Link href="/workerHomepage"></Link>
-            )}
 
             {/* Takım Oluştur */}
             <Box alignItems="center" mt="$2">
