@@ -13,8 +13,9 @@ import {
   FormControlLabel,
   FormControlError,
   Image,
+  get,
 } from '@gluestack-ui/themed';
-import { i18n } from '@/hooks/i18n';  // Dil desteği için
+import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // Dil desteği için
 import { Link } from 'expo-router';
 
 export default function CreateTeam() {
@@ -24,7 +25,7 @@ export default function CreateTeam() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState(getCurrentLanguage());  // Dil durumu için
 
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
