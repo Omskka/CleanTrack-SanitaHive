@@ -1,4 +1,5 @@
 package dev.cleanhive.Users;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +17,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    // Method to save a new user
+    // Method to save a new user with phone number check
     public User saveUser(User user) {
+        // Check if phone number already exists
+        if (userRepository.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
+            throw new RuntimeException("Phone number already exists!");
+        }
         return userRepository.save(user);
     }
 

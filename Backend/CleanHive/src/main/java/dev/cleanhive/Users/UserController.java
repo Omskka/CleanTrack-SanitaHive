@@ -6,11 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -19,16 +15,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // Get all users
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<List<User>>(userService.allUsers(), HttpStatus.OK);
+        return ResponseEntity.ok(userService.allUsers());
     }
 
-    // POST method to add a new user
+    // Register a new user with phone number validation
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-        User createdUser = userService.saveUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<?> addUser(@RequestBody User user) {
+        try {
+            User createdUser = userService.saveUser(user);
+            return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     // New endpoint to handle login
@@ -42,4 +43,5 @@ public class UserController {
             return new ResponseEntity<>("Invalid phone number or password", HttpStatus.UNAUTHORIZED);
         }
     }
+
 }
