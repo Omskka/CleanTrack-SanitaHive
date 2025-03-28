@@ -32,10 +32,10 @@ export const translations = {
     allFieldsRequired: "Please fill in all fields.",
 
     createTeamTitle: "Create Your Team",
-    teamNameLabel: "Company Name",
-    teamNamePlaceholder: "Enter your company name",
+    companyNameLabel: "Company Name",
+    companyNamePlaceholder: "Enter your company name",
     createTeamButton: "Create Team",
-    enterTeamName: "Please enter your company name",
+    enterCompanyName: "Please enter your company name",
 
     roomsTitle: "Rooms",
     searchRoomPlaceholder: "Search for a room...",
@@ -82,10 +82,10 @@ export const translations = {
     allFieldsRequired: "Lütfen tüm alanları doldurun.",
 
     createTeamTitle: "Kendi Takımınızı Oluşturun",
-    teamNameLabel: "Kurum Adı",
-    teamNamePlaceholder: "Kurum adınızı girin",
+    companyNameLabel: "Kurum Adı",
+    companyNamePlaceholder: "Kurum adınızı girin",
     createTeamButton: "Takım Oluştur",
-    enterTeamName: "Lütfen kurum adınızı girin",
+    enterCompanyName: "Lütfen kurum adınızı girin",
 
     roomsTitle: "Odalar",
     searchRoomPlaceholder: "Oda ara...",

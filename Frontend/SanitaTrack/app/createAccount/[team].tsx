@@ -127,8 +127,8 @@ export default function CreateAccount() {
                 </Input>
 
                 {!!error && !name.trim() && (
-                <FormControlError>
-                    <Text color="$red600" fontSize="$sm">{i18n.t('enterName')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                    <Text color="$red600" fontSize="$xs">{i18n.t('enterName')}</Text>
                 </FormControlError>
                 )}
             </FormControl>
@@ -150,8 +150,8 @@ export default function CreateAccount() {
                 </Input>
 
                 {!!error && !surname.trim() && (
-                <FormControlError>
-                    <Text color="$red600" fontSize="$sm">{i18n.t('enterSurname')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                    <Text color="$red600" fontSize="$xs">{i18n.t('enterSurname')}</Text>
                 </FormControlError>
                 )}
             </FormControl>
@@ -173,8 +173,8 @@ export default function CreateAccount() {
                 </Input>
 
                 {!!error && !phone.trim() && (
-                <FormControlError>
-                    <Text color="$red600" fontSize="$sm">{i18n.t('enterPhone')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                    <Text color="$red600" fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
                 )}
             </FormControl>
@@ -197,14 +197,14 @@ export default function CreateAccount() {
                 </Input>
 
                 {!!error && !password.trim() && (
-                <FormControlError>
-                    <Text color="$red600" fontSize="$sm">{i18n.t('enterPassword')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                    <Text color="$red600" fontSize="$xs">{i18n.t('enterPassword')}</Text>
                 </FormControlError>
                 )}
             </FormControl>
 
             {/* Kayıt Ol Butonu */}
-            <Button onPress={handleRegister} bg="$blue600" rounded="$xl" alignSelf="center">
+            <Button onPress={handleRegister} bg="$blue600" mt={"$1.5"} rounded="$xl" alignSelf="center">
                 <Text color="$white" fontWeight="bold">{i18n.t('registerButton')}</Text>
             </Button>
 

@@ -136,11 +136,11 @@ export default function loginScreen() {
                 />
               </Input>
 
-              {!!error && !phone.trim() ? (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPhone')}</Text>
+              {!!error && !phone.trim() && (
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
-              ) : null}
+              )}
             </FormControl>
 
             {/* Şifre */}
@@ -160,15 +160,15 @@ export default function loginScreen() {
                 />
               </Input>
 
-              {!!error && !password.trim() ? (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPassword')}</Text>
+              {!!error && !password.trim() && (
+                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPassword')}</Text>
                 </FormControlError>
-              ) : null}
+              )}
             </FormControl>
 
             {/* Giriş Butonu */}
-            <Button onPress={handleLogin} bg="$blue600" px={"$7"} rounded="$xl" alignSelf="center">
+            <Button onPress={handleLogin} bg="$blue600" px={"$7"} mt={"$1.5"} rounded="$xl" alignSelf="center">
               <Text color="$white" fontWeight="bold">{i18n.t('loginButton')}</Text>
             </Button>
 

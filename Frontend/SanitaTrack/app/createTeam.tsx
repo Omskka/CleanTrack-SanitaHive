@@ -42,7 +42,6 @@ export default function CreateTeam() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      {/* Desenli Arka Plan */}
       <View
         style={{
           flex: 1,
@@ -57,11 +56,11 @@ export default function CreateTeam() {
           source={require('@/assets/images/createTeam-3d-blob.png')}
           alt="Background Image"
           position="absolute"
-          top={0} // Ekranın üst kısmından başlasın
-          left={0} // Ekranın sol kısmından başlasın
-          right={0} // Ekranın sağ kısmını da kapsasın
-          width={Dimensions.get('window').width} // Ekranın tamamını kaplamasını sağla
-          height={Dimensions.get('window').height} // Ekranın yüksekliği kadar olsun
+          top={0} 
+          left={0}
+          right={0} 
+          width={Dimensions.get('window').width} 
+          height={Dimensions.get('window').height}
           resizeMode="cover" // Resmi ekrana sığdırırken orantısını koruyarak genişlet
           zIndex={-1}
         />
@@ -117,8 +116,8 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !name.trim() && (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterName')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterName')}</Text>
                 </FormControlError>
               )}
             </FormControl>
@@ -142,8 +141,8 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !surname.trim() && (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterSurname')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterSurname')}</Text>
                 </FormControlError>
               )}
             </FormControl>
@@ -151,13 +150,13 @@ export default function CreateTeam() {
             {/* Kurum Adı */}
             <FormControl isInvalid={!!error && !teamName.trim()}>
               <FormControlLabel>
-                <Text>{i18n.t('teamNameLabel')}</Text>
+                <Text>{i18n.t('companyNameLabel')}</Text>
               </FormControlLabel>
 
               <Input>
                 <InputField
                   fontSize="$sm"
-                  placeholder={i18n.t('teamNamePlaceholder')}
+                  placeholder={i18n.t('companyNamePlaceholder')}
                   value={teamName}
                   onChangeText={(text) => {
                     setTeamName(text);
@@ -167,8 +166,8 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !teamName.trim() && (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterTeamName')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterCompanyName')}</Text>
                 </FormControlError>
               )}
             </FormControl>
@@ -193,8 +192,8 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !phone.trim() && (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPhone')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
               )}
             </FormControl>
@@ -220,14 +219,14 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !password.trim() && (
-                <FormControlError>
-                  <Text color="$red600" fontSize="$sm">{i18n.t('enterPassword')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -16}}>
+                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPassword')}</Text>
                 </FormControlError>
               )}
             </FormControl>
 
             {/* Team Oluştur Butonu */}
-            <Button onPress={handleCreateTeam} bg="$blue600" rounded="$xl" alignSelf="center">
+            <Button onPress={handleCreateTeam} bg="$blue600" mt={"$1.5"} rounded="$xl" alignSelf="center">
               <Text color="$white" fontWeight="bold">{i18n.t('createTeamButton')}</Text>
             </Button>
 
