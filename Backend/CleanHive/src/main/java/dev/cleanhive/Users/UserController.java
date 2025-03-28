@@ -1,5 +1,7 @@
 package dev.cleanhive.Users;
+
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,5 +29,17 @@ public class UserController {
     public ResponseEntity<User> addUser(@RequestBody User user) {
         User createdUser = userService.saveUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    // New endpoint to handle login
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
+        Optional<User> authenticatedUser = userService.authenticateUser(user.getPhoneNumber(), user.getPassword());
+
+        if (authenticatedUser.isPresent()) {
+            return new ResponseEntity<>(authenticatedUser.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Invalid phone number or password", HttpStatus.UNAUTHORIZED);
+        }
     }
 }

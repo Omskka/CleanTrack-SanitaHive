@@ -1,5 +1,6 @@
 package dev.cleanhive.Users;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,10 @@ public class UserService {
     // Method to save a new user
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    // Authenticate user by phone number and password
+    public Optional<User> authenticateUser(long phoneNumber, String password) {
+        return userRepository.findByPhoneNumberAndPassword(phoneNumber, password);
     }
 }

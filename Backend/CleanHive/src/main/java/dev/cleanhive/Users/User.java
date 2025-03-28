@@ -1,4 +1,5 @@
 package dev.cleanhive.Users;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,9 +18,9 @@ public class User {
     private ObjectId id;
 
     private String name;
+    private String surname;
     private long phoneNumber;
     private String password;
     private boolean isManager;
-    private int employeeID;
     private String lang;
 }
