@@ -175,13 +175,7 @@ export default function loginScreen() {
 
             {/* Giriş Başarılıysa Worker Homepage'e yönlendirme */}
             {isLoggedIn && (
-              <Link href="/workerHomepage">
-                <Pressable>
-                  <Text color="$blue600" fontWeight="bold" textAlign="center" mt="$2">
-                    {i18n.t('continue')}
-                  </Text>
-                </Pressable>
-              </Link>
+              <Link href="/workerHomepage"></Link>
             )}
 
             {/* Takım Oluştur */}
