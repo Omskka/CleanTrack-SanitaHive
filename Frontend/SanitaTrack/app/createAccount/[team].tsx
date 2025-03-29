@@ -81,7 +81,7 @@ export default function CreateAccount() {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <LinearGradient
-                colors={[Colors.background, Colors.text]}
+                colors={['#E0F7FF', '#0044CC']}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             >
                 {/* CleanTrack */}
