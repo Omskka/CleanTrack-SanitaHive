@@ -17,15 +17,15 @@ import {
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';  // useRouter ile yönlendirme 
+import { useRouter } from 'expo-router';  // Navigation with useRouter 
 import { Colors } from '../constants/Colors';
 
 export default function loginScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState(getCurrentLanguage());  // Dil durumu için state
-  const router = useRouter();  // useRouter hook'u ile yönlendirme işlemleri
+  const [language, setLanguage] = useState(getCurrentLanguage());  // State for language
+  const router = useRouter();  // Navigation with useRouter hook
 
   const handleLogin = async () => {
     if (!phone.trim()) {
@@ -47,7 +47,7 @@ export default function loginScreen() {
 
         if (response.ok) {
           console.log('Login Successful', result);
-          router.push('/workerHomepage');  // Giriş başarılıysa workerHomepage'e yönlendirir
+          router.push('/workerHomepage');  // Redirect to workerHomepage if login is successful
         } else {
           setError(result || i18n.t('loginFailed'));
         }
@@ -59,16 +59,15 @@ export default function loginScreen() {
   };
 
   const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage); // Dil değişikliği
-    i18n.locale = newLanguage; // i18n dilini güncelle
+    setLanguage(newLanguage); // Change language
+    i18n.locale = newLanguage; // Update i18n locale
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={{ flex: 1 }}>
-        <Box flex={1} justifyContent="center" alignItems="center" bg="#E0F7FF" position="relative">
-          {/* Üst Görsel */}
+        <Box flex={1} justifyContent="center" alignItems="center" bg={Colors.background} position="relative">
+          {/* Top Image */}
           <Image
             source={require('@/assets/images/login-img-top.png')}
             alt="Top Image"
@@ -79,7 +78,7 @@ export default function loginScreen() {
             resizeMode="contain"
           />
 
-          {/* Alt Görsel */}
+          {/* Bottom Image */}
           <Image
             source={require('@/assets/images/login-img-bottom.png')}
             alt="Bottom Image"
@@ -92,7 +91,7 @@ export default function loginScreen() {
 
           {/* CleanTrack */}
           <Text
-            color="$blue600"
+            color={Colors.text}
             fontWeight="bold"
             top="$16"
             left="$4"
@@ -102,7 +101,7 @@ export default function loginScreen() {
             CleanTrack
           </Text>
 
-          {/* Dil Seçimi Butonu */}
+          {/* Language Selection Button */}
           <Pressable
             position="absolute"
             top="$16"
@@ -110,18 +109,18 @@ export default function loginScreen() {
             onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
             zIndex={2}
           >
-            <Text color="$blue600" fontWeight="bold">
+            <Text color={Colors.text} fontWeight="bold">
               {language === 'en' ? 'TR' : 'EN'}
             </Text>
           </Pressable>
 
           {/* Login Form */}
-          <VStack space="xl" w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4" zIndex={1}>
+          <VStack space="xl" w="90%" maxWidth="$80" p="$7" bg={Colors.white} rounded="$2xl" boxShadow="$4" zIndex={1}>
             <Heading size="xl" color={Colors.heading} textAlign="center">
               {i18n.t('loginTitle')}
             </Heading>
 
-            {/* Telefon */}
+            {/* Phone */}
             <FormControl isInvalid={!!error && !phone.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('phoneLabel')}</Text>
@@ -138,13 +137,13 @@ export default function loginScreen() {
               </Input>
 
               {!!error && !phone.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -16}}>
-                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPhone')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                  <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
               )}
             </FormControl>
 
-            {/* Şifre */}
+            {/* Password */}
             <FormControl isInvalid={!!error && !password.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('passwordLabel')}</Text>
@@ -162,23 +161,23 @@ export default function loginScreen() {
               </Input>
 
               {!!error && !password.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
-                  <Text color="$red600" fontSize="$xs">{i18n.t('enterPassword')}</Text>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                  <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
                 </FormControlError>
               )}
             </FormControl>
 
-            {/* Giriş Butonu */}
-            <Button onPress={handleLogin} bg="$blue600" px={"$7"} mt={"$1.5"} rounded="$xl" alignSelf="center">
-              <Text color="$white" fontWeight="bold">{i18n.t('loginButton')}</Text>
+            {/* Login Button */}
+            <Button onPress={handleLogin} bg={Colors.text} px={"$7"} mt={"$1.5"} rounded="$xl" alignSelf="center">
+              <Text color={Colors.white} fontWeight="bold">{i18n.t('loginButton')}</Text>
             </Button>
 
-            {/* Takım Oluştur */}
+            {/* Create Team */}
             <Box alignItems="center" mt="$2">
               <Text fontSize="$sm">{i18n.t('isManager')}</Text>
               <Pressable>
                 <Link href="/createTeam">
-                  <Text color="$blue600" fontWeight="bold">{i18n.t('createTeam')}</Text>
+                  <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
                 </Link>
               </Pressable>
             </Box>

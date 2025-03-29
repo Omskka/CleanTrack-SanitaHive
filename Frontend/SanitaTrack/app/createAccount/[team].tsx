@@ -14,8 +14,9 @@ import {
     FormControlError,
 } from '@gluestack-ui/themed';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // Dil desteği için
+import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
 import { Link } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 export default function CreateAccount() {
   const [name, setName] = useState('');
@@ -80,12 +81,12 @@ export default function CreateAccount() {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <LinearGradient
-                colors={['#E0F7FF', '#0044CC']}
+                colors={[Colors.background, Colors.text]}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             >
                 {/* CleanTrack */}
                 <Text
-                    color="$blue600"
+                    color={Colors.text}
                     fontWeight="bold"
                     top="$16"
                     left="$4"
@@ -95,7 +96,7 @@ export default function CreateAccount() {
                     CleanTrack
                 </Text>
 
-                {/* Dil Seçimi Butonu */}
+                {/* Language Selection Button */}
                 <Pressable
                     position="absolute"
                     top="$16"
@@ -103,19 +104,19 @@ export default function CreateAccount() {
                     onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
                     zIndex={2}
                 >
-                    <Text color="$blue600" fontWeight="bold">
+                    <Text color={Colors.text} fontWeight="bold">
                         {language === 'en' ? 'TR' : 'EN'}
                     </Text>
                 </Pressable>
 
-                {/* Form Alanı */}
-                <Box w="90%" maxWidth="$80" p="$7" bg="$white" rounded="$2xl" boxShadow="$4">
-                    <Heading size="xl" color="$blue800" textAlign="center">
+                {/* Form Area */}
+                <Box w="90%" maxWidth="$80" p="$7" bg={Colors.white} rounded="$2xl" boxShadow="$4">
+                    <Heading size="xl" color={Colors.heading} textAlign="center">
                         {i18n.t('registerTitle')}
                     </Heading>
 
                     <VStack space="lg" mt="$4">
-                        {/* Ad */}
+                        {/* Name */}
                         <FormControl isInvalid={!!error && !name.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('name')}</Text>
@@ -132,13 +133,13 @@ export default function CreateAccount() {
                             </Input>
 
                             {!!error && !name.trim() && (
-                                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
-                                    <Text color="$red600" fontSize="$xs">{i18n.t('enterName')}</Text>
+                                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                                    <Text color={Colors.error} fontSize="$xs">{i18n.t('enterName')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
 
-                        {/* Soyad */}
+                        {/* Surname */}
                         <FormControl isInvalid={!!error && !surname.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('surname')}</Text>
@@ -155,13 +156,13 @@ export default function CreateAccount() {
                             </Input>
 
                             {!!error && !surname.trim() && (
-                                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
-                                    <Text color="$red600" fontSize="$xs">{i18n.t('enterSurname')}</Text>
+                                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                                    <Text color={Colors.error} fontSize="$xs">{i18n.t('enterSurname')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
 
-                        {/* Telefon */}
+                        {/* Phone */}
                         <FormControl isInvalid={!!error && !phone.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('phoneLabel')}</Text>
@@ -178,13 +179,13 @@ export default function CreateAccount() {
                             </Input>
 
                             {!!error && !phone.trim() && (
-                                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
-                                    <Text color="$red600" fontSize="$xs">{i18n.t('enterPhone')}</Text>
+                                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                                    <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
 
-                        {/* Şifre */}
+                        {/* Password */}
                         <FormControl isInvalid={!!error && !password.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('passwordLabel')}</Text>
@@ -202,23 +203,23 @@ export default function CreateAccount() {
                             </Input>
 
                             {!!error && !password.trim() && (
-                                <FormControlError style={{ position: 'absolute', bottom: -16 }}>
-                                    <Text color="$red600" fontSize="$xs">{i18n.t('enterPassword')}</Text>
+                                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                                    <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
 
-                        {/* Kayıt Ol Butonu */}
-                        <Button onPress={handleRegister} bg="$blue600" mt={"$1.5"} rounded="$xl" alignSelf="center">
-                            <Text color="$white" fontWeight="bold">{i18n.t('registerButton')}</Text>
+                        {/* Register Button */}
+                        <Button onPress={handleRegister} bg={Colors.text} mt={"$1.5"} rounded="$xl" alignSelf="center">
+                            <Text color={Colors.white} fontWeight="bold">{i18n.t('registerButton')}</Text>
                         </Button>
 
-                        {/* Giriş Ekranına Git */}
+                        {/* Navigate to Login Page */}
                         <Box alignItems="center">
                             <Text fontSize="$sm">{i18n.t('alreadyHaveAccount')}</Text>
                             <Pressable>
                                 <Link href="/">
-                                    <Text color="$blue600" fontWeight="bold">{i18n.t('loginHere')}</Text>
+                                    <Text color={Colors.text} fontWeight="bold">{i18n.t('loginHere')}</Text>
                                 </Link>
                             </Pressable>
                         </Box>
