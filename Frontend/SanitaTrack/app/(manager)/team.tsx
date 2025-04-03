@@ -13,9 +13,11 @@ import {
   Avatar,
   Icon,
   AvatarFallbackText,
+  InputSlot,
 } from '@gluestack-ui/themed';
-import { Phone } from 'lucide-react-native';
+import { Phone, Search } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
+import { Colors } from '@/constants/Colors';
 
 const users = [
   { id: 1, firstName: 'Bengisu', lastName: 'Su', phone: '800-***-38' },
@@ -42,15 +44,18 @@ export default function TeamInfoScreen() {
   );
 
   return (
-    <Box flex={1} bg="$blue100">
+    <Box flex={1} bg={Colors.background}>
       {/* Üst Kısım - Başlık ve Arama Çubuğu */}
-      <Box px="$4" py="$6" bg="$white">
-        <Heading size="lg" color="$blue800">
+      <Box px="$4" py="$6" bg={Colors.white}>
+        <Heading size="lg" color={Colors.heading}>
           {i18n.t('teamTitle')}
         </Heading>
 
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>
+            <InputSlot pl='$3'>
+              <Icon as={Search} size="lg" color={Colors.text} />
+            </InputSlot>
             <InputField
               fontSize="$sm"
               placeholder={i18n.t('searchMemberPlaceholder')}
@@ -62,11 +67,11 @@ export default function TeamInfoScreen() {
           <Pressable
             px="$4"
             py="$2"
-            bg="$blue600"
+            bg={Colors.text}
             rounded="$md"
             onPress={() => console.log('Edit pressed')}
           >
-            <Text color="$white" fontWeight="bold">{i18n.t('edit')}</Text>
+            <Text color={Colors.white} fontWeight="bold">{i18n.t('edit')}</Text>
           </Pressable>
         </HStack>
       </Box>
@@ -76,28 +81,28 @@ export default function TeamInfoScreen() {
         <VStack space="md" p="$4">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
-              <Box key={user.id} p="$4" bg="$white" rounded="$lg">
+              <Box key={user.id} p="$4" bg={Colors.white} rounded="$lg">
                 <HStack alignItems="center" justifyContent="space-between">
                   {/* Kullanıcı Bilgileri */}
                   <HStack alignItems="center" space="md">
-                    <Avatar bg="$blue600" size="md">
-                      <AvatarFallbackText>{user.firstName} {user.lastName}</AvatarFallbackText>
+                    <Avatar bg={Colors.text} size="md">
+                      <AvatarFallbackText>{`${user?.firstName || ''} ${user?.lastName || ''}`}</AvatarFallbackText>
                     </Avatar>
                     <VStack>
                       <Text fontWeight="bold">{user.firstName} {user.lastName}</Text>
-                      <Text color="$gray500">{user.phone}</Text>
+                      <Text color={Colors.gray}>{user.phone}</Text>
                     </VStack>
                   </HStack>
 
                   {/* Telefon Arama Butonu */}
                   <Pressable onPress={() => callPhone(user.phone)}>
-                    <Icon as={Phone} size="lg" color="$blue600" />
+                    <Icon as={Phone} size="lg" color={Colors.text} />
                   </Pressable>
                 </HStack>
               </Box>
             ))
           ) : (
-            <Text textAlign="center" color="$gray500">
+            <Text textAlign="center" color={Colors.gray}>
               {i18n.t('noResultsMember')}
             </Text>
           )}
@@ -105,9 +110,9 @@ export default function TeamInfoScreen() {
       </ScrollView>
 
       {/* Alt Kısım - Sabit Buton */}
-      <Box px="$4" py="$4" bg="$white">
-        <Button bg="$blue600" rounded="$lg">
-          <Text color="$white" fontWeight="bold">{i18n.t('addMemberButton')}</Text>
+      <Box px="$4" py="$4" bg={Colors.white}>
+        <Button bg={Colors.text} rounded="$lg">
+          <Text color={Colors.white} fontWeight="bold">{i18n.t('addMemberButton')}</Text>
         </Button>
       </Box>
     </Box>
