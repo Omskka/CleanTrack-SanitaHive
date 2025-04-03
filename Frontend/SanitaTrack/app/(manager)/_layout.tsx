@@ -2,10 +2,10 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
+import { House, BookUser, ClipboardList, LayoutGrid, CalendarCheck } from 'lucide-react-native';
+import { Icon } from '@gluestack-ui/themed';
 
 export default function TabLayout() {
 
@@ -14,7 +14,6 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors.tint,
         headerShown: false,
-        tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
@@ -28,35 +27,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={House} size='xl' color={Colors.heading} />,
         }}
       />
       <Tabs.Screen
         name="team"
         options={{
           title: 'Team',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={BookUser} size='xl' color={Colors.heading} />,
         }}
       />
       <Tabs.Screen
         name="rooms"
         options={{
           title: 'Rooms',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={LayoutGrid} size='xl' color={Colors.heading} />,
         }}
       />
       <Tabs.Screen
         name="reports"
         options={{
           title: 'Reports',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={ClipboardList} size='xl' color={Colors.heading} />,
         }}
       />
       <Tabs.Screen
         name="taskpage"
         options={{
           title: 'Taskpage',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={CalendarCheck} size='xl' color={Colors.heading} />,
         }}
       />
     </Tabs>
