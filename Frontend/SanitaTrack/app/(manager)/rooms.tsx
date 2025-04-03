@@ -11,13 +11,13 @@ import {
   Text,
   Pressable,
   Icon,
-  RadioGroup,
-  Radio,
-  RadioLabel,
-  RadioIndicator,
+  InputSlot,
 } from '@gluestack-ui/themed';
-import { ChevronDown, ChevronUp, CircleIcon, Plus, RadioIcon } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Plus, Search } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
+import { Colors } from '@/constants/Colors';
+import { Picker } from '@react-native-picker/picker';
+import { View } from 'react-native';
 
 const roomsData = [
   { category: '1. Kat', rooms: ['Oda 101', 'Oda 102', 'Oda 103'] },
@@ -58,13 +58,16 @@ export default function RoomsScreen() {
   };
 
   return (
-    <Box flex={1} bg="$blue100">
+    <Box flex={1} bg={Colors.background}>
       {/* Başlık ve Arama Çubuğu */}
-      <Box px="$4" py="$6" bg="$white">
-        <Heading size="lg" color="$blue800">Rooms</Heading>
+      <Box px="$4" py="$6" bg={Colors.white}>
+        <Heading size="lg" color={Colors.heading}>Rooms</Heading>
 
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>
+            <InputSlot pl='$3'>
+              <Icon as={Search} size="lg" color={Colors.text} />
+            </InputSlot>
             <InputField
               fontSize="$sm"
               placeholder={i18n.t('searchRoomPlaceholder')}
@@ -80,7 +83,7 @@ export default function RoomsScreen() {
         <VStack space="md" p="$4">
           {filteredRooms.length > 0 ? (
             filteredRooms.map((group) => (
-              <Box key={group.category} bg="$white" rounded="$lg" p="$4">
+              <Box key={group.category} bg={Colors.white} rounded="$lg" p="$4">
                 <Pressable onPress={() => toggleExpand(group.category)}>
                   <HStack justifyContent="space-between" alignItems="center">
                     <Text fontWeight="bold">{group.category}</Text>
@@ -90,61 +93,50 @@ export default function RoomsScreen() {
                 {expanded[group.category] && (
                   <VStack mt="$2" space="sm">
                     {group.rooms.map((room, index) => (
-                      <Text key={index} color="$gray500">{room}</Text>
+                      <Text key={index} color={Colors.gray}>{room}</Text>
                     ))}
                   </VStack>
                 )}
               </Box>
             ))
           ) : (
-            <Text textAlign="center" color="$gray500">{i18n.t('noResultsRooms')}</Text>
+            <Text textAlign="center" color={Colors.gray}>{i18n.t('noResultsRooms')}</Text>
           )}
         </VStack>
       </ScrollView>
 
       {/* Oda/Kategori Ekle Butonu */}
-      <Box px="$4" py="$4" bg="$white">
-        <Button bg="$blue600" rounded="$lg" onPress={() => setModalVisible(true)}>
-          <Icon as={Plus} color="$white" mr="$2" />
-          <Text color="$white" fontWeight="bold">{i18n.t('addRoomButton')}</Text>
+      <Box px="$4" py="$4" bg={Colors.white}>
+        <Button bg={Colors.text} rounded="$lg" onPress={() => setModalVisible(true)}>
+          <Icon as={Plus} color={Colors.white} mr="$2" />
+          <Text color={Colors.white} fontWeight="bold">{i18n.t('addRoomButton')}</Text>
         </Button>
       </Box>
 
       {/* Modal */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <Box flex={1} justifyContent="center" alignItems="center" bg="rgba(0,0,0,0.5)">
-          <Box bg="$white" p="$6" rounded="$lg" width="80%">
+          <Box bg={Colors.white} p="$6" rounded="$lg" width="80%">
             <Heading size="md">{i18n.t('addRoomCategory')}</Heading>
 
-            {/* Radio Group for Category Selection */}
-            <RadioGroup value={selectedCategory} onChange={setSelectedCategory}>
-                {rooms.map((group) => (
-                <Radio key={group.category} value={group.category}>
-                  <RadioIndicator mr="$2">
-                  {selectedCategory === group.category && (
-                    <RadioIcon>
-                      <CircleIcon fill="grey" />
-                    </RadioIcon>
-                  )}
-                  </RadioIndicator>
-                  <RadioLabel>{group.category}</RadioLabel>
-                </Radio>
+            {/* Picker for Category Selection */}
+            <View style={{width: "100%", backgroundColor: "white", height: 40, justifyContent: "center", marginTop: 10, borderWidth: 0.5, borderColor: Colors.gray, borderRadius: 5}}>
+              <Picker
+                selectedValue={selectedCategory}
+                onValueChange={setSelectedCategory}
+                className=''
+              >
+                {roomsData.map((group) => (
+                  <Picker.Item key={group.category} label={group.category} value={group.category} />
                 ))}
-              <Radio value="new">
-                <RadioIndicator mr="$2">
-                  {selectedCategory === "new" && (
-                    <RadioIcon>
-                      <CircleIcon fill="grey" />
-                    </RadioIcon>
-                  )}
-                </RadioIndicator>
-                <RadioLabel>{i18n.t('newCategory')}</RadioLabel>
-              </Radio>
-            </RadioGroup>
+                <Picker.Item label={i18n.t('newCategory')} value="new" />
+              </Picker>
+            </View>
+
 
             {/* Show input field only when "New Category" is selected */}
             {selectedCategory === 'new' && (
-              <Input mt="$4">
+              <Input mt="$2">
                 <InputField
                   placeholder={i18n.t('newCategory')}
                   value={newCategory}
@@ -154,16 +146,20 @@ export default function RoomsScreen() {
             )}
 
             {/* Room Name Input */}
-            <Input mt="$4">
-              <InputField placeholder={i18n.t('newRoom')} value={newRoom} onChangeText={setNewRoom} />
+            <Input mt="$2">
+              <InputField
+                placeholder={i18n.t('newRoom')}
+                value={newRoom}
+                onChangeText={setNewRoom}
+              />
             </Input>
 
             <HStack mt="$4" justifyContent="space-between">
-              <Button bg="$grey" onPress={() => setModalVisible(false)}>
-                <Text color="$white">{i18n.t('cancel')}</Text>
+              <Button bg={Colors.gray} onPress={() => setModalVisible(false)}>
+                <Text color={Colors.white}>{i18n.t('cancel')}</Text>
               </Button>
-              <Button bg="$blue600" onPress={addRoomOrCategory}>
-                <Text color="$white">{i18n.t('save')}</Text>
+              <Button bg={Colors.text} onPress={addRoomOrCategory}>
+                <Text color={Colors.white}>{i18n.t('save')}</Text>
               </Button>
             </HStack>
           </Box>

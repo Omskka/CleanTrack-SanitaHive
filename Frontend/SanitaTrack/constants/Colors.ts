@@ -5,6 +5,6 @@ export const Colors = {
     tint: '$blue100',
     white: '$white',
     black: '$black',
-    gray: '$gray500',
+    gray: '$gray',
     error: '$red600',
 }
