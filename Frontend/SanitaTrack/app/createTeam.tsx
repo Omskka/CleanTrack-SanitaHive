@@ -16,8 +16,8 @@ import {
   get,
 } from '@gluestack-ui/themed';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
-import { Link } from 'expo-router';
 import { Colors } from '../constants/Colors';
+import { Link, router } from 'expo-router';
 
 export default function CreateTeam() {
   const [name, setName] = useState('');
@@ -27,20 +27,87 @@ export default function CreateTeam() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [language, setLanguage] = useState(getCurrentLanguage());  // For language state
+  const [loading, setLoading] = useState(false);
 
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  const handleCreateTeam = () => {
-    if (!name.trim() || !surname.trim() || !teamName.trim() || !phone.trim() || !password.trim()) {
+  const handleCreateTeam = async () => {
+    if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim()) {
       setError(i18n.t('allFieldsRequired'));
-    } else {
-      setError('');
-      console.log('Team created!');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const userResponse = await fetch('http://10.0.2.2:8080/api/v1/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          surname: surname.trim(),
+          phoneNumber: phone.trim(),
+          password: password.trim(),
+          isManager: false,
+          lang: language,
+        }),
+      });
+
+      const userData = await userResponse.json();  // Parse JSON response
+
+      console.log('User Data:', userData);  // Log response to inspect the structure
+
+      if (userResponse.ok) {
+        const managerId = userData.id; // Ensure it's a string
+        console.log('--userID--:', managerId);
+
+
+        // After successful user registration, create a team with the new manager
+        const teamResponse = await fetch('http://10.0.2.2:8080/api/v1/teams', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            teamName: teamName.trim(),  // You can dynamically set the team name as well
+            managerId: managerId,  // Set the new user's ID as the manager of the team
+            employeeId: [],  // Initially, no employees (you can update later)
+          }),
+        });
+
+        const teamData = await teamResponse.json();
+
+        if (teamResponse.ok) {
+          console.log('Team created successfully:', teamData);
+          // Handle the success after creating the team
+        } else {
+          console.error('Failed to create team:', teamData);
+          setError(teamData.message || 'Failed to create team');
+        }
+
+        // Success: Show alert and navigate to login page
+        setError('');
+        alert('Account and team created successfully!');
+        setTimeout(() => {
+          router.push('/');
+        }, 100);  // Delay to let the toast show
+      } else {
+        console.error('Registration failed:', userData);
+        setError(userData.message || i18n.t('registrationFailed'));
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setError(i18n.t('networkError'));
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -58,10 +125,10 @@ export default function CreateTeam() {
           source={require('@/assets/images/createTeam-3d-blob.png')}
           alt="Background Image"
           position="absolute"
-          top={0} 
+          top={0}
           left={0}
-          right={0} 
-          width={Dimensions.get('window').width} 
+          right={0}
+          width={Dimensions.get('window').width}
           height={Dimensions.get('window').height}
           resizeMode="cover" // Expand the image to fit the screen while maintaining its aspect ratio
           zIndex={-1}
@@ -118,7 +185,7 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !name.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterName')}</Text>
                 </FormControlError>
               )}
@@ -143,7 +210,7 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !surname.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterSurname')}</Text>
                 </FormControlError>
               )}
@@ -168,7 +235,7 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !teamName.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterCompanyName')}</Text>
                 </FormControlError>
               )}
@@ -194,7 +261,7 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !phone.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
               )}
@@ -221,7 +288,7 @@ export default function CreateTeam() {
               </Input>
 
               {!!error && !password.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
                 </FormControlError>
               )}

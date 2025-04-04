@@ -15,17 +15,18 @@ import {
 } from '@gluestack-ui/themed';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';  // Navigation with useRouter 
+import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 
 export default function CreateAccount() {
-  const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [language, setLanguage] = useState(getCurrentLanguage()); 
-  const [loading, setLoading] = useState(false);
+    const [name, setName] = useState('');
+    const [surname, setSurname] = useState('');
+    const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [language, setLanguage] = useState(getCurrentLanguage());
+    const [loading, setLoading] = useState(false);
 
     const changeLanguage = (newLanguage: string) => {
         setLanguage(newLanguage);
@@ -62,6 +63,10 @@ export default function CreateAccount() {
                 console.log('User registered successfully:', responseText);
                 setError('');
                 alert(('Account registered successfully'));
+                // Navigate to login after short delay 
+                setTimeout(() => {
+                    router.push('/');
+                }, 100); // Delay to let the toast show
             } else {
                 console.error(responseText);
                 if (responseText.includes("Phone number already exists")) {
