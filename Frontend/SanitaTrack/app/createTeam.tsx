@@ -53,7 +53,7 @@ export default function CreateTeam() {
           surname: surname.trim(),
           phoneNumber: phone.trim(),
           password: password.trim(),
-          isManager: false,
+          isManager: true,
           lang: language,
         }),
       });
