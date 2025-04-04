@@ -48,6 +48,19 @@ export const translations = {
     cancel: "Cancel",
     newCategory: "New Category",
     newRoom: "New Room",
+
+    welcome: 'Welcome!',
+    room: 'Room',
+    completed: 'Completed',
+    uploadImage: 'Upload Image',
+    submit: 'Submit',
+    contactManager: 'Contact Manager',
+    roomCleaning: 'Room {roomNumber} Cleaning',
+    cleaningDescription: 'Change bedsheets, vacuum the floor',
+    bathroomCleaning: 'Clean the bathroom',
+    maxImagesReached: 'Maximum 5 images reached',
+    uploadAtLeastOneImage: 'Please upload at least one image',
+    cameraError: 'Camera error occurred'
   },
   tr: {
     greeting: 'Merhaba',
@@ -98,5 +111,18 @@ export const translations = {
     cancel: "İptal",
     newCategory: "Yeni Kategori",
     newRoom: "Yeni Oda",
+
+    welcome: 'Hoş Geldiniz!',
+    room: 'Oda',
+    completed: 'Tamamlandı',
+    uploadImage: 'Resim Yükle',
+    submit: 'Gönder',
+    contactManager: 'Yöneticiyle İletişim',
+    roomCleaning: '{roomNumber} Numaralı Oda Temizliği',
+    cleaningDescription: 'Çarşafları değiştir, zemini süpür',
+    bathroomCleaning: 'Banyoyu temizle',
+    maxImagesReached: 'Maksimum 5 resim yüklendi',
+    uploadAtLeastOneImage: 'Lütfen en az bir resim yükleyin',
+    cameraError: 'Kamera hatası oluştu'
   },
 };
