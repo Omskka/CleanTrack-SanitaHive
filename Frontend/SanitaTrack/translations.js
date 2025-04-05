@@ -55,12 +55,15 @@ export const translations = {
     uploadImage: 'Upload Image',
     submit: 'Submit',
     contactManager: 'Contact Manager',
-    roomCleaning: 'Room {roomNumber} Cleaning',
+    roomCleaning: 'Room Cleaning',
     cleaningDescription: 'Change bedsheets, vacuum the floor',
     bathroomCleaning: 'Clean the bathroom',
+    kitchenCleaning: 'Wipe the floor, wipe the counter, take out the trash',
     maxImagesReached: 'Maximum 5 images reached',
     uploadAtLeastOneImage: 'Please upload at least one image',
-    cameraError: 'Camera error occurred'
+    cameraError: 'Camera error occurred',
+    selectDate: 'Select Date',
+    hideCalendar: 'Hide Calendar'
   },
   tr: {
     greeting: 'Merhaba',
@@ -118,11 +121,14 @@ export const translations = {
     uploadImage: 'Resim Yükle',
     submit: 'Gönder',
     contactManager: 'Yöneticiyle İletişim',
-    roomCleaning: '{roomNumber} Numaralı Oda Temizliği',
+    roomCleaning: 'Oda Temizliği',
     cleaningDescription: 'Çarşafları değiştir, zemini süpür',
     bathroomCleaning: 'Banyoyu temizle',
+    kitchenCleaning: 'Zemini sil, tezgahı sil, çöpü boşalt',
     maxImagesReached: 'Maksimum 5 resim yüklendi',
     uploadAtLeastOneImage: 'Lütfen en az bir resim yükleyin',
-    cameraError: 'Kamera hatası oluştu'
+    cameraError: 'Kamera hatası oluştu',
+    selectDate: 'Tarih Seç',
+    hideCalendar: 'Takvimi Gizle'
   },
 };

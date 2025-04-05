@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import {
+  Box,
+  Text,
+  Pressable,
+  ScrollView,
+  Button,
+  VStack,
+  HStack,
+  Image,
+  Icon
+} from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { launchCamera, CameraOptions, ImagePickerResponse } from 'react-native-image-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Colors } from '../constants/Colors';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
+import { Colors } from '@/constants/Colors';
+import { Phone, Calendar as CalendarIcon } from 'lucide-react-native';
+import { Linking } from 'react-native';
 
 interface Task {
-  time: string;
+  startTime: string;
+  finishTime: string;
   title: string;
   description: string;
   room: string;
@@ -20,20 +33,25 @@ interface UploadedImages {
   [taskId: string]: string[];
 }
 
+const callPhone = (phoneNumber: string) => {
+  Linking.openURL(`tel:${phoneNumber}`);
+};
+
 const WorkerHomepage = () => {
   const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
 
-  // Dil değiştirme
+  const managerPhoneNumber = '905551112233';
+
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  // Takvim fonksiyonları
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
   const showDatePicker = () => setDatePickerVisibility(true);
   const hideDatePicker = () => setDatePickerVisibility(false);
@@ -42,11 +60,11 @@ const WorkerHomepage = () => {
     hideDatePicker();
   };
 
-  // Örnek task verileri
   useEffect(() => {
     const mockTasks: Task[] = [
       {
-        time: '09:00',
+        startTime: '09:00',
+        finishTime: '10:00',
         title: i18n.t('roomCleaning', { roomNumber: '101' }),
         description: i18n.t('cleaningDescription'),
         room: '101',
@@ -54,7 +72,8 @@ const WorkerHomepage = () => {
         taskId: '1'
       },
       {
-        time: '11:00',
+        startTime: '11:00',
+        finishTime: '12:00',
         title: i18n.t('roomCleaning', { roomNumber: '205' }),
         description: i18n.t('bathroomCleaning'),
         room: '205',
@@ -62,9 +81,10 @@ const WorkerHomepage = () => {
         taskId: '2'
       },
       {
-        time: '15:00',
-        title: i18n.t('roomCleaning', { roomNumber: '312' }),
-        description: i18n.t('bathroomCleaning'),
+        startTime: '15:00',
+        finishTime: '16:00',
+        title: i18n.t('kitchenCleaning', { roomNumber: '312' }),
+        description: i18n.t('kitchenCleaning'),
         room: '312',
         completed: false,
         taskId: '3'
@@ -74,7 +94,6 @@ const WorkerHomepage = () => {
     setTasks(mockTasks);
   }, [language]);
 
-  // Fotoğraf çekme
   const takePicture = async (taskId: string) => {
     const options: CameraOptions = {
       mediaType: 'photo',
@@ -106,7 +125,6 @@ const WorkerHomepage = () => {
     });
   };
 
-  // Task gönderme
   const submitTask = (taskId: string) => {
     if (!uploadedImages[taskId]?.length) {
       alert(i18n.t('uploadAtLeastOneImage'));
@@ -118,227 +136,137 @@ const WorkerHomepage = () => {
     ));
   };
 
-  // Timeline öğesi render
   const renderDetail = (rowData: Task) => {
     const isCompleted = rowData.completed || (uploadedImages[rowData.taskId]?.length > 0);
 
     return (
-      <View style={styles.taskContainer}>
-        <View style={styles.taskHeader}>
-          <Text style={[styles.taskTitle, { color: Colors.heading }]}>{rowData.title}</Text>
-          <Text style={[styles.roomText, { color: Colors.text }]}>
-            {i18n.t('room')}: {rowData.room}
-          </Text>
-        </View>
-
-        <Text style={[styles.taskDescription, { color: Colors.text }]}>{rowData.description}</Text>
+      <Box bg={Colors.white} p="$4" borderRadius="$2xl" mb="$3" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.1} shadowRadius={4} elevation={2}>
+        <HStack justifyContent="space-between" mb="$2">
+          <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
+          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
+        </HStack>
+        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
 
         {isCompleted ? (
-          <Text style={{ color: Colors.text }}>{i18n.t('completed')}</Text>
+          <Text color={Colors.text}>{i18n.t('completed')}</Text>
         ) : (
           <>
-            <View style={styles.imagesContainer}>
+            <HStack flexWrap="wrap" mb="$3">
               {uploadedImages[rowData.taskId]?.map((uri, index) => (
-                <Image key={index} source={{ uri }} style={styles.image} />
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  alt={`img-${index}`}
+                  width={80}
+                  height={80}
+                  borderRadius={8}
+                  mr="$2"
+                  mb="$2"
+                />
               ))}
-            </View>
+            </HStack>
 
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: Colors.tint }]}
-              onPress={() => takePicture(rowData.taskId)}
-            >
-              <Text style={[styles.buttonText, { color: Colors.text }]}>
-                {i18n.t('uploadImage')}
-              </Text>
-            </TouchableOpacity>
+            <HStack justifyContent="flex-end" space="md">
+              <Button bg={Colors.tint} onPress={() => takePicture(rowData.taskId)} size="sm">
+                <Text color={Colors.text}>{i18n.t('uploadImage')}</Text>
+              </Button>
 
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: uploadedImages[rowData.taskId]?.length
-                    ? Colors.text
-                    : Colors.gray
-                }
-              ]}
-              onPress={() => submitTask(rowData.taskId)}
-              disabled={isCompleted || !uploadedImages[rowData.taskId]?.length}
-            >
-              <Text style={styles.buttonText}>{i18n.t('submit')}</Text>
-            </TouchableOpacity>
+              <Button
+                bg={uploadedImages[rowData.taskId]?.length ? Colors.text : Colors.gray}
+                isDisabled={!uploadedImages[rowData.taskId]?.length}
+                onPress={() => submitTask(rowData.taskId)}
+                size="sm"
+              >
+                <Text color={Colors.white}>{i18n.t('submit')}</Text>
+              </Button>
+            </HStack>
           </>
         )}
-      </View>
+      </Box>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors.background }]}>
-      {/* Dil Değiştirme Butonu */}
-      <Pressable
-        style={styles.languageButton}
-        onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
-      >
-        <Text style={[styles.languageText, { color: Colors.text }]}>
-          {language === 'en' ? 'TR' : 'EN'}
-        </Text>
+    <Box flex={1} p="$4" bg={Colors.background}>
+      <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+        <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
       </Pressable>
 
-      {/* Başlık */}
-      <Text style={[styles.welcomeText, { color: Colors.heading }]}>
-        {i18n.t('welcome')}
-      </Text>
+      <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
 
-      {/* Timeline Bölümü */}
-      <ScrollView style={styles.timelineContainer}>
-        <Timeline
-          data={tasks}
-          circleSize={20}
-          circleColor={Colors.text}
-          lineColor={Colors.tint}
-          timeStyle={{
-            textAlign: 'center',
-            color: Colors.heading,
-            padding: 5,
-            fontSize: 12
-          }}
-          descriptionStyle={{ color: Colors.text }}
-          renderDetail={renderDetail}
-          separator={true}
-          showTime={true}
-          innerCircle={'dot'}
-        />
+      <ScrollView flex={1} mb="$2">
+        <Box bg={Colors.white} p="$3" borderRadius="$2xl" mb="$4">
+          <Timeline
+            data={tasks.map(task => ({
+              ...task,
+              time: `${task.startTime} - ${task.finishTime}`
+            }))}
+            circleSize={20}
+            circleColor="#000"
+            lineColor="#6C63FF"
+            timeStyle={{
+              textAlign: 'center',
+              color: '#333',
+              padding: 5,
+              fontSize: 12
+            }}
+            descriptionStyle={{ color: '#555' }}
+            renderDetail={renderDetail}
+            separator={true}
+            showTime={true}
+            innerCircle={'dot'}
+          />
+        </Box>
+
+        {calendarVisible && (
+          <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
+            <Calendar
+              current={selectedDate.toISOString().split('T')[0]}
+              onDayPress={onDayPress}
+              markedDates={{
+                [selectedDate.toISOString().split('T')[0]]: {
+                  selected: true,
+                  selectedColor: Colors.text
+                }
+              }}
+              theme={{
+                backgroundColor: Colors.white,
+                calendarBackground: Colors.white,
+                selectedDayBackgroundColor: Colors.text,
+                todayTextColor: Colors.heading,
+                dayTextColor: Colors.text,
+                textDisabledColor: Colors.gray,
+                arrowColor: Colors.heading
+              }}
+            />
+          </Box>
+        )}
       </ScrollView>
 
-      {/* Takvim Bölümü */}
-      <View style={styles.calendarContainer}>
-        <Calendar
-          current={selectedDate.toISOString().split('T')[0]}
-          onDayPress={onDayPress}
-          markedDates={{
-            [selectedDate.toISOString().split('T')[0]]: {
-              selected: true,
-              selectedColor: Colors.text
-            }
-          }}
-          theme={{
-            backgroundColor: Colors.white,
-            calendarBackground: Colors.white,
-            selectedDayBackgroundColor: Colors.text,
-            todayTextColor: Colors.heading,
-            dayTextColor: Colors.text,
-            textDisabledColor: Colors.gray,
-            arrowColor: Colors.heading,
-          }}
-        />
-      </View>
+      <HStack space="md" justifyContent="space-between" mb="$4">
+        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone(managerPhoneNumber)}>
+          <HStack alignItems="center" justifyContent="center" space="sm">
+            <Icon as={Phone} color={Colors.white} size="sm" />
+            <Text color={Colors.white}>{i18n.t('contactManager')}</Text>
+          </HStack>
+        </Button>
 
-      {/* Yönetici Butonu */}
-      <TouchableOpacity
-        style={[styles.managerButton, { backgroundColor: Colors.heading }]}
-      >
-        <Text style={styles.managerButtonText}>{i18n.t('contactManager')}</Text>
-      </TouchableOpacity>
+        <Button flex={1} variant="outline" bg={Colors.heading} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
+          <HStack alignItems="center" justifyContent="center" space="sm">
+            <Icon as={CalendarIcon} color={Colors.white} size="sm" />
+            <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
+          </HStack>
+        </Button>
+      </HStack>
 
-      {/* Tarih Seçici */}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-    </View>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16
-  },
-  languageButton: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    zIndex: 2
-  },
-  languageText: {
-    fontWeight: 'bold'
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16
-  },
-  timelineContainer: {
-    flex: 1,
-    marginBottom: 16
-  },
-  calendarContainer: {
-    marginBottom: 70
-  },
-  taskContainer: {
-    padding: 16,
-    backgroundColor: Colors.white,
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
-  },
-  taskHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8
-  },
-  taskTitle: {
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  roomText: {
-    fontSize: 14
-  },
-  taskDescription: {
-    fontSize: 14,
-    marginBottom: 12
-  },
-  imagesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 8
-  },
-  image: {
-    width: 80,
-    height: 80,
-    marginRight: 8,
-    marginBottom: 8,
-    borderRadius: 4
-  },
-  button: {
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 8
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: Colors.white
-  },
-  managerButton: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
-    padding: 12,
-    borderStyle: 'solid',
-    borderColor: Colors.heading,
-    borderRadius: 8
-  },
-  managerButtonText: {
-    textAlign: 'center',
-    color: Colors.white
-  }
-});
 
 export default WorkerHomepage;
