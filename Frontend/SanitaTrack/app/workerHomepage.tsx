@@ -140,7 +140,7 @@ const WorkerHomepage = () => {
     const isCompleted = rowData.completed || (uploadedImages[rowData.taskId]?.length > 0);
 
     return (
-      <Box bg={Colors.white} p="$4" borderRadius="$2xl" mb="$3" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.1} shadowRadius={4} elevation={2}>
+      <Box bg={Colors.white} p="$4" borderRadius="$2xl" mb="$3" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
@@ -195,7 +195,7 @@ const WorkerHomepage = () => {
       <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
 
       <ScrollView flex={1} mb="$2">
-        <Box bg={Colors.white} p="$3" borderRadius="$2xl" mb="$4">
+        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
             data={tasks.map(task => ({
               ...task,
@@ -243,7 +243,7 @@ const WorkerHomepage = () => {
         )}
       </ScrollView>
 
-      <HStack space="md" justifyContent="space-between" mb="$4">
+      <HStack space="md" justifyContent="space-between">
         <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone(managerPhoneNumber)}>
           <HStack alignItems="center" justifyContent="center" space="sm">
             <Icon as={Phone} color={Colors.white} size="sm" />

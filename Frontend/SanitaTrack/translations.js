@@ -63,7 +63,8 @@ export const translations = {
     uploadAtLeastOneImage: 'Please upload at least one image',
     cameraError: 'Camera error occurred',
     selectDate: 'Select Date',
-    hideCalendar: 'Hide Calendar'
+    hideCalendar: 'Hide Calendar',
+    worker: 'Employee'
   },
   tr: {
     greeting: 'Merhaba',
@@ -129,6 +130,7 @@ export const translations = {
     uploadAtLeastOneImage: 'Lütfen en az bir resim yükleyin',
     cameraError: 'Kamera hatası oluştu',
     selectDate: 'Tarih Seç',
-    hideCalendar: 'Takvimi Gizle'
+    hideCalendar: 'Takvimi Gizle',
+    worker: 'Çalışan'
   },
 };
