@@ -47,7 +47,16 @@ export default function loginScreen() {
 
         if (response.ok) {
           console.log('Login Successful', result);
-          router.push('/workerHomepage');  // Redirect to workerHomepage if login is successful
+
+          // Get isManager
+          const isManager = result?.manager;
+          console.log('isManager', isManager);
+
+          if (isManager) {
+            router.push('/(manager)/rooms');
+          } else {
+            router.push('/workerHomepage');
+          }
         } else {
           setError(result || i18n.t('loginFailed'));
         }
@@ -137,7 +146,7 @@ export default function loginScreen() {
               </Input>
 
               {!!error && !phone.trim() && (
-                <FormControlError style={{ position: 'absolute', bottom: -14}}>
+                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
                 </FormControlError>
               )}
