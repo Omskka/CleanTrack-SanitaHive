@@ -16,6 +16,7 @@ public class TeamsService {
         return teamsRepository.findAll();
     }
 
+    // Save team to db
     public Teams saveTeams(Teams teams) {
         return teamsRepository.save(teams);
     }

@@ -18,9 +18,10 @@ public class User {
     private ObjectId id;
 
     private String name;
+    private String UserId;
     private String surname;
     private long phoneNumber;
     private String password;
-    private boolean isManager;
+    private boolean manager;
     private String lang;
 }

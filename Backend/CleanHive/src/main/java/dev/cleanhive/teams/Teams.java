@@ -24,5 +24,5 @@ public class Teams {
     private List<ObjectId> employeeIds;
 
     // ObjectId for the manager
-    private ObjectId managerId;
+    private String managerId;
 }
