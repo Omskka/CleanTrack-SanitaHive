@@ -1,31 +1,19 @@
 import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
-import {
-  Box,
-  VStack,
-  Heading,
-  Input,
-  InputField,
-  Button,
-  Text,
-  Pressable,
-  FormControl,
-  FormControlLabel,
-  FormControlError,
-  Image,
-} from '@gluestack-ui/themed';
+import { Box, VStack, Heading, Input, InputField, Button, Text, Pressable, FormControl, FormControlLabel, FormControlError, Image } from '@gluestack-ui/themed';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';  // Navigation with useRouter 
+import { useRouter } from 'expo-router';
 import { Colors } from '../constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // For storing user token
 
-export default function loginScreen() {
+export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState(getCurrentLanguage());  // State for language
-  const router = useRouter();  // Navigation with useRouter hook
+  const [language, setLanguage] = useState(getCurrentLanguage());
+  const router = useRouter();
 
   const handleLogin = async () => {
     if (!phone.trim()) {
@@ -48,28 +36,39 @@ export default function loginScreen() {
         if (response.ok) {
           console.log('Login Successful', result);
 
-          // Get isManager
-          const isManager = result?.manager;
-          console.log('isManager', isManager);
+          // Assuming result contains a userID (token)
+          const userID = result?.userId;
 
-          if (isManager) {
-            router.push('/(manager)/rooms');
+          if (userID) {
+            // Store the user token securely (e.g., AsyncStorage)
+            await AsyncStorage.setItem('userToken', JSON.stringify(userID));
+
+            // Get isManager
+            const isManager = result?.manager;
+            console.log('isManager', isManager);
+
+            // Navigate based on role
+            if (isManager) {
+              router.push('/(manager)/team');
+            } else {
+              router.push('/workerHomepage');
+            }
           } else {
-            router.push('/workerHomepage');
+            setError(i18n.t('loginFailed'));  // Handle missing userID in response
           }
         } else {
           setError(result || i18n.t('loginFailed'));
         }
       } catch (error) {
-        console.error('Login Failed');
+        console.error('Login Failed', error);
         setError(i18n.t('serverError'));
       }
     }
   };
 
   const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage); // Change language
-    i18n.locale = newLanguage; // Update i18n locale
+    setLanguage(newLanguage);
+    i18n.locale = newLanguage;
   };
 
   return (

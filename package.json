@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-native-uuid": "^2.0.3",
+    "uuid": "^11.1.0"
+  }
+}

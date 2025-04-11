@@ -18,6 +18,7 @@ import {
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
 import { Colors } from '../constants/Colors';
 import { Link, router } from 'expo-router';
+import UUID from 'react-native-uuid';
 
 export default function CreateTeam() {
   const [name, setName] = useState('');
@@ -43,17 +44,21 @@ export default function CreateTeam() {
     setLoading(true);
 
     try {
+      // Generate a unique userId using react-native-uuid
+      const userId = UUID.v4();  // Generate a unique v4 UUID
+
       const userResponse = await fetch('http://10.0.2.2:8080/api/v1/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          userId: userId,
           name: name.trim(),
           surname: surname.trim(),
           phoneNumber: phone.trim(),
           password: password.trim(),
-          isManager: true,
+          manager: true,
           lang: language,
         }),
       });
@@ -63,7 +68,7 @@ export default function CreateTeam() {
       console.log('User Data:', userData);  // Log response to inspect the structure
 
       if (userResponse.ok) {
-        const managerId = userData.id; // Ensure it's a string
+        const managerId = userData.userId; // Ensure it's a string
         console.log('--userID--:', managerId);
 
 

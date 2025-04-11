@@ -18,6 +18,7 @@ import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language suppor
 import { useRouter } from 'expo-router';  // Navigation with useRouter 
 import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
+import UUID from 'react-native-uuid';
 
 export default function CreateAccount() {
     const [name, setName] = useState('');
@@ -42,12 +43,17 @@ export default function CreateAccount() {
         setLoading(true);
 
         try {
+
+            // Generate a unique userId using react-native-uuid
+            const userId = UUID.v4();  // Generate a unique v4 UUID
+
             const response = await fetch('http://10.0.2.2:8080/api/v1/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    userId: userId,
                     name: name.trim(),
                     surname: surname.trim(),
                     phoneNumber: phone.trim(),
