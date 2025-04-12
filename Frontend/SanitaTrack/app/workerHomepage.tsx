@@ -27,6 +27,7 @@ interface Task {
   room: string;
   completed: boolean;
   taskId: string;
+  totalTime: string;
 }
 
 interface UploadedImages {
@@ -43,7 +44,7 @@ const WorkerHomepage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
-  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
 
   const managerPhoneNumber = '905551112233';
 
@@ -64,7 +65,8 @@ const WorkerHomepage = () => {
     const mockTasks: Task[] = [
       {
         startTime: '09:00',
-        finishTime: '10:00',
+        finishTime: '10:30',
+        totalTime: '1 hour 30 minutes',
         title: i18n.t('roomCleaning', { roomNumber: '101' }),
         description: i18n.t('cleaningDescription'),
         room: '101',
@@ -74,6 +76,7 @@ const WorkerHomepage = () => {
       {
         startTime: '11:00',
         finishTime: '12:00',
+        totalTime: '1 hour',
         title: i18n.t('roomCleaning', { roomNumber: '205' }),
         description: i18n.t('bathroomCleaning'),
         room: '205',
@@ -82,7 +85,8 @@ const WorkerHomepage = () => {
       },
       {
         startTime: '15:00',
-        finishTime: '16:00',
+        finishTime: '17:00',
+        totalTime: '2 hours',
         title: i18n.t('kitchenCleaning', { roomNumber: '312' }),
         description: i18n.t('kitchenCleaning'),
         room: '312',
@@ -140,12 +144,15 @@ const WorkerHomepage = () => {
     const isCompleted = rowData.completed || (uploadedImages[rowData.taskId]?.length > 0);
 
     return (
-      <Box bg={Colors.white} p="$4" borderRadius="$2xl" mb="$3" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
+      <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
         </HStack>
+
         <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
+        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{rowData.startTime} - {rowData.finishTime}</Text>
+        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {rowData.totalTime}</Text>
 
         {isCompleted ? (
           <Text color={Colors.text}>{i18n.t('completed')}</Text>
@@ -187,19 +194,21 @@ const WorkerHomepage = () => {
   };
 
   return (
-    <Box flex={1} p="$4" bg={Colors.background}>
-      <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-        <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
-      </Pressable>
+    <Box flex={1} p="$2" bg={Colors.background}>
+      <VStack mt="$7" >
+        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+        </Pressable>
 
-      <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+      </VStack>
 
       <ScrollView flex={1} mb="$2">
         <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
             data={tasks.map(task => ({
               ...task,
-              time: `${task.startTime} - ${task.finishTime}`
+              time: `${task.startTime}`
             }))}
             circleSize={20}
             circleColor="#000"
@@ -243,7 +252,7 @@ const WorkerHomepage = () => {
         )}
       </ScrollView>
 
-      <HStack space="md" justifyContent="space-between">
+      <HStack space="md" justifyContent="space-between" mb="$4">
         <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone(managerPhoneNumber)}>
           <HStack alignItems="center" justifyContent="center" space="sm">
             <Icon as={Phone} color={Colors.white} size="sm" />
@@ -265,6 +274,7 @@ const WorkerHomepage = () => {
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
+
     </Box>
   );
 };

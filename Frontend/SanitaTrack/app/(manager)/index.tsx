@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   HStack,
+  VStack
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
@@ -22,6 +23,7 @@ interface Task {
   workerName: string;
   workerSurname: string;
   taskId: string;
+  totalTime: string;
 }
 
 const ManagerHomepage = () => {
@@ -47,7 +49,8 @@ const ManagerHomepage = () => {
     const mockTasks: Task[] = [
       {
         startTime: '09:00',
-        finishTime: '10:00',
+        finishTime: '10:30',
+        totalTime: '1 hour 30 minutes',
         title: i18n.t('roomCleaning', { roomNumber: '101' }),
         description: i18n.t('cleaningDescription'),
         room: '101',
@@ -59,6 +62,7 @@ const ManagerHomepage = () => {
       {
         startTime: '11:00',
         finishTime: '12:00',
+        totalTime: '1 hour',
         title: i18n.t('roomCleaning', { roomNumber: '205' }),
         description: i18n.t('bathroomCleaning'),
         room: '205',
@@ -69,8 +73,9 @@ const ManagerHomepage = () => {
       },
       {
         startTime: '15:00',
-        finishTime: '16:00',
-        title: i18n.t('kitchenCleaning', { roomNumber: '312' }),
+        finishTime: '17:00',
+        totalTime: '2 hour',
+        title: i18n.t('roomCleaning', { roomNumber: '312' }),
         description: i18n.t('kitchenCleaning'),
         room: '312',
         completed: false,
@@ -87,34 +92,36 @@ const ManagerHomepage = () => {
     const isCompleted = rowData.completed;
 
     return (
-      <Box bg={Colors.white} p="$4" borderRadius="$2xl" mb="$3" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
+      <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
         </HStack>
-        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
 
-        <HStack justifyContent="space-between" mb="$2">
-          <Text fontSize="$sm" color={Colors.black}>{i18n.t('worker')}: {rowData.workerName} {rowData.workerSurname}</Text>
-        </HStack>
+        <Text fontSize="$sm" color={Colors.text} >{rowData.description}</Text>
+        <Text fontSize="$sm" color={Colors.text} fontWeight="$bold" mb="$3">{i18n.t('worker')}: {rowData.workerName} {rowData.workerSurname}</Text>
+        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{rowData.startTime} - {rowData.finishTime}</Text>
+        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {rowData.totalTime}</Text>
       </Box>
     );
   };
 
   return (
     <Box flex={1} p="$4" bg={Colors.background}>
-      <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-        <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
-      </Pressable>
+      <VStack mt="$7">
+        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+        </Pressable>
 
-      <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+      </VStack>
 
       <ScrollView flex={1} mb="$2">
         <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
             data={tasks.map(task => ({
               ...task,
-              time: `${task.startTime} - ${task.finishTime}`
+              time: `${task.startTime}`
             }))}
             circleSize={20}
             circleColor="#000"

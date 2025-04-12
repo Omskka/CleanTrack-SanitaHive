@@ -64,7 +64,8 @@ export const translations = {
     cameraError: 'Camera error occurred',
     selectDate: 'Select Date',
     hideCalendar: 'Hide Calendar',
-    worker: 'Employee'
+    worker: 'Employee',
+    totalTime: 'Work Time',
   },
   tr: {
     greeting: 'Merhaba',
@@ -131,6 +132,7 @@ export const translations = {
     cameraError: 'Kamera hatası oluştu',
     selectDate: 'Tarih Seç',
     hideCalendar: 'Takvimi Gizle',
-    worker: 'Çalışan'
+    worker: 'Çalışan',
+    totalTime: 'Çalışma Süresi',
   },
 };
