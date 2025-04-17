@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView, Linking } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Linking, Share } from 'react-native';
 import {
   Box,
   VStack,
@@ -10,26 +10,13 @@ import {
   Button,
   Text,
   Pressable,
-  Avatar,
   Icon,
-  AvatarFallbackText,
   InputSlot,
 } from '@gluestack-ui/themed';
-import { Phone, Search } from 'lucide-react-native';
+import { Search } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
-
-const users = [
-  { id: 1, firstName: 'Bengisu', lastName: 'Su', phone: '800-***-38' },
-  { id: 2, firstName: 'Meli', lastName: 'Ke', phone: '900-***-45' },
-  { id: 3, firstName: 'Ömer', lastName: 'Murat', phone: '700-***-12' },
-  { id: 4, firstName: 'Bu', lastName: 'Se', phone: '800-***-38' },
-  { id: 5, firstName: 'Mehmet', lastName: 'Can', phone: '900-***-45' },
-  { id: 6, firstName: 'Elif', lastName: 'Deniz', phone: '700-***-12' },
-  { id: 7, firstName: 'Bengisu', lastName: 'Su', phone: '800-***-38' },
-  { id: 8, firstName: 'Ömer', lastName: 'Murat', phone: '700-***-12' },
-  { id: 9, firstName: 'Meli', lastName: 'Ke', phone: '900-***-45' },
-];
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const callPhone = (phoneNumber: string) => {
   Linking.openURL(`tel:${phoneNumber}`);
@@ -37,11 +24,40 @@ const callPhone = (phoneNumber: string) => {
 
 export default function TeamInfoScreen() {
   const [searchText, setSearchText] = useState('');
+  const [userID, setUserID] = useState('');
 
-  // Kullanıcıları filtreleme
-  const filteredUsers = users.filter(user =>
-    `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchText.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchUserID = async () => {
+      try {
+        const storedUserID = await AsyncStorage.getItem('userToken');
+        if (storedUserID) {
+          setUserID(storedUserID);
+        }
+      } catch (error) {
+        console.error('Error fetching userID from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserID();
+  }, []);
+
+const handleShare = async () => {
+  try {
+    const shortID = userID.slice(0, 8); // only the first 8 characters
+
+    const result = await Share.share({
+      message: `Join my team with this team ID: ${shortID}`,
+    });
+
+    if (result.action === Share.sharedAction) {
+      console.log('Shared successfully');
+    } else if (result.action === Share.dismissedAction) {
+      console.log('Share dismissed');
+    }
+  } catch (error) {
+    console.error('Error sharing:', error);
+  }
+};
 
   return (
     <Box flex={1} bg={Colors.background}>
@@ -60,7 +76,7 @@ export default function TeamInfoScreen() {
               fontSize="$sm"
               placeholder={i18n.t('searchMemberPlaceholder')}
               value={searchText}
-              onChangeText={setSearchText} // Arama çubuğu için event handler
+              onChangeText={setSearchText}
             />
           </Input>
 
@@ -71,48 +87,24 @@ export default function TeamInfoScreen() {
             rounded="$md"
             onPress={() => console.log('Edit pressed')}
           >
-            <Text color={Colors.white} fontWeight="bold">{i18n.t('edit')}</Text>
+            <Text color={Colors.white} fontWeight="bold">
+              {i18n.t('edit')}
+            </Text>
           </Pressable>
         </HStack>
       </Box>
 
       {/* Kullanıcı Listesi */}
       <ScrollView style={{ flex: 1 }}>
-        <VStack space="md" p="$4">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <Box key={user.id} p="$4" bg={Colors.white} rounded="$lg">
-                <HStack alignItems="center" justifyContent="space-between">
-                  {/* Kullanıcı Bilgileri */}
-                  <HStack alignItems="center" space="md">
-                    <Avatar bg={Colors.text} size="md">
-                      <AvatarFallbackText>{`${user?.firstName || ''} ${user?.lastName || ''}`}</AvatarFallbackText>
-                    </Avatar>
-                    <VStack>
-                      <Text fontWeight="bold">{user.firstName} {user.lastName}</Text>
-                      <Text color={Colors.gray}>{user.phone}</Text>
-                    </VStack>
-                  </HStack>
-
-                  {/* Telefon Arama Butonu */}
-                  <Pressable onPress={() => callPhone(user.phone)}>
-                    <Icon as={Phone} size="lg" color={Colors.text} />
-                  </Pressable>
-                </HStack>
-              </Box>
-            ))
-          ) : (
-            <Text textAlign="center" color={Colors.gray}>
-              {i18n.t('noResultsMember')}
-            </Text>
-          )}
-        </VStack>
+        {/* Member cards or list items would go here */}
       </ScrollView>
 
       {/* Alt Kısım - Sabit Buton */}
       <Box px="$4" py="$4" bg={Colors.white}>
-        <Button bg={Colors.text} rounded="$lg">
-          <Text color={Colors.white} fontWeight="bold">{i18n.t('addMemberButton')}</Text>
+        <Button onPress={handleShare} bg={Colors.text} rounded="$lg">
+          <Text color={Colors.white} fontWeight="bold">
+            {i18n.t('addMemberButton')}
+          </Text>
         </Button>
       </Box>
     </Box>
