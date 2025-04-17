@@ -120,21 +120,27 @@ export default function RoomsScreen() {
     }
   };
 
-  const deleteRoom = async (roomId: number) => {
+  const deleteRoom = async (teamId: string, roomName: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://10.0.2.2:8080/api/v1/rooms/${roomId}`, {
-        method: 'DELETE',
+      const response = await fetch(`http://10.0.2.2:8080/api/v1/rooms/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ teamId, roomName }),
       });
 
       if (response.ok) {
         console.log('Room deleted successfully!');
-        setRooms((prevRooms) => prevRooms.filter((room) => room.id !== roomId));
+        setRooms((prevRooms) =>
+          prevRooms.filter((room) => room.roomName !== roomName || room.teamId !== teamId)
+        );
         alert('Room deleted successfully!');
       } else {
-        // Only try to parse JSON if it's not 204
         const data = await response.json();
         console.error('Failed to delete room:', data);
+        setError(data.message || i18n.t('failedToDeleteRoom'));
       }
     } catch (error) {
       console.error('Error during room deletion:', error);
@@ -143,6 +149,7 @@ export default function RoomsScreen() {
       setLoading(false);
     }
   };
+
 
   return (
     <Box flex={1} bg={Colors.background}>
@@ -196,7 +203,7 @@ export default function RoomsScreen() {
               <Button
                 bg={Colors.error}
                 rounded="$lg"
-                onPress={() => deleteRoom(item.id)}
+                onPress={() => deleteRoom(item.teamId, item.roomName)}
               >
                 <Text color={Colors.white}>{('delete')}</Text>
               </Button>
