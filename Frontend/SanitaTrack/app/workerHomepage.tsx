@@ -80,7 +80,7 @@ const WorkerHomepage = () => {
         startTime: '15:00',
         finishTime: '17:00',
         totalTime: '2 hours',
-        title: i18n.t('kitchenCleaning', { roomNumber: '312' }),
+        title: i18n.t('roomCleaning', { roomNumber: '312' }),
         description: i18n.t('kitchenCleaning'),
         room: '312',
         completed: false,
