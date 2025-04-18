@@ -9,11 +9,11 @@ import {
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 
 interface Task {
+  date: string; // YYYY-MM-DD format
   startTime: string;
   finishTime: string;
   title: string;
@@ -30,24 +30,16 @@ const ManagerHomepage = () => {
   const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
-
+  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-  const handleConfirm = (date: Date) => {
-    setSelectedDate(date);
-    hideDatePicker();
-  };
-
   useEffect(() => {
     const mockTasks: Task[] = [
       {
+        date: '2025-04-01',
         startTime: '09:00',
         finishTime: '10:30',
         totalTime: '1 hour 30 minutes',
@@ -60,6 +52,7 @@ const ManagerHomepage = () => {
         taskId: '1'
       },
       {
+        date: '2025-04-02',
         startTime: '11:00',
         finishTime: '12:00',
         totalTime: '1 hour',
@@ -72,6 +65,7 @@ const ManagerHomepage = () => {
         taskId: '2'
       },
       {
+        date: '2025-04-02',
         startTime: '15:00',
         finishTime: '17:00',
         totalTime: '2 hour',
@@ -87,6 +81,10 @@ const ManagerHomepage = () => {
 
     setTasks(mockTasks);
   }, [language]);
+
+  const filteredTasks = tasks.filter(
+    task => task.date === selectedDate.toISOString().split('T')[0]
+  );
 
   const renderDetail = (rowData: Task) => {
     const isCompleted = rowData.completed;
@@ -119,7 +117,7 @@ const ManagerHomepage = () => {
       <ScrollView flex={1} mb="$2">
         <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
-            data={tasks.map(task => ({
+            data={filteredTasks.map(task => ({
               ...task,
               time: `${task.startTime}`
             }))}
@@ -141,39 +139,32 @@ const ManagerHomepage = () => {
         </Box>
 
         <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
-            <Calendar
-              current={selectedDate.toISOString().split('T')[0]}
-              onDayPress={onDayPress}
-              markedDates={{
-                [selectedDate.toISOString().split('T')[0]]: {
-                  selected: true,
-                  selectedColor: Colors.text,
-                  selectedTextColor: Colors.white,
-                }
-              }}
-              theme={{
-                backgroundColor: Colors.white,
-                calendarBackground: Colors.white,
-                selectedDayBackgroundColor: Colors.text,
-                selectedDayTextColor: Colors.white,
-                todayTextColor: Colors.error,
-                dayTextColor: Colors.heading,
-                textDisabledColor: Colors.gray,
-                arrowColor: Colors.text,
-                monthTextColor: Colors.heading,
-                indicatorColor: Colors.text,
-                textSectionTitleColor: Colors.gray,
-              }}
-            />
+          <Calendar
+            current={selectedDate.toISOString().split('T')[0]}
+            onDayPress={onDayPress}
+            markedDates={{
+              [selectedDate.toISOString().split('T')[0]]: {
+                selected: true,
+                selectedColor: Colors.text,
+                selectedTextColor: Colors.white,
+              }
+            }}
+            theme={{
+              backgroundColor: Colors.white,
+              calendarBackground: Colors.white,
+              selectedDayBackgroundColor: Colors.text,
+              selectedDayTextColor: Colors.white,
+              todayTextColor: Colors.error,
+              dayTextColor: Colors.heading,
+              textDisabledColor: Colors.gray,
+              arrowColor: Colors.text,
+              monthTextColor: Colors.heading,
+              indicatorColor: Colors.text,
+              textSectionTitleColor: Colors.gray,
+            }}
+          />
         </Box>
       </ScrollView>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
     </Box>
   );
 };

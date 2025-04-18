@@ -13,13 +13,13 @@ import {
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import * as ImagePicker from 'expo-image-picker';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import { Phone, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Linking } from 'react-native';
 
 interface Task {
+  date: string; // YYYY-MM-DD format
   startTime: string;
   finishTime: string;
   title: string;
@@ -42,28 +42,19 @@ const WorkerHomepage = () => {
   const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState<boolean>(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
   const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
-
+  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
   const managerPhoneNumber = '905551112233';
-
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-  const handleConfirm = (date: Date) => {
-    setSelectedDate(date);
-    hideDatePicker();
-  };
-
   useEffect(() => {
     const mockTasks: Task[] = [
       {
+        date: '2025-04-01',
         startTime: '09:00',
         finishTime: '10:30',
         totalTime: '1 hour 30 minutes',
@@ -74,6 +65,7 @@ const WorkerHomepage = () => {
         taskId: '1'
       },
       {
+        date: '2025-04-02',
         startTime: '11:00',
         finishTime: '12:00',
         totalTime: '1 hour',
@@ -84,6 +76,7 @@ const WorkerHomepage = () => {
         taskId: '2'
       },
       {
+        date: '2025-04-02',
         startTime: '15:00',
         finishTime: '17:00',
         totalTime: '2 hours',
@@ -97,6 +90,10 @@ const WorkerHomepage = () => {
 
     setTasks(mockTasks);
   }, [language]);
+
+  const filteredTasks = tasks.filter(
+    task => task.date === selectedDate.toISOString().split('T')[0]
+  );
 
   const takePicture = async (taskId: string) => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -202,7 +199,7 @@ const WorkerHomepage = () => {
       <ScrollView flex={1} mb="$2">
         <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
-            data={tasks.map(task => ({
+            data={filteredTasks.map(task => ({
               ...task,
               time: `${task.startTime}`
             }))}
@@ -268,13 +265,6 @@ const WorkerHomepage = () => {
           </HStack>
         </Button>
       </HStack>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
     </Box>
   );
 };
