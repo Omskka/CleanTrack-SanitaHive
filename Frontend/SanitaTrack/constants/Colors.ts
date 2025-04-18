@@ -1,10 +1,10 @@
 export const Colors = {
-    text: '$blue600',
-    heading: '$blue800',
+    text: '#2563EB',        // blue600
+    heading: '#1E40AF',     // blue800
     background: '#E0F7FF',
-    tint: '$blue100',
-    white: '$white',
-    black: '$black',
-    gray: '$gray',
-    error: '$red600',
-}
+    tint: '#DBEAFE',        // blue100
+    white: '#FFFFFF',
+    black: '#000000',
+    gray: '#9CA3AF',        // Tailwind gray
+    error: '#DC2626',       // red600
+  };

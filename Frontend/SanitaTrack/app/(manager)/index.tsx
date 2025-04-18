@@ -141,25 +141,30 @@ const ManagerHomepage = () => {
         </Box>
 
         <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
-          <Calendar
-            current={selectedDate.toISOString().split('T')[0]}
-            onDayPress={onDayPress}
-            markedDates={{
-              [selectedDate.toISOString().split('T')[0]]: {
-                selected: true,
-                selectedColor: Colors.text
-              }
-            }}
-            theme={{
-              backgroundColor: Colors.white,
-              calendarBackground: Colors.white,
-              selectedDayBackgroundColor: Colors.text,
-              todayTextColor: Colors.heading,
-              dayTextColor: Colors.text,
-              textDisabledColor: Colors.gray,
-              arrowColor: Colors.heading
-            }}
-          />
+            <Calendar
+              current={selectedDate.toISOString().split('T')[0]}
+              onDayPress={onDayPress}
+              markedDates={{
+                [selectedDate.toISOString().split('T')[0]]: {
+                  selected: true,
+                  selectedColor: Colors.text,
+                  selectedTextColor: Colors.white,
+                }
+              }}
+              theme={{
+                backgroundColor: Colors.white,
+                calendarBackground: Colors.white,
+                selectedDayBackgroundColor: Colors.text,
+                selectedDayTextColor: Colors.white,
+                todayTextColor: Colors.error,
+                dayTextColor: Colors.heading,
+                textDisabledColor: Colors.gray,
+                arrowColor: Colors.text,
+                monthTextColor: Colors.heading,
+                indicatorColor: Colors.text,
+                textSectionTitleColor: Colors.gray,
+              }}
+            />
         </Box>
       </ScrollView>
 

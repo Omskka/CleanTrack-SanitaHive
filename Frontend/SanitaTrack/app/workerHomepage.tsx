@@ -12,7 +12,7 @@ import {
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
-import { launchCamera, CameraOptions, ImagePickerResponse } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
@@ -99,34 +99,30 @@ const WorkerHomepage = () => {
   }, [language]);
 
   const takePicture = async (taskId: string) => {
-    const options: CameraOptions = {
-      mediaType: 'photo',
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert(i18n.t('cameraPermissionRequired'));
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
       quality: 0.8,
-      maxWidth: 1000,
-      maxHeight: 1000,
-      saveToPhotos: false,
-      includeBase64: false,
-    };
-
-    launchCamera(options, (response: ImagePickerResponse) => {
-      if (response.didCancel) return;
-      if (response.errorMessage) {
-        console.log(i18n.t('cameraError'), response.errorMessage);
-        return;
-      }
-
-      if (response.assets?.[0]?.uri) {
-        const newImages = { ...uploadedImages };
-        if (!newImages[taskId]) newImages[taskId] = [];
-
-        if (newImages[taskId].length < 5) {
-          newImages[taskId].push(response.assets[0].uri);
-          setUploadedImages(newImages);
-        } else {
-          alert(i18n.t('maxImagesReached'));
-        }
-      }
+      allowsEditing: false,
+      base64: false,
     });
+
+    if (!result.canceled && result.assets && result.assets[0].uri) {
+      const newImages = { ...uploadedImages };
+      if (!newImages[taskId]) newImages[taskId] = [];
+
+      if (newImages[taskId].length < 5) {
+        newImages[taskId].push(result.assets[0].uri);
+        setUploadedImages(newImages);
+      } else {
+        alert(i18n.t('maxImagesReached'));
+      }
+    }
   };
 
   const submitTask = (taskId: string) => {
@@ -195,7 +191,7 @@ const WorkerHomepage = () => {
 
   return (
     <Box flex={1} p="$2" bg={Colors.background}>
-      <VStack mt="$7" >
+      <VStack mt="$7">
         <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
           <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
         </Pressable>
@@ -235,17 +231,22 @@ const WorkerHomepage = () => {
               markedDates={{
                 [selectedDate.toISOString().split('T')[0]]: {
                   selected: true,
-                  selectedColor: Colors.text
+                  selectedColor: Colors.text,
+                  selectedTextColor: Colors.white,
                 }
               }}
               theme={{
                 backgroundColor: Colors.white,
                 calendarBackground: Colors.white,
                 selectedDayBackgroundColor: Colors.text,
-                todayTextColor: Colors.heading,
-                dayTextColor: Colors.text,
+                selectedDayTextColor: Colors.white,
+                todayTextColor: Colors.error,
+                dayTextColor: Colors.heading,
                 textDisabledColor: Colors.gray,
-                arrowColor: Colors.heading
+                arrowColor: Colors.text,
+                monthTextColor: Colors.heading,
+                indicatorColor: Colors.text,
+                textSectionTitleColor: Colors.gray,
               }}
             />
           </Box>
@@ -274,7 +275,6 @@ const WorkerHomepage = () => {
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-
     </Box>
   );
 };
