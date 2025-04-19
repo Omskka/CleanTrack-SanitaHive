@@ -18,9 +18,18 @@ public class TeamsController {
     // Get all Teams
     @GetMapping
     public ResponseEntity<List<Teams>> getAllTeams() {
-        return new ResponseEntity<List<Teams>>(teamsService.allTeams(), HttpStatus.OK);
+        return new ResponseEntity<>(teamsService.allTeams(), HttpStatus.OK);
     }
 
+    // Get team by managerId
+    @GetMapping("/{managerId}")
+    public ResponseEntity<Teams> getTeamByManagerId(@PathVariable String managerId) {
+        Optional<Teams> team = teamsService.getTeamByManagerId(managerId);
+        return team.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Create a new team
     @PostMapping
     public ResponseEntity<Teams> createTeam(@RequestBody Teams team) {
         Teams savedTeam = teamsService.saveTeams(team);

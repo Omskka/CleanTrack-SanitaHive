@@ -11,7 +11,7 @@ public class TeamsService {
     @Autowired
     private TeamsRepository teamsRepository;
 
-    // Method to fetch all teams
+    // Fetch all teams
     public List<Teams> allTeams() {
         return teamsRepository.findAll();
     }
@@ -19,5 +19,11 @@ public class TeamsService {
     // Save team to db
     public Teams saveTeams(Teams teams) {
         return teamsRepository.save(teams);
+    }
+
+    // 🔥 Get team by managerId (needed for your GET /api/v1/teams/{managerId}
+    // route)
+    public Optional<Teams> getTeamByManagerId(String managerId) {
+        return teamsRepository.findByManagerId(managerId);
     }
 }

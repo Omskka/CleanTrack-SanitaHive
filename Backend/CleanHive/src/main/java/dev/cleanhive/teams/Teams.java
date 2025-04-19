@@ -21,7 +21,7 @@ public class Teams {
     private String teamName;
 
     // Use List<ObjectId> for employee IDs to support multiple employees
-    private List<ObjectId> employeeIds;
+    private List<String> employeeId;
 
     // ObjectId for the manager
     private String managerId;
