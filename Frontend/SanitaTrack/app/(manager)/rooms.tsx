@@ -15,7 +15,7 @@ import { Search, Plus, Trash } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { fetchRooms, addRoom, deleteRoom } from '@/api/apiService';
 
 interface Room {
   id: number;
@@ -52,99 +52,58 @@ export default function RoomsScreen() {
   useEffect(() => {
     if (!userID) return;
 
-    fetchRooms();
+    handleFetchRooms();
   }, [userID]);
 
-  const fetchRooms = async () => {
+  const handleFetchRooms = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://10.0.2.2:8080/api/v1/rooms');
-      const data = await response.json();
-
-      if (response.ok) {
-        const filteredRooms = data.filter((room: Room) => room.teamId === userID);
-        setRooms(filteredRooms);
-      } else {
-        console.error('Failed to fetch rooms:', data);
-        setError(i18n.t('failedToFetchRooms'));
-      }
-    } catch (error) {
-      console.error('Error during fetching rooms:', error);
-      setError(i18n.t('networkError'));
+      const roomsData = await fetchRooms();
+      const filteredRooms = roomsData.filter((room: Room) => room.teamId === userID);
+      setRooms(filteredRooms);
+      setError('');
+    } catch (error: any) {
+      console.error('Error fetching rooms:', error);
+      setError(error.message || i18n.t('failedToFetchRooms'));
     } finally {
       setLoading(false);
     }
   };
-
-  const addRoom = async () => {
+  
+  const handleAddRoom = async () => {
     if (!roomName.trim() || !roomFloor.trim()) {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
-
+  
     setLoading(true);
     setError('');
-
-    const payload = {
-      roomName: roomName.trim(),
-      roomFloor: roomFloor.trim(),
-      teamId: userID,
-    };
-
     try {
-      const response = await fetch('http://10.0.2.2:8080/api/v1/rooms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Room Created Successfully!');
-        setModalVisible(false);
-        setRoomName('');
-        setRoomFloor('');
-        fetchRooms();
-      } else {
-        console.error('Failed to create room:', data);
-        setError(data.message || i18n.t('failedToCreateRoom'));
-      }
-    } catch (error) {
-      console.error('Error during room creation:', error);
-      setError(i18n.t('networkError'));
+      await addRoom(roomName.trim(), roomFloor.trim(), userID);
+      alert('Room Created Successfully!');
+      setModalVisible(false);
+      setRoomName('');
+      setRoomFloor('');
+      handleFetchRooms(); // refresh room list
+    } catch (error: any) {
+      console.error('Error creating room:', error);
+      setError(error.message || i18n.t('failedToCreateRoom'));
     } finally {
       setLoading(false);
     }
   };
-
-  const deleteRoom = async (teamId: string, roomName: string) => {
+  
+  const handleDeleteRoom = async (teamId: string, roomName: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://10.0.2.2:8080/api/v1/rooms/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ teamId, roomName }),
-      });
-
-      if (response.ok) {
-        console.log('Room deleted successfully!');
-        setRooms((prevRooms) =>
-          prevRooms.filter((room) => room.roomName !== roomName || room.teamId !== teamId)
-        );
-        alert('Room deleted successfully!');
-      } else {
-        const data = await response.json();
-        console.error('Failed to delete room:', data);
-        setError(data.message || i18n.t('failedToDeleteRoom'));
-      }
-    } catch (error) {
-      console.error('Error during room deletion:', error);
-      setError(i18n.t('networkError'));
+      await deleteRoom(teamId, roomName);
+      alert('Room deleted successfully!');
+      setRooms((prevRooms) =>
+        prevRooms.filter((room) => !(room.roomName === roomName && room.teamId === teamId))
+      );
+    } catch (error: any) {
+      console.error('Error deleting room:', error);
+      setError(error.message || i18n.t('failedToDeleteRoom'));
     } finally {
       setLoading(false);
     }
@@ -203,7 +162,7 @@ export default function RoomsScreen() {
               <Button
                 bg={Colors.error}
                 rounded="$lg"
-                onPress={() => deleteRoom(item.teamId, item.roomName)}
+                onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
               >
                 <Text color={Colors.white}>{('delete')}</Text>
               </Button>
@@ -246,7 +205,7 @@ export default function RoomsScreen() {
               <Button bg={Colors.gray} onPress={() => setModalVisible(false)}>
                 <Text color={Colors.white}>{i18n.t('cancel')}</Text>
               </Button>
-              <Button bg={Colors.text} onPress={addRoom} isDisabled={loading}>
+              <Button bg={Colors.text} onPress={handleAddRoom} isDisabled={loading}>
                 <Text color={Colors.white}>{loading ? i18n.t('loading') : i18n.t('save')}</Text>
               </Button>
             </HStack>

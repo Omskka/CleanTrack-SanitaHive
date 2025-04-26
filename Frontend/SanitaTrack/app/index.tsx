@@ -7,6 +7,7 @@ import { Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // For storing user token
+import { login } from '@/api/apiService'; 
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
@@ -18,51 +19,29 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     if (!phone.trim()) {
       setError(i18n.t('enterPhone'));
-    } else if (!password.trim()) {
+      return;
+    }
+    if (!password.trim()) {
       setError(i18n.t('enterPassword'));
-    } else {
-      setError('');
-      try {
-        const response = await fetch('http://10.0.2.2:8080/api/v1/users/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ phoneNumber: phone, password: password }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          console.log('Login Successful', result);
-
-          // Assuming result contains a userID (token)
-          const userID = result?.userId;
-
-          if (userID) {
-            // Store the user token securely (e.g., AsyncStorage)
-            await AsyncStorage.setItem('userToken', JSON.stringify(userID));
-
-            // Get isManager
-            const isManager = result?.manager;
-            console.log('isManager', isManager);
-
-            // Navigate based on role
-            if (isManager) {
-              router.push('/(manager)/team');
-            } else {
-              router.push('/workerHomepage');
-            }
-          } else {
-            setError(i18n.t('loginFailed'));  // Handle missing userID in response
-          }
-        } else {
-          setError(result || i18n.t('loginFailed'));
-        }
-      } catch (error) {
-        console.error('Login Failed', error);
-        setError(i18n.t('serverError'));
+      return;
+    }
+  
+    setError('');
+    try {
+      const result = await login(phone, password);
+      console.log('Login successful', result);
+  
+      const userID = result?.userId;
+      if (userID) {
+        await AsyncStorage.setItem('userToken', JSON.stringify(userID));
+        const isManager = result?.manager;
+        isManager ? router.push('/(manager)/team') : router.push('/workerHomepage');
+      } else {
+        setError(i18n.t('loginFailed'));
       }
+    } catch (error) {
+      console.error('Login Failed', error);
+      setError(i18n.t('serverError'));
     }
   };
 
@@ -184,7 +163,7 @@ export default function LoginScreen() {
             <Box alignItems="center" mt="$2">
               <Text fontSize="$sm">{i18n.t('isManager')}</Text>
               <Pressable>
-                <Link href="/createTeam">
+                <Link href="/(manager)">
                   <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
                 </Link>
               </Pressable>

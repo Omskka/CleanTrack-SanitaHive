@@ -19,6 +19,7 @@ import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language suppor
 import { Colors } from '../constants/Colors';
 import { Link, router } from 'expo-router';
 import UUID from 'react-native-uuid';
+import { registerUser, createTeam } from '@/api/apiService'; 
 
 export default function CreateTeam() {
   const [name, setName] = useState('');
@@ -40,74 +41,54 @@ export default function CreateTeam() {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
-      // Generate a unique userId using react-native-uuid
-      const userId = UUID.v4();  // Generate a unique v4 UUID
-
-      const userResponse = await fetch('http://10.0.2.2:8080/api/v1/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: userId,
-          name: name.trim(),
-          surname: surname.trim(),
-          phoneNumber: phone.trim(),
-          password: password.trim(),
-          manager: true,
-          lang: language,
-        }),
-      });
-
-      const userData = await userResponse.json();  // Parse JSON response
-
-      console.log('User Data:', userData);  // Log response to inspect the structure
-
-      if (userResponse.ok) {
-        const managerId = userData.userId; // Ensure it's a string
-        console.log('--userID--:', managerId);
-
-
-        // After successful user registration, create a team with the new manager
-        const teamResponse = await fetch('http://10.0.2.2:8080/api/v1/teams', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            teamName: teamName.trim(),  // You can dynamically set the team name as well
-            managerId: managerId,  // Set the new user's ID as the manager of the team
-            employeeId: [],  // Initially, no employees (you can update later)
-          }),
-        });
-
-        const teamData = await teamResponse.json();
-
-        if (teamResponse.ok) {
-          console.log('Team created successfully:', teamData);
-          // Handle the success after creating the team
-        } else {
-          console.error('Failed to create team:', teamData);
-          setError(teamData.message || 'Failed to create team');
-        }
-
-        // Success: Show alert and navigate to login page
-        setError('');
-        alert('Account and team created successfully!');
-        setTimeout(() => {
-          router.push('/');
-        }, 100);  // Delay to let the toast show
-      } else {
-        console.error('Registration failed:', userData);
-        setError(userData.message || i18n.t('registrationFailed'));
+      // Generate a unique userId
+      const userId = UUID.v4();
+  
+      // 1️⃣ Register the Manager User
+      const newUser = {
+        userId: userId as string, // UUID.v4() returns string | number[], so we cast it
+        name: name.trim(),
+        surname: surname.trim(),
+        phoneNumber: phone.trim(),
+        password: password.trim(),
+        isManager: true,
+        lang: language,
+      };
+  
+      const userData = await registerUser(newUser);
+      console.log('User Data:', userData);
+  
+      if (!userData || !userData.userId) {
+        throw new Error('User registration failed: Missing userId');
       }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      setError(i18n.t('networkError'));
+  
+      const managerId = userData.userId;
+      console.log('--userID--:', managerId);
+  
+      // 2️⃣ Create a Team for this Manager
+      const teamData = {
+        teamName: teamName.trim(),
+        managerId: managerId,
+        employeeId: [],
+      };
+  
+      const teamResult = await createTeam(teamData);
+      console.log('Team created successfully:', teamResult);
+  
+      // 3️⃣ Success: Show alert and navigate
+      setError('');
+      alert('Account and team created successfully!');
+      setTimeout(() => {
+        router.push('/');
+      }, 100);
+  
+    } catch (error: any) {
+      console.error('Error during team creation flow:', error);
+      setError(error.message || i18n.t('networkError'));
     } finally {
       setLoading(false);
     }

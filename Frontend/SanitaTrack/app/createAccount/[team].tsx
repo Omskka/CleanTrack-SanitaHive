@@ -19,6 +19,7 @@ import { useRouter } from 'expo-router';  // Navigation with useRouter
 import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
+import { registerUser } from '@/api/apiService';
 
 export default function CreateAccount() {
     const [name, setName] = useState('');
@@ -36,58 +37,49 @@ export default function CreateAccount() {
 
     const handleRegister = async () => {
         if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim()) {
-            setError(i18n.t('allFieldsRequired'));
-            return;
+          setError(i18n.t('allFieldsRequired'));
+          return;
         }
-
+      
         setLoading(true);
-
+      
         try {
-
-            // Generate a unique userId using react-native-uuid
-            const userId = UUID.v4();  // Generate a unique v4 UUID
-
-            const response = await fetch('http://10.0.2.2:8080/api/v1/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    name: name.trim(),
-                    surname: surname.trim(),
-                    phoneNumber: phone.trim(),
-                    password: password.trim(),
-                    isManager: false,
-                    lang: language,
-                }),
-            });
-
-            const responseText = await response.text(); // Get error message if any
-
-            if (response.ok) {
-                console.log('User registered successfully:', responseText);
-                setError('');
-                alert(('Account registered successfully'));
-                // Navigate to login after short delay 
-                setTimeout(() => {
-                    router.push('/');
-                }, 100); // Delay to let the toast show
-            } else {
-                console.error(responseText);
-                if (responseText.includes("Phone number already exists")) {
-                    setError(i18n.t('phoneExists')); // Show error message for duplicate phone number
-                } else {
-                    setError(responseText || i18n.t('registrationFailed'));
-                }
-            }
-        } catch (error) {
-            console.error('Error during registration:', error);
-            setError(i18n.t('networkError'));
+          const userId = UUID.v4();
+      
+          const newUser = {
+            userId: userId as string,
+            name: name.trim(),
+            surname: surname.trim(),
+            phoneNumber: phone.trim(),
+            password: password.trim(),
+            isManager: false,
+            lang: language,
+          };
+      
+          const userData = await registerUser(newUser);
+      
+          console.log('User registered successfully:', userData);
+      
+          setError('');
+          alert('Account registered successfully!');
+      
+          setTimeout(() => {
+            router.push('/');
+          }, 100);
+      
+        } catch (error: any) {
+          console.error('Error during registration:', error);
+      
+          if (error.message?.includes('Phone number already exists')) {
+            setError(i18n.t('phoneExists'));
+          } else {
+            setError(error.message || i18n.t('registrationFailed'));
+          }
+      
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
