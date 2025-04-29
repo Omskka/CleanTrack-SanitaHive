@@ -27,7 +27,7 @@ public class UserService {
     }
 
     // Authenticate user by phone number and password
-    public Optional<User> authenticateUser(long phoneNumber, String password) {
+    public Optional<User> authenticateUser(String phoneNumber, String password) {
         return userRepository.findByPhoneNumberAndPassword(phoneNumber, password);
     }
 }

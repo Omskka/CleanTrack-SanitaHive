@@ -20,8 +20,11 @@ import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
 import { registerUser } from '@/api/apiService';
+import axiosInstance from '@/api/axiosInstance'; // Ensure axiosInstance is imported
+
 
 export default function CreateAccount() {
+    const [teamCode, setTeamCode] = useState('');
     const [name, setName] = useState('');
     const [surname, setSurname] = useState('');
     const [phone, setPhone] = useState('');
@@ -36,50 +39,71 @@ export default function CreateAccount() {
     };
 
     const handleRegister = async () => {
-        if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim()) {
-          setError(i18n.t('allFieldsRequired'));
-          return;
+        if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim() || !teamCode.trim()) {
+            setError(i18n.t('allFieldsRequired'));
+            return;
         }
-      
+
         setLoading(true);
-      
+
         try {
-          const userId = UUID.v4();
-      
-          const newUser = {
-            userId: userId as string,
-            name: name.trim(),
-            surname: surname.trim(),
-            phoneNumber: phone.trim(),
-            password: password.trim(),
-            isManager: false,
-            lang: language,
-          };
-      
-          const userData = await registerUser(newUser);
-      
-          console.log('User registered successfully:', userData);
-      
-          setError('');
-          alert('Account registered successfully!');
-      
-          setTimeout(() => {
-            router.push('/');
-          }, 100);
-      
+            const userId = UUID.v4();
+
+            // 2. Register the user (your registerUser function handles this)
+            const newUser = {
+                userId,
+                name: name.trim(),
+                surname: surname.trim(),
+                phoneNumber: phone.trim(),
+                password: password.trim(),
+                isManager: false,
+                lang: language,
+            };
+
+            const userData = await registerUser(newUser);
+
+            // 1. Fetch the team using the /by-teamcode/{teamCode} endpoint
+            const teamResponse = await fetch(`http://10.0.2.2:8080/api/v1/teams/by-teamcode/${teamCode}`);
+            const teamData = await teamResponse.json();
+
+            if (!teamResponse.ok || !teamData || !teamData.managerId) {
+                setError(i18n.t('invalidTeamCode'));
+                setLoading(false);
+                return;
+            }
+
+            // 3. Update the team: Add the new user's ID to the employeeId array
+            const updateResponse = await fetch(`http://10.0.2.2:8080/api/v1/teams/add-employee/${teamData.managerId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ employeeId: userId }),
+            });
+
+            console.log('Response status:', updateResponse.status);
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update team with employee ID');
+            }
+
+            console.log('User registered successfully:', userData);
+
+            setError('');
+            alert('Account registered successfully!');
+            setTimeout(() => {
+                router.push('/');
+            }, 100);
         } catch (error: any) {
-          console.error('Error during registration:', error);
-      
-          if (error.message?.includes('Phone number already exists')) {
-            setError(i18n.t('phoneExists'));
-          } else {
-            setError(error.message || i18n.t('registrationFailed'));
-          }
-      
+            console.error('Error during registration:', error);
+            if (error.message?.includes('Phone number already exists')) {
+                setError(i18n.t('phoneExists'));
+            } else {
+                setError(error.message || i18n.t('registrationFailed'));
+            }
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
+
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -119,6 +143,28 @@ export default function CreateAccount() {
                     </Heading>
 
                     <VStack space="lg" mt="$4">
+                        {/* Team Code */}
+                        <FormControl isInvalid={!!error && !teamCode.trim()}>
+                            <FormControlLabel>
+                                <Text>{('Team Code')}</Text>
+                            </FormControlLabel>
+
+                            <Input>
+                                <InputField fontSize="$sm" placeholder={('Enter team code')}
+                                    value={teamCode}
+                                    onChangeText={(text) => {
+                                        setTeamCode(text);
+                                        if (error) setError('');
+                                    }}
+                                />
+                            </Input>
+
+                            {!!error && !teamCode.trim() && (
+                                <FormControlError style={{ position: 'absolute', bottom: -14 }}>
+                                    <Text color={Colors.error} fontSize="$xs">{('Enter team code')}</Text>
+                                </FormControlError>
+                            )}
+                        </FormControl>
                         {/* Name */}
                         <FormControl isInvalid={!!error && !name.trim()}>
                             <FormControlLabel>

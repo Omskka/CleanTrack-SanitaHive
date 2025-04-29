@@ -26,4 +26,20 @@ public class TeamsService {
     public Optional<Teams> getTeamByManagerId(String managerId) {
         return teamsRepository.findByManagerId(managerId);
     }
+
+    public Optional<Teams> getTeamByTeamCode(String teamCode) {
+        return teamsRepository.findByManagerIdStartingWith(teamCode);
+    }
+
+    public Optional<Teams> getTeamById(String id) {
+        return teamsRepository.findById(id);
+    }
+
+    public Teams addEmployeeToTeam(Teams team, String employeeId) {
+        if (!team.getEmployeeIds().contains(employeeId)) {
+            team.getEmployeeIds().add(employeeId);
+            return teamsRepository.save(team);
+        }
+        return team;
+    }
 }

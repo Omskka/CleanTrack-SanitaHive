@@ -9,4 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TeamsRepository extends MongoRepository<Teams, ObjectId> {
     Optional<Teams> findByManagerId(String managerId);
+
+    Optional<Teams> findByManagerIdStartingWith(String teamCode);
+
+    Optional<Teams> findById(String id);
+
 }

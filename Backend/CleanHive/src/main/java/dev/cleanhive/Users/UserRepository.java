@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends MongoRepository<User, ObjectId> {
     
     // Find user by phone number and password (for login)
-    Optional<User> findByPhoneNumberAndPassword(long phoneNumber, String password);
+    Optional<User> findByPhoneNumberAndPassword(String phoneNumber, String password);
     
     // Check if a user already exists by phone number
-    Optional<User> findByPhoneNumber(long phoneNumber);
+    Optional<User> findByPhoneNumber(String phoneNumber);
 }

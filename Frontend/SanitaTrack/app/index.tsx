@@ -7,7 +7,7 @@ import { Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // For storing user token
-import { login } from '@/api/apiService'; 
+import { login } from '@/api/apiService';
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
@@ -25,12 +25,12 @@ export default function LoginScreen() {
       setError(i18n.t('enterPassword'));
       return;
     }
-  
+
     setError('');
     try {
       const result = await login(phone, password);
       console.log('Login successful', result);
-  
+
       const userID = result?.userId;
       if (userID) {
         await AsyncStorage.setItem('userToken', JSON.stringify(userID));
@@ -165,6 +165,14 @@ export default function LoginScreen() {
               <Pressable>
                 <Link href="/(manager)">
                   <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
+                </Link>
+              </Pressable>
+            </Box>
+            <Box alignItems="center" mt="$2">
+              <Text fontSize="$sm">{('Worker')}</Text>
+              <Pressable>
+                <Link href="/createAccount/user">
+                  <Text color={Colors.text} fontWeight="bold">{('Register')}</Text>
                 </Link>
               </Pressable>
             </Box>

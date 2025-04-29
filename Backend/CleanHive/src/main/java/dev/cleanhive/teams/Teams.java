@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.List;
+import java.util.ArrayList;
 
 @Document(collection = "teams")
 @Data
@@ -25,4 +26,12 @@ public class Teams {
 
     // ObjectId for the manager
     private String managerId;
+
+    public List<String> getEmployeeIds() {
+        return employeeId;
+    }
+
+    public void setEmployeeIds(List<String> employeeId) {
+        this.employeeId = employeeId;
+    }
 }
