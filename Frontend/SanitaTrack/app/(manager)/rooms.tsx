@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, FlatList } from 'react-native';
+import { Modal, View } from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // ✅ FIXED: Import Picker
 import {
   Box,
   HStack,
@@ -11,7 +12,7 @@ import {
   Icon,
   InputSlot,
 } from '@gluestack-ui/themed';
-import { Search, Plus, Trash } from 'lucide-react-native';
+import { Search, Plus } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,6 +35,12 @@ export default function RoomsScreen() {
   const [userID, setUserID] = useState('');
   const [rooms, setRooms] = useState<Room[]>([]);
 
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [newCategory, setNewCategory] = useState('');
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+
   useEffect(() => {
     const fetchUserID = async () => {
       try {
@@ -51,7 +58,6 @@ export default function RoomsScreen() {
 
   useEffect(() => {
     if (!userID) return;
-
     handleFetchRooms();
   }, [userID]);
 
@@ -61,6 +67,8 @@ export default function RoomsScreen() {
       const roomsData = await fetchRooms();
       const filteredRooms = roomsData.filter((room: Room) => room.teamId === userID);
       setRooms(filteredRooms);
+      const uniqueCategories = Array.from(new Set((filteredRooms as Room[]).map(r => r.roomFloor)));
+      setCategories(uniqueCategories);
       setError('');
     } catch (error: any) {
       console.error('Error fetching rooms:', error);
@@ -69,22 +77,26 @@ export default function RoomsScreen() {
       setLoading(false);
     }
   };
-  
+
   const handleAddRoom = async () => {
-    if (!roomName.trim() || !roomFloor.trim()) {
+    const finalCategory = isAddingCategory ? newCategory.trim() : selectedCategory;
+    if (!roomName.trim() || !finalCategory) {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
-  
+
     setLoading(true);
     setError('');
     try {
-      await addRoom(roomName.trim(), roomFloor.trim(), userID);
+      await addRoom(roomName.trim(), finalCategory, userID);
       alert('Room Created Successfully!');
       setModalVisible(false);
       setRoomName('');
       setRoomFloor('');
-      handleFetchRooms(); // refresh room list
+      setSelectedCategory('');
+      setNewCategory('');
+      setIsAddingCategory(false);
+      handleFetchRooms();
     } catch (error: any) {
       console.error('Error creating room:', error);
       setError(error.message || i18n.t('failedToCreateRoom'));
@@ -92,14 +104,14 @@ export default function RoomsScreen() {
       setLoading(false);
     }
   };
-  
+
   const handleDeleteRoom = async (teamId: string, roomName: string) => {
     setLoading(true);
     try {
       await deleteRoom(teamId, roomName);
       alert('Room deleted successfully!');
-      setRooms((prevRooms) =>
-        prevRooms.filter((room) => !(room.roomName === roomName && room.teamId === teamId))
+      setRooms((prev) =>
+        prev.filter((room) => !(room.roomName === roomName && room.teamId === teamId))
       );
     } catch (error: any) {
       console.error('Error deleting room:', error);
@@ -109,13 +121,11 @@ export default function RoomsScreen() {
     }
   };
 
-
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header */}
       <Box px="$4" py="$6" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>Rooms</Heading>
-
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>
             <InputSlot pl="$3">
@@ -141,41 +151,87 @@ export default function RoomsScreen() {
 
       {/* Room List */}
       <Box px="$4" py="$4" bg={Colors.white}>
-        <FlatList
-          data={rooms}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Box
-              key={item.id} // optional if using keyExtractor, but helps in case of non-FlatList items
-              mb="$2"
-              bg={Colors.white}
-              p="$4"
-              rounded="$md"
-              flexDirection="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <View>
-                <Text fontWeight="bold">{item.roomName}</Text>
-                <Text>{`Floor: ${item.roomFloor}`}</Text>
-              </View>
+        {categories.map((category) => {
+          const isExpanded = expandedCategories[category];
+          const roomsInCategory = rooms.filter((room) => room.roomFloor === category);
+
+          return (
+            <Box key={category} mb="$3">
               <Button
-                bg={Colors.error}
-                rounded="$lg"
-                onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
+                variant="outline"
+                onPress={() =>
+                  setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }))
+                }
               >
-                <Text color={Colors.white}>{('delete')}</Text>
+                <Text fontWeight="bold">{category}</Text>
               </Button>
+
+              {isExpanded &&
+                roomsInCategory.map((item) => (
+                  <Box
+                    key={item.id}
+                    mb="$2"
+                    bg={Colors.white}
+                    p="$4"
+                    rounded="$md"
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <View>
+                      <Text fontWeight="bold">{item.roomName}</Text>
+                      <Text>{`Category: ${item.roomFloor}`}</Text>
+                    </View>
+                    <Button
+                      bg={Colors.error}
+                      rounded="$lg"
+                      onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
+                    >
+                      <Text color={Colors.white}>{i18n.t('delete')}</Text>
+                    </Button>
+                  </Box>
+                ))}
             </Box>
-          )}
-        />
+          );
+        })}
       </Box>
 
       {/* Modal for Adding Room */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <Box flex={1} justifyContent="center" alignItems="center" bg="rgba(0,0,0,0.5)">
           <Box bg={Colors.white} p="$6" rounded="$lg" width="80%">
-            <Heading size="md">{('Enter Room Information')}</Heading>
+            <Heading size="md">{i18n.t('enterRoomInformation')}</Heading>
+
+            {/* Category Picker */}
+            <Box mt="$4">
+              <HStack alignItems="center" space="sm">
+                <Box flex={1} borderWidth={1} borderColor={Colors.gray} borderRadius="$md">
+                  <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                  >
+                    <Picker.Item label={i18n.t('chooseCategory')} value="" />
+                    {categories.map((cat) => (
+                      <Picker.Item key={cat} label={cat} value={cat} />
+                    ))}
+                  </Picker>
+                </Box>
+                <Button onPress={() => setIsAddingCategory(!isAddingCategory)} bg={Colors.text}>
+                  <Icon as={Plus} color={Colors.white} />
+                </Button>
+              </HStack>
+            </Box>
+
+            {/* Add New Category Input */}
+            {isAddingCategory && (
+              <Input mt="$2">
+                <InputField
+                  placeholder={i18n.t('enterNewCategory')}
+                  value={newCategory}
+                  onChangeText={setNewCategory}
+                />
+              </Input>
+            )}
 
             {/* Room Name Input */}
             <Input mt="$4">
@@ -183,16 +239,6 @@ export default function RoomsScreen() {
                 placeholder={i18n.t('roomName')}
                 value={roomName}
                 onChangeText={setRoomName}
-              />
-            </Input>
-
-            {/* Room Number Input */}
-            <Input mt="$2">
-              <InputField
-                placeholder={('Floor Number')}
-                value={roomFloor}
-                onChangeText={setRoomFloor}
-                keyboardType="numeric"
               />
             </Input>
 
@@ -206,7 +252,9 @@ export default function RoomsScreen() {
                 <Text color={Colors.white}>{i18n.t('cancel')}</Text>
               </Button>
               <Button bg={Colors.text} onPress={handleAddRoom} isDisabled={loading}>
-                <Text color={Colors.white}>{loading ? i18n.t('loading') : i18n.t('save')}</Text>
+                <Text color={Colors.white}>
+                  {loading ? i18n.t('loading') : i18n.t('save')}
+                </Text>
               </Button>
             </HStack>
           </Box>
