@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
-import { Box, VStack, Heading, Input, InputField, Button, Text, Pressable, FormControl, FormControlLabel, FormControlError, Image } from '@gluestack-ui/themed';
+import { Box, VStack, Heading, Input, InputField, Button, Text, Pressable, FormControl, FormControlLabel, FormControlError, Image, HStack } from '@gluestack-ui/themed';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
@@ -160,22 +160,24 @@ export default function LoginScreen() {
             </Button>
 
             {/* Create Team */}
-            <Box alignItems="center" mt="$2">
-              <Text fontSize="$sm">{i18n.t('isManager')}</Text>
-              <Pressable>
-                <Link href="/(manager)">
-                  <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
-                </Link>
-              </Pressable>
-            </Box>
-            <Box alignItems="center" mt="$2">
-              <Text fontSize="$sm">{('Worker')}</Text>
-              <Pressable>
-                <Link href="/createAccount/user">
-                  <Text color={Colors.text} fontWeight="bold">{('Register')}</Text>
-                </Link>
-              </Pressable>
-            </Box>
+            <HStack justifyContent="space-evenly">
+              <Box alignItems="center" mt="$2">
+                <Text fontSize="$sm">{i18n.t('isManager')}</Text>
+                <Pressable>
+                  <Link href="/createTeam">
+                    <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
+                  </Link>
+                </Pressable>
+              </Box>
+              <Box alignItems="center" mt="$2">
+                <Text fontSize="$sm">{i18n.t('isWorker')}</Text>
+                <Pressable>
+                  <Link href="/createAccount/user">
+                    <Text color={Colors.text} fontWeight="bold">{i18n.t('register')}</Text>
+                  </Link>
+                </Pressable>
+              </Box>
+            </HStack>
           </VStack>
         </Box>
       </View>

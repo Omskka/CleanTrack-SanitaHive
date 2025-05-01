@@ -11,7 +11,9 @@ export const translations = {
     loginButton: 'Log In',
     continue: 'Continue',
     isManager: 'Are you a manager?',
+    isWorker: 'Are you a worker?',
     createTeam: 'Create team',
+    register: 'Register',
 
     teamTitle: 'TEAM',
     searchMemberPlaceholder: 'Search member...',
@@ -20,6 +22,9 @@ export const translations = {
     noResultsMember: 'No members found.',
 
     registerTitle: "Register",
+    teamCode: "Team Code",
+    teamCodePlaceholder: "Enter your team code",
+    enterTeamCode: "Please enter your team code",
     name: "Name",
     namePlaceholder: "Enter your name",
     enterName: "Please enter your name",
@@ -79,7 +84,9 @@ export const translations = {
     loginButton: 'Giriş Yap',
     continue: 'Devam Et',
     isManager: 'Yönetici misiniz?',
+    isWorker: 'Çalışan mısınız?',
     createTeam: 'Takım oluşturun',
+    register: 'Kayıt Ol',
 
     teamTitle: 'TAKIM',
     searchMemberPlaceholder: 'Üye ara...',
@@ -88,6 +95,9 @@ export const translations = {
     noResultsMember: 'Üye bulunamadı.',
 
     registerTitle: "Kayıt Ol",
+    teamCode: "Takım Kodu",
+    teamCodePlaceholder: "Takım kodunuzu girin",
+    enterTeamCode: "Lütfen takım kodunuzu girin",
     name: "Ad",
     namePlaceholder: "Adınızı girin",
     enterName: "Lütfen adınızı girin",
@@ -99,7 +109,7 @@ export const translations = {
     loginHere: "Buradan giriş yap",
     allFieldsRequired: "Lütfen tüm alanları doldurun.",
 
-    createTeamTitle: "Kendi Takımınızı Oluşturun",
+    createTeamTitle: "Takımınızı Oluşturun",
     companyNameLabel: "Kurum Adı",
     companyNamePlaceholder: "Kurum adınızı girin",
     createTeamButton: "Takım Oluştur",

@@ -146,11 +146,11 @@ export default function CreateAccount() {
                         {/* Team Code */}
                         <FormControl isInvalid={!!error && !teamCode.trim()}>
                             <FormControlLabel>
-                                <Text>{('Team Code')}</Text>
+                                <Text>{i18n.t('teamCode')}</Text>
                             </FormControlLabel>
 
                             <Input>
-                                <InputField fontSize="$sm" placeholder={('Enter team code')}
+                                <InputField fontSize="$sm" placeholder={i18n.t('teamCodePlaceholder')}
                                     value={teamCode}
                                     onChangeText={(text) => {
                                         setTeamCode(text);
@@ -161,7 +161,7 @@ export default function CreateAccount() {
 
                             {!!error && !teamCode.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
-                                    <Text color={Colors.error} fontSize="$xs">{('Enter team code')}</Text>
+                                    <Text color={Colors.error} fontSize="$xs">{('enterTeamCode')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
