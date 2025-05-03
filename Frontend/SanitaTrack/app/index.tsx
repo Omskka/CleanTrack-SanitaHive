@@ -164,7 +164,7 @@ export default function LoginScreen() {
               <Box alignItems="center" mt="$2">
                 <Text fontSize="$sm">{i18n.t('isManager')}</Text>
                 <Pressable>
-                  <Link href="/createTeam">
+                  <Link href="/feedback/53">
                     <Text color={Colors.text} fontWeight="bold">{i18n.t('createTeam')}</Text>
                   </Link>
                 </Pressable>
