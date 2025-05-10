@@ -12,6 +12,10 @@ public interface TeamsRepository extends MongoRepository<Teams, ObjectId> {
 
     Optional<Teams> findByManagerIdStartingWith(String teamCode);
 
+    // Find team by ID
     Optional<Teams> findById(String id);
+
+    // Find team by userID
+    Optional<Teams> findByEmployeeIdContaining(String employeeId);
 
 }

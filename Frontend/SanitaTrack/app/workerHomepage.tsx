@@ -17,6 +17,8 @@ import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import { Phone, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Linking } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchAllUsers, fetchTeam, login } from '@/api/apiService';
 
 interface Task {
   date: string; // YYYY-MM-DD format
@@ -30,22 +32,26 @@ interface Task {
   totalTime: string;
 }
 
+interface User {
+  userId: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
+}
+
 interface UploadedImages {
   [taskId: string]: string[];
 }
 
-const callPhone = (phoneNumber: string) => {
-  Linking.openURL(`tel:${phoneNumber}`);
-};
 
 const WorkerHomepage = () => {
   const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [userID, setUserID] = useState('');
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
   const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
-  const managerPhoneNumber = '905551112233';
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
@@ -90,6 +96,65 @@ const WorkerHomepage = () => {
 
     setTasks(mockTasks);
   }, [language]);
+
+  useEffect(() => {
+    const fetchUserID = async () => {
+      try {
+        const storedUserID = await AsyncStorage.getItem('userToken');
+        if (storedUserID) {
+          setUserID(storedUserID);
+        }
+      } catch (error) {
+        console.error('Error fetching userID from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserID();
+  }, []);
+
+  // Call manager function
+  const callPhone = async () => {
+    try {
+      console.log("UserID:", userID);
+
+      if (!userID) {
+        console.error("❌ userID is not set yet.");
+        alert("User ID is not available. Please try again later.");
+        return;
+      }
+
+      // Step 1: Fetch the user's team
+      const team = await fetchTeam("b642274b-e73c-4c95-aa6f-a1c6a4749f75");
+      console.log("Team:", team);
+
+      const managerUserID = team.managerId;
+      console.log("Manager UserID:", managerUserID);
+      if (!managerUserID) {
+        console.error("❌ Manager UserID is not available.");
+        alert("Manager UserID is not available. Please try again later.");
+        return;
+      }
+
+      // Step 2: Fetch all users and find the manager
+      const allUsers = await fetchAllUsers();
+      const manager = allUsers.find((user: User) => user.userId === managerUserID);
+
+      if (!manager) {
+        console.error("❌ Manager not found in user list.");
+        alert("Manager not found. Please try again later.");
+        return;
+      }
+
+      const phoneNumber = manager.phoneNumber;
+      console.log("📞 Calling phone number:", phoneNumber);
+
+      // Step 3: Call the manager
+      Linking.openURL(`tel:${phoneNumber}`);
+    } catch (error) {
+      console.error("❌ Error calling manager:", error);
+      alert("Failed to initiate call. Please try again later.");
+    }
+  };
 
   const filteredTasks = tasks.filter(
     task => task.date === selectedDate.toISOString().split('T')[0]
@@ -251,7 +316,7 @@ const WorkerHomepage = () => {
       </ScrollView>
 
       <HStack space="md" justifyContent="space-between" mb="$4">
-        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone(managerPhoneNumber)}>
+        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone()}>
           <HStack alignItems="center" justifyContent="center" space="sm">
             <Icon as={Phone} color={Colors.white} size="sm" />
             <Text color={Colors.white}>{i18n.t('contactManager')}</Text>

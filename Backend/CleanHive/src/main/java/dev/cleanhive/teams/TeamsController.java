@@ -58,4 +58,11 @@ public class TeamsController {
         }
     }
 
+    @GetMapping("/by-employee/{employeeId}")
+    public ResponseEntity<Teams> getTeamByEmployeeId(@PathVariable String employeeId) {
+        Optional<Teams> team = teamsService.getTeamByEmployeeId(employeeId);
+        return team.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

@@ -10,6 +10,16 @@ export const fetchRooms = async () => {
   return response.data;
 };
 
+export const fetchTeam = async (employeeId: string) => {
+  const response = await axiosInstance.get(`/teams/by-employee/${employeeId}`);
+  return response.data;
+};
+
+export const fetchAllUsers = async () => {
+  const response = await axiosInstance.get('/users');
+  return response.data; // Should be an array of users
+};
+
 export const addRoom = async (roomName: string, roomFloor: string, teamId: string) => {
   const response = await axiosInstance.post('/rooms', {
     roomName,

@@ -42,4 +42,9 @@ public class TeamsService {
         }
         return team;
     }
+
+    // Fetch team by employeeID
+    public Optional<Teams> getTeamByEmployeeId(String employeeId) {
+        return teamsRepository.findByEmployeeIdContaining(employeeId);
+    }
 }
