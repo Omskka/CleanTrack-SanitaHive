@@ -115,7 +115,7 @@ const WorkerHomepage = () => {
   // Call manager function
   const callPhone = async () => {
     try {
-      console.log("UserID:", userID);
+      console.log("UserID :", userID);
 
       if (!userID) {
         console.error("❌ userID is not set yet.");
@@ -124,7 +124,9 @@ const WorkerHomepage = () => {
       }
 
       // Step 1: Fetch the user's team
-      const team = await fetchTeam("b642274b-e73c-4c95-aa6f-a1c6a4749f75");
+      const cleanedUserID = userID.replace(/^"(.*)"$/, '$1').trim();
+      const team = await fetchTeam(cleanedUserID);
+
       console.log("Team:", team);
 
       const managerUserID = team.managerId;
