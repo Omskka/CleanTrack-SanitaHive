@@ -18,6 +18,9 @@ public class Tasks {
     @Id
     private ObjectId id;
 
+    // taskId
+    private String taskId;
+
     // ObjectId for the manager
     private String managerId;
 

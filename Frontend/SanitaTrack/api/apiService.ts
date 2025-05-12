@@ -20,6 +20,14 @@ export const fetchTasks = async () => {
   return response.data;
 };
 
+export const markTaskAsDone = async (taskId: string) => {
+  const url = `/tasks/${taskId}/complete`;
+  console.log('Request URL:', url); // Log URL here
+  const response = await axiosInstance.put(url);
+  return response.data;
+};
+
+
 export const fetchAllUsers = async () => {
   const response = await axiosInstance.get('/users');
   return response.data; // Should be an array of users

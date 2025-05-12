@@ -18,7 +18,7 @@ import { Colors } from '@/constants/Colors';
 import { Phone, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllUsers, fetchTasks, fetchTeam, login } from '@/api/apiService';
+import { fetchAllUsers, fetchTasks, fetchTeam, login, markTaskAsDone } from '@/api/apiService';
 
 interface Task {
   taskId: string; // corresponds to `id: ObjectId`
@@ -177,15 +177,22 @@ const WorkerHomepage = () => {
   }, [userID]);
 
 
-  const submitTask = (taskId: string) => {
-    if (!uploadedImages[taskId]?.length) {
+  const submitTask = async (taskId: string) => {
+    /* if (!uploadedImages[taskId]?.length) {
       alert(i18n.t('uploadAtLeastOneImage'));
       return;
-    }
+    } */
 
-    setTasks(tasks.map(task =>
-      task.taskId === taskId ? { ...task, completed: true } : task
-    ));
+    try {
+      console.log('taskId passed:', taskId); // Check the taskId value here
+
+      await markTaskAsDone(taskId); // ✅ update on backend
+      setTasks(tasks.map(task =>
+        task.taskId === taskId ? { ...task, completed: true } : task
+      ));
+    } catch (err) {
+      console.error('Failed to complete task:', err);
+    }
   };
 
   const renderDetail = (rowData: Task) => {
@@ -252,7 +259,7 @@ const WorkerHomepage = () => {
 
               <Button
                 bg={uploadedImages[rowData.taskId]?.length ? Colors.text : Colors.gray}
-                isDisabled={!uploadedImages[rowData.taskId]?.length}
+                //isDisabled={!uploadedImages[rowData.taskId]?.length}
                 onPress={() => submitTask(rowData.taskId)}
                 size="sm"
               >
@@ -284,6 +291,7 @@ const WorkerHomepage = () => {
               description: task.description,
               startTime: task.startTime,
               endTime: task.endTime,
+              taskId: task.taskId,
             }))}
 
             circleSize={20}

@@ -20,4 +20,20 @@ public class TasksController {
     public ResponseEntity<List<Tasks>> getAllTasks() {
         return new ResponseEntity<>(tasksService.allTasks(), HttpStatus.OK);
     }
+
+    @Autowired
+    private TasksRepository tasksRepository;
+
+    @PutMapping("/{taskId}/complete")
+    public ResponseEntity<?> markTaskAsDone(@PathVariable String taskId) {
+        Optional<Tasks> taskOptional = tasksRepository.findByTaskId(taskId);
+        if (taskOptional.isPresent()) {
+            Tasks task = taskOptional.get();
+            task.setDone(true); // mark task as done
+            tasksRepository.save(task);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+    }
 }
