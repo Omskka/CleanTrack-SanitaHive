@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, View } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // ✅ FIXED: Import Picker
+import { Picker } from '@react-native-picker/picker';
 import {
   Box,
   HStack,
@@ -11,8 +11,10 @@ import {
   Text,
   Icon,
   InputSlot,
+  VStack,
+  Pressable,
 } from '@gluestack-ui/themed';
-import { Search, Plus } from 'lucide-react-native';
+import { Search, Plus, ChevronDown, ChevronRight } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -121,6 +123,24 @@ export default function RoomsScreen() {
     }
   };
 
+  // Toggle category expansion
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  // Filter rooms based on search text
+  const filteredRooms = rooms.filter(room => 
+    room.roomName.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // Get filtered categories (categories with at least one room that matches the search)
+  const filteredCategories = categories.filter(category => 
+    filteredRooms.some(room => room.roomFloor === category)
+  );
+
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header */}
@@ -149,54 +169,70 @@ export default function RoomsScreen() {
         </Button>
       </Box>
 
-      {/* Room List */}
-      <Box px="$4" py="$4" bg={Colors.white}>
-        {categories.map((category) => {
-          const isExpanded = expandedCategories[category];
-          const roomsInCategory = rooms.filter((room) => room.roomFloor === category);
+      {/* Room List with Dropdown-style Categories */}
+      <Box flex={1} px="$4" py="$4" bg={Colors.background}>
+        <VStack space="md">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => {
+              const isExpanded = expandedCategories[category];
+              const roomsInCategory = filteredRooms.filter((room) => room.roomFloor === category);
 
-          return (
-            <Box key={category} mb="$3">
-              <Button
-                variant="outline"
-                onPress={() =>
-                  setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }))
-                }
-              >
-                <Text fontWeight="bold">{category}</Text>
-              </Button>
-
-              {isExpanded &&
-                roomsInCategory.map((item) => (
-                  <Box
-                    key={item.id}
-                    mb="$2"
+              return (
+                <Box key={category} bg={Colors.white} rounded="$lg" overflow="hidden" shadow="sm">
+                  {/* Category Header - Styled as dropdown */}
+                  <Pressable
+                    onPress={() => toggleCategory(category)}
+                    px="$4"
+                    py="$3"
                     bg={Colors.white}
-                    p="$4"
-                    rounded="$md"
-                    flexDirection="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+                    borderBottomWidth={isExpanded ? 1 : 0}
+                    borderBottomColor={Colors.gray}
                   >
-                    <View>
-                      <Text fontWeight="bold">{item.roomName}</Text>
-                      <Text>{`Category: ${item.roomFloor}`}</Text>
-                    </View>
-                    <Button
-                      bg={Colors.error}
-                      rounded="$lg"
-                      onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
-                    >
-                      <Text color={Colors.white}>{i18n.t('delete')}</Text>
-                    </Button>
-                  </Box>
-                ))}
+                    <HStack justifyContent="space-between" alignItems="center">
+                      <Text fontWeight="bold" fontSize="$md">{category}</Text>
+                      <Icon as={isExpanded ? ChevronDown : ChevronRight} size="sm" color={Colors.text} />
+                    </HStack>
+                  </Pressable>
+
+                  {/* Room Items - Shown when expanded */}
+                  {isExpanded && (
+                    <VStack divider={<Box h="$px" bg={Colors.gray} />}>
+                      {roomsInCategory.map((item) => (
+                        <Box
+                          key={item.id}
+                          py="$3"
+                          px="$4"
+                          flexDirection="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <Text>{item.roomName}</Text>
+                          <Button
+                            size="sm"
+                            bg={Colors.error}
+                            rounded="$lg"
+                            onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
+                          >
+                            <Text color={Colors.white} fontSize="$xs">{i18n.t('delete')}</Text>
+                          </Button>
+                        </Box>
+                      ))}
+                    </VStack>
+                  )}
+                </Box>
+              );
+            })
+          ) : (
+            <Box p="$4" alignItems="center">
+              <Text color={Colors.text}>
+                {searchText ? i18n.t('noRoomsMatchSearch') : i18n.t('noRoomsAvailable')}
+              </Text>
             </Box>
-          );
-        })}
+          )}
+        </VStack>
       </Box>
 
-      {/* Modal for Adding Room */}
+{/* Modal for Adding Room */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <Box flex={1} justifyContent="center" alignItems="center" bg="rgba(0,0,0,0.5)">
           <Box bg={Colors.white} p="$6" rounded="$lg" width="80%">
