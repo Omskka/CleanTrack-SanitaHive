@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import {
   Box,
   HStack,
@@ -11,14 +9,36 @@ import {
   Text,
   Icon,
   InputSlot,
-  VStack,
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectPortal,
+  SelectContent,
+  SelectDragIndicator,
+  SelectDragIndicatorWrapper,
+  SelectItem,
+  SelectBackdrop,
   Pressable,
+  VStack,
+  Divider,
+  FormControlLabel,
+  FormControlLabelText,
+  SelectIcon,
+  Modal,
+  ModalBackdrop,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter
 } from '@gluestack-ui/themed';
-import { Search, Plus, ChevronDown, ChevronRight } from 'lucide-react-native';
+
+// Remove Card import since we're not using it
+import { Search, Plus, ChevronDown, ChevronUp, Trash } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchRooms, addRoom, deleteRoom } from '@/api/apiService';
+import { FormControl } from '@gluestack-ui/themed';
 
 interface Room {
   id: number;
@@ -123,23 +143,22 @@ export default function RoomsScreen() {
     }
   };
 
-  // Toggle category expansion
   const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+    setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
   // Filter rooms based on search text
-  const filteredRooms = rooms.filter(room => 
-    room.roomName.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredRooms = searchText
+    ? rooms.filter(room =>
+      room.roomName.toLowerCase().includes(searchText.toLowerCase()) ||
+      room.roomFloor.toLowerCase().includes(searchText.toLowerCase())
+    )
+    : rooms;
 
-  // Get filtered categories (categories with at least one room that matches the search)
-  const filteredCategories = categories.filter(category => 
-    filteredRooms.some(room => room.roomFloor === category)
-  );
+  // Get filtered categories based on search or all categories
+  const filteredCategories = searchText
+    ? Array.from(new Set(filteredRooms.map(room => room.roomFloor)))
+    : categories;
 
   return (
     <Box flex={1} bg={Colors.background}>
@@ -169,133 +188,171 @@ export default function RoomsScreen() {
         </Button>
       </Box>
 
-      {/* Room List with Dropdown-style Categories */}
-      <Box flex={1} px="$4" py="$4" bg={Colors.background}>
-        <VStack space="md">
-          {filteredCategories.length > 0 ? (
-            filteredCategories.map((category) => {
-              const isExpanded = expandedCategories[category];
-              const roomsInCategory = filteredRooms.filter((room) => room.roomFloor === category);
+      {/* Room List with Expandable Cards */}
+      <VStack px="$4" py="$4" space="md">
+        {filteredCategories.map((category) => {
+          const isExpanded = expandedCategories[category];
+          const roomsInCategory = filteredRooms.filter((room) => room.roomFloor === category);
 
-              return (
-                <Box key={category} bg={Colors.white} rounded="$lg" overflow="hidden" shadow="sm">
-                  {/* Category Header - Styled as dropdown */}
-                  <Pressable
-                    onPress={() => toggleCategory(category)}
-                    px="$4"
-                    py="$3"
-                    bg={Colors.white}
-                    borderBottomWidth={isExpanded ? 1 : 0}
-                    borderBottomColor={Colors.gray}
-                  >
-                    <HStack justifyContent="space-between" alignItems="center">
-                      <Text fontWeight="bold" fontSize="$md">{category}</Text>
-                      <Icon as={isExpanded ? ChevronDown : ChevronRight} size="sm" color={Colors.text} />
-                    </HStack>
-                  </Pressable>
+          return (
+            <Box
+              key={category}
+              mb="$2"
+              borderWidth={1}
+              borderColor={Colors.gray}
+              borderRadius="$lg"
+              overflow="hidden"
+              bg={Colors.white}
+            >
+              <Pressable onPress={() => toggleCategory(category)}>
+                <Box p="$3">
+                  <HStack justifyContent="space-between" alignItems="center" w="100%">
+                    <Text fontWeight="bold" fontSize="$md">{category}</Text>
+                    <Icon
+                      as={isExpanded ? ChevronUp : ChevronDown}
+                      size="sm"
+                      color={Colors.text}
+                    />
+                  </HStack>
+                </Box>
+              </Pressable>
 
-                  {/* Room Items - Shown when expanded */}
-                  {isExpanded && (
-                    <VStack divider={<Box h="$px" bg={Colors.gray} />}>
-                      {roomsInCategory.map((item) => (
-                        <Box
+              {isExpanded && (
+                <Box px="$3" pb="$3">
+                  <VStack space="sm" divider={<Divider />}>
+                    {roomsInCategory.length > 0 ? (
+                      roomsInCategory.map((item) => (
+                        <HStack
                           key={item.id}
-                          py="$3"
-                          px="$4"
-                          flexDirection="row"
                           justifyContent="space-between"
                           alignItems="center"
+                          py="$2"
                         >
-                          <Text>{item.roomName}</Text>
+                          <Text fontWeight="$medium">{item.roomName}</Text>
                           <Button
                             size="sm"
                             bg={Colors.error}
                             rounded="$lg"
                             onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
                           >
-                            <Text color={Colors.white} fontSize="$xs">{i18n.t('delete')}</Text>
+                            <Icon as={Trash} size="sm" color={Colors.white} />
                           </Button>
-                        </Box>
-                      ))}
-                    </VStack>
-                  )}
+                        </HStack>
+                      ))
+                    ) : (
+                      <Text color={Colors.gray}>No rooms in this category</Text>
+                    )}
+                  </VStack>
                 </Box>
-              );
-            })
-          ) : (
-            <Box p="$4" alignItems="center">
-              <Text color={Colors.text}>
-                {searchText ? i18n.t('noRoomsMatchSearch') : i18n.t('noRoomsAvailable')}
-              </Text>
+              )}
             </Box>
-          )}
-        </VStack>
-      </Box>
+          );
+        })}
+      </VStack>
 
-{/* Modal for Adding Room */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <Box flex={1} justifyContent="center" alignItems="center" bg="rgba(0,0,0,0.5)">
-          <Box bg={Colors.white} p="$6" rounded="$lg" width="80%">
+      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalHeader>
             <Heading size="md">{i18n.t('enterRoomInformation')}</Heading>
+          </ModalHeader>
 
-            {/* Category Picker */}
-            <Box mt="$4">
-              <HStack alignItems="center" space="sm">
-                <Box flex={1} borderWidth={1} borderColor={Colors.gray} borderRadius="$md">
-                  <Picker
+          <ModalBody>
+            {/* Category Select or New Category Input */}
+            <FormControl mt="$4">
+              {!isAddingCategory ? (
+                <>
+                  <FormControlLabel>
+                    <FormControlLabelText><Text>{i18n.t('chooseCategory')}</Text></FormControlLabelText>
+                  </FormControlLabel>
+                  <Select
                     selectedValue={selectedCategory}
-                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                    onValueChange={(value) => setSelectedCategory(value)}
                   >
-                    <Picker.Item label={i18n.t('chooseCategory')} value="" />
-                    {categories.map((cat) => (
-                      <Picker.Item key={cat} label={cat} value={cat} />
-                    ))}
-                  </Picker>
-                </Box>
-                <Button onPress={() => setIsAddingCategory(!isAddingCategory)} bg={Colors.text}>
-                  <Icon as={Plus} color={Colors.white} />
-                </Button>
-              </HStack>
-            </Box>
-
-            {/* Add New Category Input */}
-            {isAddingCategory && (
-              <Input mt="$2">
-                <InputField
-                  placeholder={i18n.t('enterNewCategory')}
-                  value={newCategory}
-                  onChangeText={setNewCategory}
-                />
-              </Input>
-            )}
+                    <SelectTrigger variant="outline" size="md" borderColor={Colors.gray}>
+                      <SelectInput placeholder={i18n.t('chooseCategory')} />
+                      <SelectIcon>
+                        <Icon as={ChevronDown} />
+                      </SelectIcon>
+                    </SelectTrigger>
+                    <SelectPortal>
+                      <SelectContent>
+                        <SelectDragIndicatorWrapper>
+                          <SelectDragIndicator />
+                        </SelectDragIndicatorWrapper>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat} label={cat} value={cat} />
+                        ))}
+                      </SelectContent>
+                    </SelectPortal>
+                  </Select>
+                </>
+              ) : (
+                <Input mt="$2">
+                  <InputField
+                    placeholder={i18n.t('enterNewCategory')}
+                    value={newCategory}
+                    onChangeText={setNewCategory}
+                  />
+                </Input>
+              )}
+              <Button mt="$2" alignSelf="flex-start" onPress={() => setIsAddingCategory(!isAddingCategory)} bg={Colors.text}>
+                <Icon as={Plus} color={Colors.white} />
+              </Button>
+            </FormControl>
 
             {/* Room Name Input */}
-            <Input mt="$4">
-              <InputField
-                placeholder={i18n.t('roomName')}
-                value={roomName}
-                onChangeText={setRoomName}
-              />
-            </Input>
+            <FormControl mt="$4">
+              <FormControlLabel>
+                <FormControlLabelText><Text>{i18n.t('roomName')}</Text></FormControlLabelText>
+              </FormControlLabel>
+              <Input>
+                <InputField
+                  placeholder={i18n.t('roomName')}
+                  value={roomName}
+                  onChangeText={setRoomName}
+                />
+              </Input>
+            </FormControl>
 
-            {/* Error message */}
+            {/* Error Message */}
             {error ? (
-              <Text mt="$2" color="red">{error}</Text>
+              <Text mt="$2" color={Colors.error}>
+                {error}
+              </Text>
             ) : null}
+          </ModalBody>
 
-            <HStack mt="$4" justifyContent="space-between">
-              <Button bg={Colors.gray} onPress={() => setModalVisible(false)}>
-                <Text color={Colors.white}>{i18n.t('cancel')}</Text>
+          <ModalFooter>
+            <HStack space="sm" justifyContent="flex-end" w="100%">
+              <Button
+                variant="outline"
+                borderColor={Colors.text}
+                onPress={() => {
+                  setModalVisible(false);
+                  setRoomName('');
+                  setRoomFloor('');
+                  setSelectedCategory('');
+                  setNewCategory('');
+                  setIsAddingCategory(false);
+                  setError('');
+                }}
+              >
+                <Text color={Colors.text}>{i18n.t('cancel')}</Text>
               </Button>
-              <Button bg={Colors.text} onPress={handleAddRoom} isDisabled={loading}>
-                <Text color={Colors.white}>
-                  {loading ? i18n.t('loading') : i18n.t('save')}
-                </Text>
+              <Button
+                onPress={handleAddRoom}
+                bg={Colors.text}
+                isDisabled={loading}
+                isLoading={loading}
+              >
+                <Text color={Colors.white}>{i18n.t('create')}</Text>
               </Button>
             </HStack>
-          </Box>
-        </Box>
+          </ModalFooter>
+        </ModalContent>
       </Modal>
+
     </Box>
   );
 }
