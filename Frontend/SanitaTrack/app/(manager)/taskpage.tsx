@@ -1,222 +1,668 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Text, Pressable, ScrollView, Button,
-  VStack, HStack, Input, InputField, Modal, FormControl
+  Box,
+  Text,
+  Pressable,
+  ScrollView,
+  Button,
+  VStack,
+  HStack,
+  Input,
+  InputField,
+  Icon,
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectIcon,
+  SelectPortal,
+  SelectContent,
+  SelectDragIndicatorWrapper,
+  SelectDragIndicator,
+  SelectItem,
+  Modal,
+  FormControl,
+  FormControlLabel,
+  FormControlLabelText,
+  Textarea,
+  TextareaInput
 } from '@gluestack-ui/themed';
+import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
-import { i18n } from '@/hooks/i18n';
+import { Calendar as CalendarIcon, Edit, Plus, Trash, ChevronDown } from 'lucide-react-native';
 import { Colors } from '@/constants/Colors';
-import { Pencil, PlusCircle } from 'lucide-react-native';
+import { i18n, getCurrentLanguage } from '@/hooks/i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform, TouchableOpacity } from 'react-native';
+
+// Mock API functions (to be replaced with actual API calls)
+import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask } from '@/api/apiService';
 
 interface Task {
-  date: string;
-  startTime: string;
-  finishTime: string;
+  taskId: string;
+  managerId: string;
+  employeeId: string;
   title: string;
   description: string;
-  room: string;
-  completed: boolean;
-  taskId: string;
-  totalTime: string;
+  startTime: Date;
+  endTime: Date;
+  time: string;
+  imageUrl: string;
+  questionnaireOne: string;
+  questionnaireTwo: string;
+  questionnaireThree: string;
+  questionnaireFour: string;
+  isDone: boolean;
 }
 
-const TaskEditingPage = () => {
+interface Room {
+  id: number;
+  roomName: string;
+  roomFloor: string;
+  teamId: string;
+}
+
+interface User {
+  userId: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
+}
+
+const TaskManagerScreen = () => {
+  const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingTask, setEditingTask] = useState<Partial<Task> | null>(null);
+  const [userID, setUserID] = useState('');
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState<boolean>(false);
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  // For editing / creating tasks
+  const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  const [taskTitle, setTaskTitle] = useState<string>('');
+  const [taskDescription, setTaskDescription] = useState<string>('');
+  const [taskRoom, setTaskRoom] = useState<string>('');
+  const [taskEmployee, setTaskEmployee] = useState<string>('');
+  const [taskStartTime, setTaskStartTime] = useState<Date>(new Date());
+  const [taskEndTime, setTaskEndTime] = useState<Date>(new Date(Date.now() + 60 * 60 * 1000));
+  
+  // For DateTimePicker
+  const [showStartTimePicker, setShowStartTimePicker] = useState<boolean>(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
+  const [startTimeMode, setStartTimeMode] = useState<'date' | 'time'>('date');
+  const [endTimeMode, setEndTimeMode] = useState<'date' | 'time'>('date');
+
+  const changeLanguage = (newLanguage: string) => {
+    setLanguage(newLanguage);
+    i18n.locale = newLanguage;
+  };
 
   useEffect(() => {
-    const mockTasks: Task[] = [
-      {
-        date: todayStr,
-        startTime: '09:00',
-        finishTime: '10:30',
-        title: 'Clean Hallway',
-        description: 'Dust and mop the hallway',
-        room: 'Hallway',
-        completed: false,
-        taskId: '1',
-        totalTime: '1 hour 30 minutes',
-      },
-      {
-        date: todayStr,
-        startTime: '11:00',
-        finishTime: '12:00',
-        title: 'Clean Kitchen',
-        description: 'Wipe counters and floor',
-        room: 'Kitchen',
-        completed: false,
-        taskId: '2',
-        totalTime: '1 hour 0 minutes',
+    const fetchUserID = async () => {
+      try {
+        const storedUserID = await AsyncStorage.getItem('userToken');
+        if (storedUserID) {
+          // Parse the userToken if it's stored as a JSON string
+          try {
+            const parsedUserID = JSON.parse(storedUserID);
+            setUserID(parsedUserID);
+            console.log('User ID set:', parsedUserID);
+          } catch (e) {
+            // If parsing fails, use the raw string
+            setUserID(storedUserID);
+            console.log('User ID set (raw):', storedUserID);
+          }
+        } else {
+          console.warn('No userToken found in AsyncStorage');
+        }
+      } catch (error) {
+        console.error('Error fetching userID from AsyncStorage:', error);
       }
-    ];
-    setTasks(mockTasks);
+    };
+
+    fetchUserID();
   }, []);
+
+  useEffect(() => {
+    if (userID) {
+      fetchTasksData();
+      fetchRoomsData();
+      fetchTeamMembersData();
+    }
+  }, [userID]);
+
+  useEffect(() => {
+    if (userID) {
+      fetchTasksData();
+    }
+  }, [selectedDate]);
+
+  const fetchTasksData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchTasks();
+      // Filter tasks by manager ID and selected date
+      const filteredTasks = response.filter((task: Task) => {
+        const taskDate = new Date(task.startTime).toISOString().split('T')[0];
+        const selected = selectedDate.toISOString().split('T')[0];
+        return task.managerId === userID && taskDate === selected;
+      });
+      
+      setTasks(filteredTasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      setError('Failed to fetch tasks');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchRoomsData = async () => {
+    try {
+      const roomsData = await fetchRooms();
+      setRooms(roomsData);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
+  };
+
+  const fetchTeamMembersData = async () => {
+    try {
+      console.log('Fetching team members for userID:', userID);
+      // Get all users
+      const allUsers = await fetchAllUsers();
+      console.log('All users fetched:', allUsers);
+      
+      // Fetch team to get employee IDs
+      const teamRes = await fetch(`http://10.0.2.2:8080/api/v1/teams/${userID}`);
+      if (!teamRes.ok) {
+        console.error('Team fetch response not OK:', await teamRes.text());
+        throw new Error('Failed to fetch team');
+      }
+      
+      const team = await teamRes.json();
+      console.log('Team data:', team);
+      
+      // Ensure employeeId is an array
+      const employeeIds = Array.isArray(team.employeeId) ? team.employeeId : 
+                         (team.employeeId ? [team.employeeId] : []);
+      console.log('Employee IDs:', employeeIds);
+      
+      // Filter users to get team members
+      const members = allUsers.filter((user: User) => employeeIds.includes(user.userId));
+      console.log('Filtered team members:', members);
+      setTeamMembers(members);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    }
+  };
 
   const onDayPress = (day: DateData) => {
     setSelectedDate(new Date(day.dateString));
   };
 
-  const openTaskModal = (task?: Task) => {
+  const handleShowModal = (task?: Task) => {
     if (task) {
-      setEditingTask(task);
+      // Edit existing task
+      setCurrentTask(task);
+      setTaskTitle(task.title);
+      setTaskDescription(task.description);
+      setTaskStartTime(new Date(task.startTime));
+      setTaskEndTime(new Date(task.endTime));
+      setTaskEmployee(task.employeeId);
+      setTaskRoom(task.title); // Assuming title is used for room name
+      setIsCreating(false);
     } else {
-      setEditingTask({
-        date: selectedDate.toISOString().split('T')[0],
-        startTime: '',
-        finishTime: '',
-        room: '',
-        title: '',
-        description: '',
-        completed: false,
-        taskId: Math.random().toString(),
-        totalTime: '',
-      });
+      // Create new task
+      setCurrentTask(null);
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskStartTime(new Date(selectedDate));
+      setTaskEndTime(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+      setTaskEmployee('');
+      setTaskRoom('');
+      setIsCreating(true);
     }
     setModalVisible(true);
   };
 
-  const handleSaveTask = () => {
-    if (!editingTask) return;
-    const updatedTasks = [...tasks];
-    const index = updatedTasks.findIndex(t => t.taskId === editingTask.taskId);
-    const newTask: Task = {
-      ...editingTask,
-      totalTime: calculateTotalTime(editingTask.startTime!, editingTask.finishTime!),
-    } as Task;
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setError('');
+  };
 
-    if (index !== -1) {
-      updatedTasks[index] = newTask;
-    } else {
-      updatedTasks.push(newTask);
+  const handleSaveTask = async () => {
+    if (!taskTitle || !taskDescription || !taskRoom || !taskEmployee) {
+      setError('All fields are required');
+      return;
     }
 
-    setTasks(updatedTasks);
-    setModalVisible(false);
+    if (taskEndTime <= taskStartTime) {
+      setError('End time must be after start time');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const taskData = {
+        taskId: currentTask?.taskId || '',
+        managerId: userID,
+        employeeId: taskEmployee,
+        title: taskRoom, // Using room name as title
+        description: taskDescription,
+        startTime: taskStartTime,
+        endTime: taskEndTime,
+        time: taskStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        imageUrl: '',
+        questionnaireOne: '',
+        questionnaireTwo: '',
+        questionnaireThree: '',
+        questionnaireFour: '',
+        isDone: currentTask?.isDone || false
+      };
+
+      if (isCreating) {
+        await createTask(taskData);
+      } else if (currentTask) {
+        await updateTask(currentTask.taskId, taskData);
+      }
+
+      handleCloseModal();
+      fetchTasksData();
+    } catch (error) {
+      console.error('Error saving task:', error);
+      setError('Failed to save task');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const calculateTotalTime = (start: string, end: string) => {
-    const [sh, sm] = start.split(':').map(Number);
-    const [eh, em] = end.split(':').map(Number);
-    const totalMinutes = (eh * 60 + em) - (sh * 60 + sm);
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    return `${h} hour${h !== 1 ? 's' : ''} ${m} minute${m !== 1 ? 's' : ''}`;
+  const handleShowDeleteModal = (task: Task) => {
+    setCurrentTask(task);
+    setIsDeleteModalVisible(true);
   };
 
-  const filteredTasks = tasks.filter(
-    task => task.date === selectedDate.toISOString().split('T')[0]
-  );
+  const handleDeleteTask = async () => {
+    if (!currentTask) return;
+    
+    setIsLoading(true);
+    try {
+      await deleteTask(currentTask.taskId);
+      setIsDeleteModalVisible(false);
+      fetchTasksData();
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      setError('Failed to delete task');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartTimeChange = (event: any, selectedDate?: Date) => {
+    setShowStartTimePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTaskStartTime(selectedDate);
+      
+      // If end time is now before start time, adjust it
+      if (taskEndTime <= selectedDate) {
+        setTaskEndTime(new Date(selectedDate.getTime() + 60 * 60 * 1000));
+      }
+    }
+    
+    if (Platform.OS === 'android' && startTimeMode === 'date') {
+      setStartTimeMode('time');
+      setShowStartTimePicker(true);
+    }
+  };
+
+  const handleEndTimeChange = (event: any, selectedDate?: Date) => {
+    setShowEndTimePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setTaskEndTime(selectedDate);
+    }
+    
+    if (Platform.OS === 'android' && endTimeMode === 'date') {
+      setEndTimeMode('time');
+      setShowEndTimePicker(true);
+    }
+  };
+
+  const showStartTimePickerModal = (mode: 'date' | 'time') => {
+    setStartTimeMode(mode);
+    setShowStartTimePicker(true);
+  };
+
+  const showEndTimePickerModal = (mode: 'date' | 'time') => {
+    setEndTimeMode(mode);
+    setShowEndTimePicker(true);
+  };
+
+  const renderDetail = (rowData: Task) => {
+    return (
+      <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
+        <HStack justifyContent="space-between" mb="$2">
+          <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
+          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
+        </HStack>
+
+        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
+        
+        {/* Display employee name */}
+        {teamMembers.find(member => member.userId === rowData.employeeId) && (
+          <Text fontSize="$sm" color={Colors.text} mb="$3">
+            {i18n.t('assignedTo')}: {
+              (() => {
+                const member = teamMembers.find(m => m.userId === rowData.employeeId);
+                return member ? `${member.name} ${member.surname}` : 'Unknown';
+              })()
+            }
+          </Text>
+        )}
+        
+        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">
+          {new Date(rowData.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+          {new Date(rowData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+        
+        {/* Calculate and display total time */}
+        {(() => {
+          const totalTimeInMillis = new Date(rowData.endTime).getTime() - new Date(rowData.startTime).getTime();
+          const totalTimeInMinutes = totalTimeInMillis / 60000;
+          const hours = Math.floor(totalTimeInMinutes / 60);
+          const minutes = Math.round(totalTimeInMinutes % 60);
+          return (
+            <Text fontSize="$sm" color={Colors.black} mb="$3">
+              {i18n.t('totalTime')}: {hours}h {minutes}m
+            </Text>
+          );
+        })()}
+
+        <HStack justifyContent="flex-end" space="md">
+          <Button bg={Colors.text} onPress={() => handleShowModal(rowData)}>
+            <Icon as={Edit} color={Colors.white} size="sm" />
+            <Text color={Colors.white} ml="$1">{i18n.t('edit')}</Text>
+          </Button>
+          
+          <Button bg={Colors.error} onPress={() => handleShowDeleteModal(rowData)}>
+            <Icon as={Trash} color={Colors.white} size="sm" />
+            <Text color={Colors.white} ml="$1">{i18n.t('delete')}</Text>
+          </Button>
+        </HStack>
+      </Box>
+    );
+  };
+
+  const formatDateForDisplay = (date: Date): string => {
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
-    <Box flex={1} p="$4" bg={Colors.background}>
-      <Text fontSize="$2xl" fontWeight="$bold" mb="$4">
-        {i18n.t('editTasks')}
-      </Text>
+    <Box flex={1} p="$2" bg={Colors.background}>
+      <VStack mt="$7">
+        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+        </Pressable>
 
-      <Calendar
-        current={selectedDate.toISOString().split('T')[0]}
-        onDayPress={onDayPress}
-        markedDates={{
-          [selectedDate.toISOString().split('T')[0]]: {
-            selected: true,
-            selectedColor: Colors.text,
-            selectedTextColor: Colors.white,
-          }
-        }}
-      />
-
-      <Pressable onPress={() => openTaskModal()} mt="$4" alignSelf="flex-start">
-        <HStack alignItems="center" space="sm">
-          <PlusCircle color={Colors.heading} />
-          <Text color={Colors.text}>{i18n.t('addTask')}</Text>
-        </HStack>
-      </Pressable>
-
-      <VStack space="md" mt="$4">
-        {filteredTasks.map(task => (
-          <Box key={task.taskId} p="$4" bg={Colors.white} borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.2} shadowRadius={4}>
-            <HStack justifyContent="space-between" alignItems="center">
-              <VStack>
-                <Text fontWeight="$bold">{task.title}</Text>
-                <Text fontSize="$sm">{task.room} • {task.startTime} - {task.finishTime}</Text>
-                <Text fontSize="$xs" color={Colors.gray}>{task.description}</Text>
-              </VStack>
-              <Pressable onPress={() => openTaskModal(task)}>
-                <Pencil size={18} color={Colors.text} />
-              </Pressable>
-            </HStack>
-          </Box>
-        ))}
+        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('taskManager')}</Text>
       </VStack>
 
-      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-        <Modal.Content>
-          <Modal.Header>{editingTask?.taskId ? i18n.t('editTask') : i18n.t('addTask')}</Modal.Header>
+      <ScrollView flex={1} mb="$2">
+        {calendarVisible && (
+          <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
+            <Calendar
+              current={selectedDate.toISOString().split('T')[0]}
+              onDayPress={onDayPress}
+              markedDates={{
+                [selectedDate.toISOString().split('T')[0]]: {
+                  selected: true,
+                  selectedColor: Colors.text,
+                  selectedTextColor: Colors.white,
+                }
+              }}
+              theme={{
+                backgroundColor: Colors.white,
+                calendarBackground: Colors.white,
+                selectedDayBackgroundColor: Colors.text,
+                selectedDayTextColor: Colors.white,
+                todayTextColor: Colors.error,
+                dayTextColor: Colors.heading,
+                textDisabledColor: Colors.gray,
+                arrowColor: Colors.text,
+                monthTextColor: Colors.heading,
+                indicatorColor: Colors.text,
+                textSectionTitleColor: Colors.gray,
+              }}
+            />
+          </Box>
+        )}
+
+        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
+          <Timeline
+            data={tasks.map(task => ({
+              time: new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              title: task.title,
+              description: task.description,
+              startTime: task.startTime,
+              endTime: task.endTime,
+              employeeId: task.employeeId,
+              taskId: task.taskId,
+              ...task
+            }))}
+            circleSize={20}
+            circleColor="#000"
+            lineColor="#6C63FF"
+            timeStyle={{
+              textAlign: 'center',
+              color: '#333',
+              padding: 5,
+              fontSize: 12
+            }}
+            descriptionStyle={{ color: '#555' }}
+            renderDetail={renderDetail}
+            separator={true}
+            showTime={true}
+            innerCircle={'dot'}
+          />
+          
+          {tasks.length === 0 && !isLoading && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
+            </Box>
+          )}
+          
+          {isLoading && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('loading')}</Text>
+            </Box>
+          )}
+        </Box>
+      </ScrollView>
+
+      <HStack space="md" justifyContent="space-between" mb="$4">
+        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => handleShowModal()}>
+          <HStack alignItems="center" justifyContent="center" space="sm">
+            <Icon as={Plus} color={Colors.white} size="sm" />
+            <Text color={Colors.white}>{i18n.t('createTask')}</Text>
+          </HStack>
+        </Button>
+
+        <Button flex={1} variant="outline" bg={Colors.heading} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
+          <HStack alignItems="center" justifyContent="center" space="sm">
+            <Icon as={CalendarIcon} color={Colors.white} size="sm" />
+            <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
+          </HStack>
+        </Button>
+      </HStack>
+
+      {/* Task Edit/Create Modal */}
+      <Modal isOpen={modalVisible} onClose={handleCloseModal} avoidKeyboard>
+        <Modal.Content maxWidth="90%">
+          <Modal.CloseButton />
+          <Modal.Header>
+            <Text fontWeight="$bold" fontSize="$lg">
+              {isCreating ? i18n.t('createNewTask') : i18n.t('editTask')}
+            </Text>
+          </Modal.Header>
+          
           <Modal.Body>
-            <VStack space="md">
-              <FormControl>
-                <FormControl.Label>{i18n.t('room')}</FormControl.Label>
-                <Input>
-                  <InputField
-                    placeholder={i18n.t('roomName')}
-                    value={editingTask?.room || ''}
-                    onChangeText={(text: string) => setEditingTask({ ...editingTask!, room: text })}
-                  />
-                </Input>
-              </FormControl>
+            {error ? <Text color={Colors.error} mb="$2">{error}</Text> : null}
+            
+            <FormControl mb="$4">
+              <FormControlLabel>
+                <FormControlLabelText>{i18n.t('selectRoom')}</FormControlLabelText>
+              </FormControlLabel>
+              <Select 
+                selectedValue={taskRoom} 
+                onValueChange={value => setTaskRoom(value)}
+              >
+                <SelectTrigger variant="outline" size="md">
+                  <SelectInput placeholder={i18n.t('selectRoom')} />
+                  <SelectIcon>
+                    <Icon as={ChevronDown} />
+                  </SelectIcon>
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectContent>
+                    <SelectDragIndicatorWrapper>
+                      <SelectDragIndicator />
+                    </SelectDragIndicatorWrapper>
+                    {rooms.map((room) => (
+                      <SelectItem key={room.id} label={room.roomName} value={room.roomName} />
+                    ))}
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+            </FormControl>
 
-              <FormControl>
-                <FormControl.Label>{i18n.t('title')}</FormControl.Label>
-                <Input>
-                  <InputField
-                    placeholder={i18n.t('title')}
-                    value={editingTask?.title || ''}
-                    onChangeText={(text: string) => setEditingTask({ ...editingTask!, title: text })}
-                  />
-                </Input>
-              </FormControl>
+            <FormControl mb="$4">
+              <FormControlLabel>
+                <FormControlLabelText>{i18n.t('assignTo')}</FormControlLabelText>
+              </FormControlLabel>
+              <Select 
+                selectedValue={taskEmployee} 
+                onValueChange={value => setTaskEmployee(value)}
+              >
+                <SelectTrigger variant="outline" size="md">
+                  <SelectInput placeholder={i18n.t('selectEmployee')} />
+                  <SelectIcon>
+                    <Icon as={ChevronDown} />
+                  </SelectIcon>
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectContent>
+                    <SelectDragIndicatorWrapper>
+                      <SelectDragIndicator />
+                    </SelectDragIndicatorWrapper>
+                    {teamMembers.map((member) => (
+                      <SelectItem 
+                        key={`employee-${member.userId}`} 
+                        label={`${member.name} ${member.surname}`} 
+                        value={member.userId} 
+                      />
+                    ))}
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+            </FormControl>
 
-              <FormControl>
-                <FormControl.Label>{i18n.t('description')}</FormControl.Label>
-                <Input>
-                  <InputField
-                    placeholder={i18n.t('description')}
-                    value={editingTask?.description || ''}
-                    onChangeText={(text: string) => setEditingTask({ ...editingTask!, description: text })}
-                  />
-                </Input>
-              </FormControl>
+            <FormControl mb="$4">
+              <FormControlLabel>
+                <FormControlLabelText>{i18n.t('description')}</FormControlLabelText>
+              </FormControlLabel>
+              <Textarea>
+                <TextareaInput
+                  value={taskDescription}
+                  onChangeText={setTaskDescription}
+                  placeholder={i18n.t('enterDescription')}
+                />
+              </Textarea>
+            </FormControl>
 
-              <FormControl>
-                <FormControl.Label>{i18n.t('startTime')}</FormControl.Label>
-                <Input>
-                  <InputField
-                    placeholder="e.g., 09:00"
-                    value={editingTask?.startTime || ''}
-                    onChangeText={(text: string) => setEditingTask({ ...editingTask!, startTime: text })}
-                  />
+            <FormControl mb="$4">
+              <FormControlLabel>
+                <FormControlLabelText>{i18n.t('startTime')}</FormControlLabelText>
+              </FormControlLabel>
+              <TouchableOpacity onPress={() => showStartTimePickerModal('date')}>
+                <Input isDisabled={true}>
+                  <InputField value={formatDateForDisplay(taskStartTime)} />
                 </Input>
-              </FormControl>
+              </TouchableOpacity>
+            </FormControl>
 
-              <FormControl>
-                <FormControl.Label>{i18n.t('finishTime')}</FormControl.Label>
-                <Input>
-                  <InputField
-                    placeholder="e.g., 11:30"
-                    value={editingTask?.finishTime || ''}
-                    onChangeText={(text: string) => setEditingTask({ ...editingTask!, finishTime: text })}
-                  />
+            <FormControl mb="$4">
+              <FormControlLabel>
+                <FormControlLabelText>{i18n.t('endTime')}</FormControlLabelText>
+              </FormControlLabel>
+              <TouchableOpacity onPress={() => showEndTimePickerModal('date')}>
+                <Input isDisabled={true}>
+                  <InputField value={formatDateForDisplay(taskEndTime)} />
                 </Input>
-              </FormControl>
-            </VStack>
+              </TouchableOpacity>
+            </FormControl>
+
+            {showStartTimePicker && (
+              <DateTimePicker
+                value={taskStartTime}
+                mode={startTimeMode}
+                is24Hour={true}
+                display="default"
+                onChange={handleStartTimeChange}
+              />
+            )}
+
+            {showEndTimePicker && (
+              <DateTimePicker
+                value={taskEndTime}
+                mode={endTimeMode}
+                is24Hour={true}
+                display="default"
+                onChange={handleEndTimeChange}
+              />
+            )}
           </Modal.Body>
+          
           <Modal.Footer>
-            <Button onPress={handleSaveTask}>
-              <Text color={Colors.white}>{i18n.t('save')}</Text>
+            <Button variant="outline" mr="$3" onPress={handleCloseModal}>
+              <Text>{i18n.t('cancel')}</Text>
+            </Button>
+            <Button bg={Colors.text} onPress={handleSaveTask} isDisabled={isLoading}>
+              <Text color={Colors.white}>
+                {isLoading ? i18n.t('saving') : i18n.t('save')}
+              </Text>
+            </Button>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteModalVisible} onClose={() => setIsDeleteModalVisible(false)}>
+        <Modal.Content>
+          <Modal.CloseButton />
+          <Modal.Header>
+            <Text fontWeight="$bold">{i18n.t('confirmDelete')}</Text>
+          </Modal.Header>
+          
+          <Modal.Body>
+            <Text>{i18n.t('deleteTaskConfirmation')}</Text>
+            {currentTask && (
+              <Text fontWeight="$bold" mt="$2">{currentTask.title}</Text>
+            )}
+          </Modal.Body>
+          
+          <Modal.Footer>
+            <Button variant="outline" mr="$3" onPress={() => setIsDeleteModalVisible(false)}>
+              <Text>{i18n.t('cancel')}</Text>
+            </Button>
+            <Button bg={Colors.error} onPress={handleDeleteTask} isDisabled={isLoading}>
+              <Text color={Colors.white}>
+                {isLoading ? i18n.t('deleting') : i18n.t('delete')}
+              </Text>
             </Button>
           </Modal.Footer>
         </Modal.Content>
@@ -225,4 +671,4 @@ const TaskEditingPage = () => {
   );
 };
 
-export default TaskEditingPage;
+export default TaskManagerScreen;
