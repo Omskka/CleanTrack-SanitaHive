@@ -18,6 +18,6 @@ public class TasksController {
     // Get all tasks
     @GetMapping
     public ResponseEntity<List<Tasks>> getAllTasks() {
-        return ResponseEntity.ok(tasksService.allTasks());
+        return new ResponseEntity<>(tasksService.allTasks(), HttpStatus.OK);
     }
 }

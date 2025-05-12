@@ -18,19 +18,24 @@ import { Colors } from '@/constants/Colors';
 import { Phone, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllUsers, fetchTeam, login } from '@/api/apiService';
+import { fetchAllUsers, fetchTasks, fetchTeam, login } from '@/api/apiService';
 
 interface Task {
-  date: string; // YYYY-MM-DD format
-  startTime: string;
-  finishTime: string;
+  taskId: string; // corresponds to `id: ObjectId`
+  managerId: string;
+  employeeId: string;
   title: string;
   description: string;
-  room: string;
-  completed: boolean;
-  taskId: string;
-  totalTime: string;
-}
+  startTime: Date; // ISO format, e.g., '2025-05-11T14:30:00'
+  endTime: Date;   // ISO format
+  time: string; // e.g., '14:30'
+  imageUrl: string;
+  questionnaireOne: string;
+  questionnaireTwo: string;
+  questionnaireThree: string;
+  questionnaireFour: string;
+  isDone: boolean;
+};
 
 interface User {
   userId: string;
@@ -57,45 +62,6 @@ const WorkerHomepage = () => {
     i18n.locale = newLanguage;
   };
 
-  useEffect(() => {
-    const mockTasks: Task[] = [
-      {
-        date: '2025-04-01',
-        startTime: '09:00',
-        finishTime: '10:30',
-        totalTime: '1 hour 30 minutes',
-        title: i18n.t('roomCleaning', { roomNumber: '101' }),
-        description: i18n.t('cleaningDescription'),
-        room: '101',
-        completed: false,
-        taskId: '1'
-      },
-      {
-        date: '2025-04-02',
-        startTime: '11:00',
-        finishTime: '12:00',
-        totalTime: '1 hour',
-        title: i18n.t('roomCleaning', { roomNumber: '205' }),
-        description: i18n.t('bathroomCleaning'),
-        room: '205',
-        completed: false,
-        taskId: '2'
-      },
-      {
-        date: '2025-04-02',
-        startTime: '15:00',
-        finishTime: '17:00',
-        totalTime: '2 hours',
-        title: i18n.t('roomCleaning', { roomNumber: '312' }),
-        description: i18n.t('kitchenCleaning'),
-        room: '312',
-        completed: false,
-        taskId: '3'
-      }
-    ];
-
-    setTasks(mockTasks);
-  }, [language]);
 
   useEffect(() => {
     const fetchUserID = async () => {
@@ -158,9 +124,11 @@ const WorkerHomepage = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(
-    task => task.date === selectedDate.toISOString().split('T')[0]
-  );
+  const filteredTasks = tasks.filter(task => {
+    const taskDate = new Date(task.startTime).toISOString().split('T')[0];
+    const selected = selectedDate.toISOString().split('T')[0];
+    return taskDate === selected;
+  });
 
   const takePicture = async (taskId: string) => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
@@ -189,6 +157,26 @@ const WorkerHomepage = () => {
     }
   };
 
+  const fetchTasksFromDatabase = async () => {
+    try {
+
+      // Example API call – replace this with your real function
+      const response = await fetchTasks();
+      console.log("Fetched tasks:", response);
+
+      setTasks(response);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userID) {
+      fetchTasksFromDatabase();
+    }
+  }, [userID]);
+
+
   const submitTask = (taskId: string) => {
     if (!uploadedImages[taskId]?.length) {
       alert(i18n.t('uploadAtLeastOneImage'));
@@ -201,18 +189,42 @@ const WorkerHomepage = () => {
   };
 
   const renderDetail = (rowData: Task) => {
-    const isCompleted = rowData.completed || (uploadedImages[rowData.taskId]?.length > 0);
+    const isCompleted = rowData.isDone || (uploadedImages[rowData.taskId]?.length > 0);
+
+    // Ensure startTime and endTime are being properly parsed as Date objects
+    const startTime = rowData.startTime ? new Date(rowData.startTime) : new Date();
+    const endTime = rowData.endTime ? new Date(rowData.endTime) : new Date();
+
+    // Format start and end time into a 2-digit time format
+    const formattedStart = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedEnd = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Calculate the difference between start and end times in milliseconds
+    const totalTimeInMillis = endTime.getTime() - startTime.getTime();
+
+    // Convert milliseconds to minutes
+    const totalTimeInMinutes = totalTimeInMillis / 60000;
+
+    // Convert total time to hours and minutes
+    const hours = Math.floor(totalTimeInMinutes / 60);
+    const minutes = Math.round(totalTimeInMinutes % 60);
+    const formattedTotalTime = `${hours}h ${minutes}m`;
+
+    // Debugging logs
+    console.log('Start Time:', rowData.startTime, 'Formatted Start:', formattedStart);
+    console.log('End Time:', rowData.endTime, 'Formatted End:', formattedEnd);
+    console.log('Total Time (in minutes):', totalTimeInMinutes);
 
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
-          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
+          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
         </HStack>
 
         <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
-        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{rowData.startTime} - {rowData.finishTime}</Text>
-        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {rowData.totalTime}</Text>
+        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
+        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
         {isCompleted ? (
           <Text color={Colors.text}>{i18n.t('completed')}</Text>
@@ -267,9 +279,13 @@ const WorkerHomepage = () => {
         <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Timeline
             data={filteredTasks.map(task => ({
-              ...task,
-              time: `${task.startTime}`
+              time: `${new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+              title: task.title,
+              description: task.description,
+              startTime: task.startTime,
+              endTime: task.endTime,
             }))}
+
             circleSize={20}
             circleColor="#000"
             lineColor="#6C63FF"
@@ -337,3 +353,4 @@ const WorkerHomepage = () => {
 };
 
 export default WorkerHomepage;
+

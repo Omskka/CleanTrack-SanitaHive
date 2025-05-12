@@ -1,5 +1,7 @@
 package dev.cleanhive.tasks;
 
+import java.time.Instant;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,20 +21,23 @@ public class Tasks {
     // ObjectId for the manager
     private String managerId;
 
-    // ObjectId for the manager
+    // ObjectId for the employee
     private String employeeId;
 
     // Room name
-    private String roomName;
+    private String title;
 
     // Task description
     private String description;
 
     // The starting time
-    private String startTime;
+    private Instant startTime;
 
     // The ending time
-    private String endTime;
+    private Instant endTime;
+
+    // URL or file path of the task-related image
+    private String imageUrl;
 
     // Questionnaire 1
     private String questionnaireOne;
@@ -48,5 +53,4 @@ public class Tasks {
 
     // Task done
     private boolean isDone;
-
 }

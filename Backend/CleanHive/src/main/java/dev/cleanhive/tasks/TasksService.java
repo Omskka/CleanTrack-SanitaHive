@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 public class TasksService {
 
     @Autowired
-    private TasksRepository taskRepository;
+    private TasksRepository tasksRepository;
 
     // Method to fetch all tasks
     public List<Tasks> allTasks() {
-        return taskRepository.findAll();
+        return tasksRepository.findAll();
     }
 }

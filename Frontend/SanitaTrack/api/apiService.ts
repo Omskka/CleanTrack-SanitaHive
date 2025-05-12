@@ -15,6 +15,11 @@ export const fetchTeam = async (employeeId: string) => {
   return response.data;
 };
 
+export const fetchTasks = async () => {
+  const response = await axiosInstance.get(`/tasks`);
+  return response.data;
+};
+
 export const fetchAllUsers = async () => {
   const response = await axiosInstance.get('/users');
   return response.data; // Should be an array of users
