@@ -118,6 +118,17 @@ export const translations = {
     deleting: "Deleting...",
     startTime: "Start Time",
     endTime: "End Time",
+    feedbackTitle: "Feedback",
+    rateExperience: "How would you rate your experience?",
+    selectCategory: "Select a feedback category:",
+    feedbackPlaceholder: "Leave your feedback here...",
+    submit: "Submit",
+    category: {
+      suggestion: "Suggestion",
+      smell: "Smell",
+      equipment: "Equipment",
+      overall: "Overall"
+    }
   },
   tr: {
     greeting: 'Merhaba',
@@ -238,5 +249,17 @@ export const translations = {
     deleting: "Siliniyor...",
     startTime: "Başlangıç Zamanı",
     endTime: "Bitiş Zamanı",
+
+    feedbackTitle: "Geri Bildirim",
+    rateExperience: "Deneyiminizi nasıl değerlendirirsiniz?",
+    selectCategory: "Bir geri bildirim kategorisi seçin:",
+    feedbackPlaceholder: "Geri bildiriminizi buraya yazın...",
+    submit: "Gönder",
+    category: {
+      suggestion: "Öneri",
+      smell: "Koku",
+      equipment: "Ekipman",
+      overall: "Genel"
+    }
   },
 };

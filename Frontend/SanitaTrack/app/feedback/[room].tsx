@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { Box, Text, Button, VStack, Textarea, HStack, Pressable, TextareaInput } from '@gluestack-ui/themed';
+import {
+  Box,
+  Text,
+  Button,
+  VStack,
+  Textarea,
+  HStack,
+  Pressable,
+  TextareaInput
+} from '@gluestack-ui/themed';
 import { Star } from 'lucide-react-native';
+import { i18n } from '@/hooks/i18n';
 
-const categories = ['Suggestion', 'Smell', 'Equipment', 'Overall'];
+const categories = ['suggestion', 'smell', 'equipment', 'overall'];
 
 export default function FeedbackScreen() {
   const [rating, setRating] = useState(0);
@@ -17,10 +27,10 @@ export default function FeedbackScreen() {
   return (
     <Box flex={1} p="$4" bg="$backgroundLight0">
       <Text fontSize="$2xl" fontWeight="$bold" mb="$4">
-        Feedback
+        {i18n.t('feedbackTitle')}
       </Text>
 
-      <Text mb="$2">How would you rate your experience?</Text>
+      <Text mb="$2">{i18n.t('rateExperience')}</Text>
       <HStack space="md" mb="$4">
         {[1, 2, 3, 4, 5].map((i) => (
           <Pressable key={i} onPress={() => setRating(i)}>
@@ -33,7 +43,7 @@ export default function FeedbackScreen() {
         ))}
       </HStack>
 
-      <Text mb="$2">Select a feedback category:</Text>
+      <Text mb="$2">{i18n.t('selectCategory')}</Text>
       <HStack flexWrap="wrap" space="sm" mb="$4">
         {categories.map((cat) => (
           <Pressable
@@ -49,7 +59,7 @@ export default function FeedbackScreen() {
             mb="$2"
           >
             <Text color={selectedCategory === cat ? '$primary700' : '$textLight700'}>
-              {cat}
+              {i18n.t(`category.${cat}`)}
             </Text>
           </Pressable>
         ))}
@@ -59,12 +69,12 @@ export default function FeedbackScreen() {
         <TextareaInput
           value={feedback}
           onChangeText={setFeedback}
-          placeholder="Leave your feedback here..."
+          placeholder={i18n.t('feedbackPlaceholder')}
         />
       </Textarea>
 
       <Button onPress={handleSubmit}>
-        <Text color="white">Submit</Text>
+        <Text color="white">{i18n.t('submit')}</Text>
       </Button>
     </Box>
   );
