@@ -157,7 +157,7 @@ const TaskManagerScreen = () => {
       setTasks(filteredTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      setError('Failed to fetch tasks');
+      setError(i18n.t('failedToFetchTasks'));
     } finally {
       setIsLoading(false);
     }
@@ -239,12 +239,12 @@ const TaskManagerScreen = () => {
 
   const handleSaveTask = async () => {
     if (!taskTitle || !taskDescription || !taskRoom || !taskEmployee) {
-      setError('All fields are required');
+      setError(i18n.t('allFieldsRequired'));
       return;
     }
 
     if (taskEndTime <= taskStartTime) {
-      setError('End time must be after start time');
+      setError(i18n.t('endTimeMustBeAfterStart'));
       return;
     }
 
@@ -277,7 +277,7 @@ const TaskManagerScreen = () => {
       fetchTasksData();
     } catch (error) {
       console.error('Error saving task:', error);
-      setError('Failed to save task');
+      setError(i18n.t('failedToSaveTask'));
     } finally {
       setIsLoading(false);
     }
@@ -298,7 +298,7 @@ const TaskManagerScreen = () => {
       fetchTasksData();
     } catch (error) {
       console.error('Error deleting task:', error);
-      setError('Failed to delete task');
+      setError(i18n.t('failedToDeleteTask'));
     } finally {
       setIsLoading(false);
     }
@@ -391,7 +391,6 @@ const TaskManagerScreen = () => {
           
           <Button bg={Colors.error} onPress={() => handleShowDeleteModal(rowData)}>
             <Icon as={Trash} color={Colors.white} size="sm" />
-            <Text color={Colors.white} ml="$1">{i18n.t('delete')}</Text>
           </Button>
         </HStack>
       </Box>
@@ -506,7 +505,7 @@ const TaskManagerScreen = () => {
           <Modal.CloseButton />
           <Modal.Header>
             <Text fontWeight="$bold" fontSize="$lg">
-              {isCreating ? i18n.t('createNewTask') : i18n.t('editTask')}
+              {isCreating ? i18n.t('createTask') : i18n.t('editTask')}
             </Text>
           </Modal.Header>
           
