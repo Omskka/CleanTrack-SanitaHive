@@ -111,7 +111,7 @@ export default function RoomsScreen() {
     setError('');
     try {
       await addRoom(roomName.trim(), finalCategory, userID);
-      alert('Room Created Successfully!');
+      alert(i18n.t('roomCreated'));
       setModalVisible(false);
       setRoomName('');
       setRoomFloor('');
@@ -260,12 +260,31 @@ export default function RoomsScreen() {
           <ModalBody>
             {/* Category Select or New Category Input */}
             <FormControl mt="$4">
-              {!isAddingCategory ? (
-                <>
-                  <FormControlLabel>
-                    <FormControlLabelText><Text>{i18n.t('chooseCategory')}</Text></FormControlLabelText>
-                  </FormControlLabel>
+              <FormControlLabel>
+                <FormControlLabelText>
+                  <Text>
+                    {isAddingCategory ? i18n.t('enterNewCategory') : i18n.t('chooseCategory')}
+                  </Text>
+                </FormControlLabelText>
+              </FormControlLabel>
+
+              {isAddingCategory ? (
+                <HStack space="md" mt="$2" alignItems="center">
+                  <Input flex={1}>
+                    <InputField
+                      placeholder={i18n.t('enterNewCategory')}
+                      value={newCategory}
+                      onChangeText={setNewCategory}
+                    />
+                  </Input>
+                  <Button onPress={() => setIsAddingCategory(false)} bg={Colors.text} size="sm">
+                    <Icon as={Plus} color={Colors.white} />
+                  </Button>
+                </HStack>
+              ) : (
+                <HStack space="md" mt="$2" alignItems="center">
                   <Select
+                    flex={1}
                     selectedValue={selectedCategory}
                     onValueChange={(value) => setSelectedCategory(value)}
                   >
@@ -286,19 +305,11 @@ export default function RoomsScreen() {
                       </SelectContent>
                     </SelectPortal>
                   </Select>
-                </>
-              ) : (
-                <Input mt="$2">
-                  <InputField
-                    placeholder={i18n.t('enterNewCategory')}
-                    value={newCategory}
-                    onChangeText={setNewCategory}
-                  />
-                </Input>
+                  <Button onPress={() => setIsAddingCategory(true)} bg={Colors.text} size="sm">
+                    <Icon as={Plus} color={Colors.white} />
+                  </Button>
+                </HStack>
               )}
-              <Button mt="$2" alignSelf="flex-start" onPress={() => setIsAddingCategory(!isAddingCategory)} bg={Colors.text}>
-                <Icon as={Plus} color={Colors.white} />
-              </Button>
             </FormControl>
 
             {/* Room Name Input */}
