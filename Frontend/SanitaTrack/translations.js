@@ -133,7 +133,11 @@ export const translations = {
     
     notFound: "Page Not Found",
     pageNotFound: "Page you are looking for is missing.",
-    returnHome: "Return home"
+    returnHome: "Return home",
+
+    done: "Done",
+    removeTeamMember: "Remove Team Member",
+    removeTeamMemberConfirm: "Are you sure to remove this team member? This action can't be reversed.",
   },
   tr: {
     greeting: 'Merhaba',
@@ -270,6 +274,10 @@ export const translations = {
 
     notFound: "Sayfa bulunamadı",
     pageNotFound: "Aradığınız sayfa bulunamadı.",
-    returnHome: "Anasayfaya dön"
+    returnHome: "Anasayfaya dön",
+
+    done: "Tamam",
+    removeTeamMember: "Takım üyesini sil.",
+    removeTeamMemberConfirm: "Takım üyesini silmek istediğine emin misin? Bu işlem geri alınamaz.",
   },
 };

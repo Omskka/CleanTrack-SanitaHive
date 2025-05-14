@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Share, ActivityIndicator } from 'react-native';
+import { ScrollView, Share, ActivityIndicator, Linking } from 'react-native';
 import {
   Box,
   VStack,
@@ -9,19 +9,34 @@ import {
   InputField,
   Button,
   Text,
+  Pressable,
+  Avatar,
   Icon,
+  AvatarFallbackText,
   InputSlot,
+  AlertDialog,
+  AlertDialogBackdrop,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogCloseButton,
+  AlertDialogBody,
+  AlertDialogFooter,
+  CloseIcon,
+  ButtonGroup,
+  ButtonText,
+  Center,
 } from '@gluestack-ui/themed';
-import { Search } from 'lucide-react-native';
+import { Phone, Search, Trash2 } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAllUsers, fetchTeamByManager } from '@/api/apiService';
+import { fetchAllUsers, fetchTeamByManager, removeTeamMember } from '@/api/apiService';
 
 type User = {
-  userId: string;    // <-- lowercase
+  userId: string;
   name: string;
   surname: string;
+  phone: string;
 };
 
 export default function TeamInfoScreen() {
@@ -29,37 +44,49 @@ export default function TeamInfoScreen() {
   const [userID, setUserID] = useState<string>('');
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const raw = await AsyncStorage.getItem('userToken');
-        if (!raw) {
-          console.warn('No userToken found in storage');
-          return;
-        }
-
-        const managerId = JSON.parse(raw);
-        setUserID(managerId);
-
-        const team = await fetchTeamByManager(managerId);
-        const ids = Array.isArray(team.employeeId) ? team.employeeId : [];
-
-        const allUsers = await fetchAllUsers();
-
-        const members = allUsers.filter((u: any) => ids.includes(u.userId));
-        console.log('Filtered team members:', members);
-
-        setTeamMembers(members);
-      } catch (e) {
-        console.error('Error during team init:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    init();
+    fetchTeamData();
   }, []);
+
+  const fetchTeamData = async () => {
+    try {
+      setLoading(true);
+      const raw = await AsyncStorage.getItem('userToken');
+      if (!raw) {
+        console.warn('No userToken found in storage');
+        return;
+      }
+
+      const managerId = JSON.parse(raw);
+      setUserID(managerId);
+
+      const team = await fetchTeamByManager(managerId);
+      const ids = Array.isArray(team.employeeId) ? team.employeeId : [];
+
+      const allUsers = await fetchAllUsers();
+      
+      // Filter and format team members
+      const members = allUsers
+        .filter((u: any) => ids.includes(u.userId))
+        .map((u: any) => ({
+          userId: u.userId,
+          name: u.name,
+          surname: u.surname,
+          phone: u.phone || '800-***-38' // Default phone if not available
+        }));
+      
+      console.log('Filtered team members:', members);
+      setTeamMembers(members);
+    } catch (e) {
+      console.error('Error during team init:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleShare = async () => {
     try {
@@ -71,8 +98,34 @@ export default function TeamInfoScreen() {
     }
   };
 
-  const filtered = teamMembers.filter((u) =>
-    `${u.name} ${u.surname}`.toLowerCase().includes(searchText.toLowerCase())
+  const toggleEditMode = () => {
+    setEditMode(!editMode);
+  };
+
+  const callPhone = (phoneNumber: string) => {
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  const openDeleteConfirm = (userId: string) => {
+    setSelectedUserId(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteMember = async () => {
+    if (!selectedUserId) return;
+    
+    try {
+      await removeTeamMember(userID, selectedUserId);
+      // Update local state without refetching
+      setTeamMembers(prev => prev.filter(member => member.userId !== selectedUserId));
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete team member:", error);
+    }
+  };
+
+  const filtered = teamMembers.filter((user) =>
+    `${user.name} ${user.surname}`.toLowerCase().includes(searchText.toLowerCase())
   );
 
   if (loading) {
@@ -85,11 +138,12 @@ export default function TeamInfoScreen() {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header + Search */}
+      {/* Header and Search */}
       <Box px="$4" py="$6" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>
           {i18n.t('teamTitle')}
         </Heading>
+
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>
             <InputSlot pl="$3">
@@ -102,35 +156,104 @@ export default function TeamInfoScreen() {
               onChangeText={setSearchText}
             />
           </Input>
+
+          <Pressable
+            px="$4"
+            py="$2"
+            bg={Colors.text}
+            rounded="$md"
+            onPress={toggleEditMode}
+          >
+            <Text color={Colors.white} fontWeight="bold">
+              {editMode ? i18n.t('done') : i18n.t('edit')}
+            </Text>
+          </Pressable>
         </HStack>
       </Box>
 
-      {/* Member List */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
-        <VStack space="md">
-          {filtered.map((u) => (
-            <Box key={u.userId} bg={Colors.white} p="$4" rounded="$md">
-              <Text fontWeight="bold">
-                {u.name} {u.surname}
+      {/* Team Member List */}
+      <ScrollView style={{ flex: 1 }}>
+        <VStack space="md" p="$4">
+          {filtered.length > 0 ? (
+            filtered.map((user) => (
+              <Box key={user.userId} p="$4" bg={Colors.white} rounded="$lg">
+                <HStack alignItems="center" justifyContent="space-between">
+                  {/* User Information */}
+                  <HStack alignItems="center" space="md">
+                    <Avatar bg={Colors.text} size="md">
+                      <AvatarFallbackText>{`${user.name} ${user.surname}`}</AvatarFallbackText>
+                    </Avatar>
+                    <VStack>
+                      <Text fontWeight="bold">{user.name} {user.surname}</Text>
+                      <Text color={Colors.gray}>{user.phone}</Text>
+                    </VStack>
+                  </HStack>
+
+                  {/* Action Buttons */}
+                  <HStack space="md">
+                    {editMode ? (
+                      <Pressable onPress={() => openDeleteConfirm(user.userId)}>
+                        <Icon as={Trash2} size="lg" color="$red700" />
+                      </Pressable>
+                    ) : (
+                      <Pressable onPress={() => callPhone(user.phone || '')}>
+                        <Icon as={Phone} size="lg" color={Colors.text} />
+                      </Pressable>
+                    )}
+                  </HStack>
+                </HStack>
+              </Box>
+            ))
+          ) : (
+            <Center py="$8">
+              <Text textAlign="center" color={Colors.gray}>
+                {i18n.t('noResultsMember')}
               </Text>
-            </Box>
-          ))}
-          {filtered.length === 0 && (
-            <Text color={Colors.text} >
-              {('No Members Found')}
-            </Text>
+            </Center>
           )}
         </VStack>
       </ScrollView>
 
-      {/* Share Team Code */}
+      {/* Footer Button */}
       <Box px="$4" py="$4" bg={Colors.white}>
         <Button onPress={handleShare} bg={Colors.text} rounded="$lg">
-          <Text color={Colors.white} fontWeight="bold">
+          <ButtonText color={Colors.white} fontWeight="bold">
             {i18n.t('addMemberButton')}
-          </Text>
+          </ButtonText>
         </Button>
       </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)}>
+        <AlertDialogBackdrop />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <Heading size="lg">{i18n.t('removeTeamMember')}</Heading>
+            <AlertDialogCloseButton>
+              <Icon as={CloseIcon} />
+            </AlertDialogCloseButton>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <Text>
+              {i18n.t('removeTeamMemberConfirm')}
+            </Text>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <ButtonGroup space="md">
+              <Button
+                variant="outline"
+                action="secondary"
+                onPress={() => setShowDeleteConfirm(false)}
+              >
+                <ButtonText>{i18n.t('cancel')}</ButtonText>
+              </Button>
+              <Button bg="$red600" onPress={handleDeleteMember}>
+                <ButtonText>{i18n.t('confirm')}</ButtonText>
+              </Button>
+            </ButtonGroup>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Box>
   );
 }
