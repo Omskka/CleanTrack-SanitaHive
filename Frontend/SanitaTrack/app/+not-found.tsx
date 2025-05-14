@@ -68,5 +68,3 @@ export default function NotFoundScreen() {
     </Box>
   );
 }
-
-//team/workpage pulltorefresh
