@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TasksRepository extends MongoRepository<Tasks, ObjectId> {
     Optional<Tasks> findByTaskId(String taskId);
+    Optional<Tasks> deleteByTaskId(String taskId);
 }

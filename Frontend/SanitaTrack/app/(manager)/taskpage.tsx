@@ -30,6 +30,7 @@ import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Calendar as CalendarIcon, Edit, Plus, Trash, ChevronDown } from 'lucide-react-native';
 import { Colors } from '@/constants/Colors';
+import UUID from 'react-native-uuid';
 import { i18n, getCurrentLanguage } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -91,7 +92,7 @@ const TaskManagerScreen = () => {
   const [taskEmployee, setTaskEmployee] = useState<string>('');
   const [taskStartTime, setTaskStartTime] = useState<Date>(new Date());
   const [taskEndTime, setTaskEndTime] = useState<Date>(new Date(Date.now() + 60 * 60 * 1000));
-  
+
   // For DateTimePicker
   const [showStartTimePicker, setShowStartTimePicker] = useState<boolean>(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
@@ -153,7 +154,7 @@ const TaskManagerScreen = () => {
         const selected = selectedDate.toISOString().split('T')[0];
         return task.managerId === userID && taskDate === selected;
       });
-      
+
       setTasks(filteredTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -178,22 +179,22 @@ const TaskManagerScreen = () => {
       // Get all users
       const allUsers = await fetchAllUsers();
       console.log('All users fetched:', allUsers);
-      
+
       // Fetch team to get employee IDs
       const teamRes = await fetch(`http://10.0.2.2:8080/api/v1/teams/${userID}`);
       if (!teamRes.ok) {
         console.error('Team fetch response not OK:', await teamRes.text());
         throw new Error('Failed to fetch team');
       }
-      
+
       const team = await teamRes.json();
       console.log('Team data:', team);
-      
+
       // Ensure employeeId is an array
-      const employeeIds = Array.isArray(team.employeeId) ? team.employeeId : 
-                         (team.employeeId ? [team.employeeId] : []);
+      const employeeIds = Array.isArray(team.employeeId) ? team.employeeId :
+        (team.employeeId ? [team.employeeId] : []);
       console.log('Employee IDs:', employeeIds);
-      
+
       // Filter users to get team members
       const members = allUsers.filter((user: User) => employeeIds.includes(user.userId));
       console.log('Filtered team members:', members);
@@ -238,7 +239,7 @@ const TaskManagerScreen = () => {
   };
 
   const handleSaveTask = async () => {
-    if (!taskTitle || !taskDescription || !taskRoom || !taskEmployee) {
+    if (!taskDescription || !taskRoom || !taskEmployee) {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
@@ -250,8 +251,9 @@ const TaskManagerScreen = () => {
 
     setIsLoading(true);
     try {
+      const taskID = UUID.v4();
       const taskData = {
-        taskId: currentTask?.taskId || '',
+        taskId: taskID,
         managerId: userID,
         employeeId: taskEmployee,
         title: taskRoom, // Using room name as title
@@ -290,7 +292,7 @@ const TaskManagerScreen = () => {
 
   const handleDeleteTask = async () => {
     if (!currentTask) return;
-    
+
     setIsLoading(true);
     try {
       await deleteTask(currentTask.taskId);
@@ -308,13 +310,13 @@ const TaskManagerScreen = () => {
     setShowStartTimePicker(Platform.OS === 'ios');
     if (selectedDate) {
       setTaskStartTime(selectedDate);
-      
+
       // If end time is now before start time, adjust it
       if (taskEndTime <= selectedDate) {
         setTaskEndTime(new Date(selectedDate.getTime() + 60 * 60 * 1000));
       }
     }
-    
+
     if (Platform.OS === 'android' && startTimeMode === 'date') {
       setStartTimeMode('time');
       setShowStartTimePicker(true);
@@ -326,7 +328,7 @@ const TaskManagerScreen = () => {
     if (selectedDate) {
       setTaskEndTime(selectedDate);
     }
-    
+
     if (Platform.OS === 'android' && endTimeMode === 'date') {
       setEndTimeMode('time');
       setShowEndTimePicker(true);
@@ -352,7 +354,7 @@ const TaskManagerScreen = () => {
         </HStack>
 
         <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
-        
+
         {/* Display employee name */}
         {teamMembers.find(member => member.userId === rowData.employeeId) && (
           <Text fontSize="$sm" color={Colors.text} mb="$3">
@@ -364,12 +366,12 @@ const TaskManagerScreen = () => {
             }
           </Text>
         )}
-        
+
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">
-          {new Date(rowData.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+          {new Date(rowData.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
           {new Date(rowData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
-        
+
         {/* Calculate and display total time */}
         {(() => {
           const totalTimeInMillis = new Date(rowData.endTime).getTime() - new Date(rowData.startTime).getTime();
@@ -388,7 +390,7 @@ const TaskManagerScreen = () => {
             <Icon as={Edit} color={Colors.white} size="sm" />
             <Text color={Colors.white} ml="$1">{i18n.t('edit')}</Text>
           </Button>
-          
+
           <Button bg={Colors.error} onPress={() => handleShowDeleteModal(rowData)}>
             <Icon as={Trash} color={Colors.white} size="sm" />
           </Button>
@@ -451,7 +453,6 @@ const TaskManagerScreen = () => {
               endTime: task.endTime,
               employeeId: task.employeeId,
               taskId: task.taskId,
-              ...task
             }))}
             circleSize={20}
             circleColor="#000"
@@ -468,13 +469,13 @@ const TaskManagerScreen = () => {
             showTime={true}
             innerCircle={'dot'}
           />
-          
+
           {tasks.length === 0 && !isLoading && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
             </Box>
           )}
-          
+
           {isLoading && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('loading')}</Text>
@@ -508,16 +509,16 @@ const TaskManagerScreen = () => {
               {isCreating ? i18n.t('createTask') : i18n.t('editTask')}
             </Text>
           </Modal.Header>
-          
+
           <Modal.Body>
             {error ? <Text color={Colors.error} mb="$2">{error}</Text> : null}
-            
+
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('selectRoom')}</FormControlLabelText>
               </FormControlLabel>
-              <Select 
-                selectedValue={taskRoom} 
+              <Select
+                selectedValue={taskRoom}
                 onValueChange={value => setTaskRoom(value)}
               >
                 <SelectTrigger variant="outline" size="md">
@@ -543,8 +544,8 @@ const TaskManagerScreen = () => {
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('assignTo')}</FormControlLabelText>
               </FormControlLabel>
-              <Select 
-                selectedValue={taskEmployee} 
+              <Select
+                selectedValue={taskEmployee}
                 onValueChange={value => setTaskEmployee(value)}
               >
                 <SelectTrigger variant="outline" size="md">
@@ -559,10 +560,10 @@ const TaskManagerScreen = () => {
                       <SelectDragIndicator />
                     </SelectDragIndicatorWrapper>
                     {teamMembers.map((member) => (
-                      <SelectItem 
-                        key={`employee-${member.userId}`} 
-                        label={`${member.name} ${member.surname}`} 
-                        value={member.userId} 
+                      <SelectItem
+                        key={`employee-${member.userId}`}
+                        label={`${member.name} ${member.surname}`}
+                        value={member.userId}
                       />
                     ))}
                   </SelectContent>
@@ -625,7 +626,7 @@ const TaskManagerScreen = () => {
               />
             )}
           </Modal.Body>
-          
+
           <Modal.Footer>
             <Button variant="outline" mr="$3" onPress={handleCloseModal}>
               <Text>{i18n.t('cancel')}</Text>
@@ -646,14 +647,14 @@ const TaskManagerScreen = () => {
           <Modal.Header>
             <Text fontWeight="$bold">{i18n.t('confirmDelete')}</Text>
           </Modal.Header>
-          
+
           <Modal.Body>
             <Text>{i18n.t('deleteTaskConfirmation')}</Text>
             {currentTask && (
               <Text fontWeight="$bold" mt="$2">{currentTask.title}</Text>
             )}
           </Modal.Body>
-          
+
           <Modal.Footer>
             <Button variant="outline" mr="$3" onPress={() => setIsDeleteModalVisible(false)}>
               <Text>{i18n.t('cancel')}</Text>

@@ -20,6 +20,30 @@ export const fetchTasks = async () => {
   return response.data;
 };
 
+export const createTask = async (task: {
+  taskId: string;
+  managerId: string;
+  employeeId: string;
+  title: string;
+  description: string;
+  startTime: Date; // Use ISO string
+  endTime: Date;   // Use ISO string
+  imageUrl: string;
+  questionnaireOne: string;
+  questionnaireTwo: string;
+  questionnaireThree: string;
+  questionnaireFour: string;
+  isDone: boolean;
+}) => {
+  const response = await axiosInstance.post('/tasks', task);
+  return response.data;
+};
+
+export const deleteTask = async (taskId: string,) => {
+  const response = await axiosInstance.post('/tasks/delete', { taskId });
+  return response.data;
+};
+
 export const markTaskAsDone = async (taskId: string) => {
   const url = `/tasks/${taskId}/complete`;
   console.log('Request URL:', url); // Log URL here

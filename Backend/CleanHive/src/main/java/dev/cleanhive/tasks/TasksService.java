@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dev.cleanhive.rooms.Rooms;
+
 @Service
 public class TasksService {
 
@@ -16,6 +18,10 @@ public class TasksService {
     // Method to fetch all tasks
     public List<Tasks> allTasks() {
         return tasksRepository.findAll();
+    }
+
+    public Tasks createTask(Tasks task) {
+        return tasksRepository.save(task);
     }
 
     public boolean markTaskAsDone(String taskId) {
@@ -29,4 +35,13 @@ public class TasksService {
         return false;
     }
 
+    public void deleteTask(String taskId) {
+        Optional<Tasks> task = tasksRepository.findByTaskId(taskId); // ✅ semicolon here
+        if (task.isPresent()) {
+            tasksRepository.deleteByTaskId(taskId); // ✅ method name should match your repo
+        } else {
+            throw new RuntimeException("Task not found!");
+        }
+    }
+    
 }
