@@ -124,10 +124,22 @@ const WorkerHomepage = () => {
     }
   };
 
+  const cleanedUserId = userID.replace(/^"+|"+$/g, '').trim();
+
   const filteredTasks = tasks.filter(task => {
     const taskDate = new Date(task.startTime).toISOString().split('T')[0];
     const selected = selectedDate.toISOString().split('T')[0];
-    return taskDate === selected;
+
+    const employeeId = String(task.employeeId).trim();
+
+    const matchesDate = taskDate === selected;
+    const matchesUser = employeeId === cleanedUserId;
+
+    if (!matchesUser) {
+      console.log(`No match: task.employeeId = "${employeeId}", userID = "${cleanedUserId}"`);
+    }
+
+    return matchesDate && matchesUser;
   });
 
   const takePicture = async (taskId: string) => {
