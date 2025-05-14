@@ -17,10 +17,10 @@ import {
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
   SelectItem,
-  SelectBackdrop,
   Pressable,
   VStack,
   Divider,
+  FormControl,
   FormControlLabel,
   FormControlLabelText,
   SelectIcon,
@@ -32,13 +32,11 @@ import {
   ModalFooter
 } from '@gluestack-ui/themed';
 
-// Remove Card import since we're not using it
 import { Search, Plus, ChevronDown, ChevronUp, Trash } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchRooms, addRoom, deleteRoom } from '@/api/apiService';
-import { FormControl } from '@gluestack-ui/themed';
 
 interface Room {
   id: number;
@@ -87,9 +85,13 @@ export default function RoomsScreen() {
     setLoading(true);
     try {
       const roomsData = await fetchRooms();
-      const filteredRooms = roomsData.filter((room: Room) => room.teamId === userID);
+      const filteredRooms: Room[] = roomsData.filter((room: Room) => room.teamId === userID);
       setRooms(filteredRooms);
-      const uniqueCategories = Array.from(new Set((filteredRooms as Room[]).map(r => r.roomFloor)));
+      
+      // Ensure categories are stored as strings
+      const uniqueCategories = Array.from(
+        new Set(filteredRooms.map(r => String(r.roomFloor)))
+      );
       setCategories(uniqueCategories);
       setError('');
     } catch (error: any) {
@@ -118,7 +120,7 @@ export default function RoomsScreen() {
       setSelectedCategory('');
       setNewCategory('');
       setIsAddingCategory(false);
-      handleFetchRooms();
+      handleFetchRooms(); // Refresh the rooms list
     } catch (error: any) {
       console.error('Error creating room:', error);
       setError(error.message || i18n.t('failedToCreateRoom'));
@@ -157,7 +159,7 @@ export default function RoomsScreen() {
 
   // Get filtered categories based on search or all categories
   const filteredCategories = searchText
-    ? Array.from(new Set(filteredRooms.map(room => room.roomFloor)))
+    ? Array.from(new Set(filteredRooms.map(room => String(room.roomFloor))))
     : categories;
 
   return (
@@ -191,12 +193,15 @@ export default function RoomsScreen() {
       {/* Room List with Expandable Cards */}
       <VStack px="$4" py="$4" space="md">
         {filteredCategories.map((category) => {
-          const isExpanded = expandedCategories[category];
-          const roomsInCategory = filteredRooms.filter((room) => room.roomFloor === category);
+          const categoryKey = String(category); // Ensure the category is a string
+          const isExpanded = expandedCategories[categoryKey];
+          const roomsInCategory = filteredRooms.filter(
+            (room) => String(room.roomFloor) === categoryKey
+          );
 
           return (
             <Box
-              key={category}
+              key={categoryKey} // Use the string version as the key
               mb="$2"
               borderWidth={1}
               borderColor={Colors.gray}
@@ -204,7 +209,7 @@ export default function RoomsScreen() {
               overflow="hidden"
               bg={Colors.white}
             >
-              <Pressable onPress={() => toggleCategory(category)}>
+              <Pressable onPress={() => toggleCategory(categoryKey)}>
                 <Box p="$3">
                   <HStack justifyContent="space-between" alignItems="center" w="100%">
                     <Text fontWeight="bold" fontSize="$md">{category}</Text>
@@ -219,11 +224,12 @@ export default function RoomsScreen() {
 
               {isExpanded && (
                 <Box px="$3" pb="$3">
-                  <VStack space="sm" divider={<Divider />}>
+                  <VStack space="sm">
+                    <Divider/>
                     {roomsInCategory.length > 0 ? (
                       roomsInCategory.map((item) => (
                         <HStack
-                          key={item.id}
+                          key={`room-${item.roomName}`}
                           justifyContent="space-between"
                           alignItems="center"
                           py="$2"
@@ -300,7 +306,7 @@ export default function RoomsScreen() {
                           <SelectDragIndicator />
                         </SelectDragIndicatorWrapper>
                         {categories.map((cat) => (
-                          <SelectItem key={cat} label={cat} value={cat} />
+                          <SelectItem key={`category-${cat}`} label={cat} value={cat} />
                         ))}
                       </SelectContent>
                     </SelectPortal>
@@ -355,7 +361,6 @@ export default function RoomsScreen() {
                 onPress={handleAddRoom}
                 bg={Colors.text}
                 isDisabled={loading}
-                isLoading={loading}
               >
                 <Text color={Colors.white}>{i18n.t('create')}</Text>
               </Button>
@@ -363,7 +368,6 @@ export default function RoomsScreen() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
     </Box>
   );
 }
