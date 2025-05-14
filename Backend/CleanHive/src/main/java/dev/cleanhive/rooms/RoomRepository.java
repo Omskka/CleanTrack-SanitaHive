@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import dev.cleanhive.rooms.Rooms;
 
+@Repository
 public interface RoomRepository extends MongoRepository<Rooms, ObjectId> {
     Optional<Rooms> findByRoomId(String roomId);
     void deleteByRoomId(String roomId);

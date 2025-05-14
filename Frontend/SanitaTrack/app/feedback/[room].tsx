@@ -12,14 +12,22 @@ import {
 import { Star } from 'lucide-react-native';
 import { i18n, getCurrentLanguage } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
+import UUID from 'react-native-uuid';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { createFeedback } from '@/api/apiService';
+import { useLocalSearchParams } from 'expo-router';
 
 const categories = ['suggestion', 'smell', 'equipment', 'overall'];
 
 export default function FeedbackScreen() {
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(0); // Rating state (1 to 5)
   const [selectedCategory, setSelectedCategory] = useState('');
   const [feedback, setFeedback] = useState('');
   const [language, setLanguage] = useState(getCurrentLanguage());
+
+  // Use the useRoute hook to get route parameters, including roomId
+  const roomId: any = useLocalSearchParams();
+  console.log("roomId :", roomId);
 
   useEffect(() => {
     // Update component when language changes
@@ -31,10 +39,36 @@ export default function FeedbackScreen() {
     i18n.locale = newLanguage;
   };
 
-  const handleSubmit = () => {
-    // Submit logic here
-    console.log({ rating, selectedCategory, feedback });
+  const handleSubmit = async () => {
+    // Ensure roomId is available
+    if (!roomId) {
+      alert('Room ID is required to submit feedback');
+      return;
+    }
+
+    const feedbackID = UUID.v4();
+    const payload = {
+      feedbackId: feedbackID,
+      roomId: roomId,  // This should be passed as part of the payload
+      rating,           // Ensure rating is correctly set
+      category: selectedCategory,  // Selected category of the feedback
+      description: feedback, // Feedback content
+    };
+
+    try {
+      console.log('Submitting feedback with the following data:');
+      console.log('Payload:', payload);
+      const updated = await createFeedback(roomId, payload);  // API call to save feedback
+      console.log('Feedback saved successfully:', updated);
+      // Optionally reset the form or show a success message
+      alert('Feedback submitted successfully!');
+      // Reset form or navigate to another page if necessary
+    } catch (err: any) {
+      console.error('Error saving feedback:', err);
+      alert(`Failed to save feedback: ${err.message}`);
+    }
   };
+
 
   return (
     <Box flex={1} bg={Colors.background}>
@@ -43,13 +77,13 @@ export default function FeedbackScreen() {
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>
           {i18n.t('feedbackTitle')}
         </Text>
-        
+
         {/* Language Toggle Button */}
         <Pressable
-          position="absolute" 
-          top={30} 
-          right={16} 
-          zIndex={10} 
+          position="absolute"
+          top={30}
+          right={16}
+          zIndex={10}
           onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
         >
           <Text fontWeight="$bold" color={Colors.heading}>
@@ -107,8 +141,8 @@ export default function FeedbackScreen() {
           <Text fontSize="$md" fontWeight="$medium" mb="$2" color={Colors.text}>
             {i18n.t('yourFeedback')}
           </Text>
-          <Textarea 
-            minHeight={120} 
+          <Textarea
+            minHeight={120}
             mb="$4"
             borderColor={Colors.gray}
             borderRadius="$lg"
@@ -123,7 +157,7 @@ export default function FeedbackScreen() {
           </Textarea>
         </Box>
 
-        <Button 
+        <Button
           onPress={handleSubmit}
           bg={Colors.text}
           rounded="$lg"
