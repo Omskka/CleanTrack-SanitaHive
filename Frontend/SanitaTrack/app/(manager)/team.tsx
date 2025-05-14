@@ -26,7 +26,7 @@ import {
   ButtonText,
   Center,
 } from '@gluestack-ui/themed';
-import { Phone, Search, Trash2 } from 'lucide-react-native';
+import { Phone, Search, Trash2, Edit } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -165,9 +165,12 @@ export default function TeamInfoScreen() {
             rounded="$md"
             onPress={toggleEditMode}
           >
-            <Text color={Colors.white} fontWeight="bold">
-              {editMode ? i18n.t('done') : i18n.t('edit')}
-            </Text>
+            <HStack alignItems="center">
+              <Icon as={Edit} color={Colors.white} size="sm" mr={5}/>
+              <Text color={Colors.white} fontWeight="bold">
+                {editMode ? i18n.t('done') : i18n.t('edit')}
+              </Text>
+            </HStack>
           </Pressable>
         </HStack>
       </Box>
