@@ -39,6 +39,28 @@ export const createTask = async (task: {
   return response.data;
 };
 
+export const updateTask = async (
+  taskId: string,
+  updatedTask: {
+    taskId: string;
+    managerId: string;
+    employeeId: string;
+    title: string;
+    description: string;
+    startTime: Date;
+    endTime: Date;
+    imageUrl: string;
+    questionnaireOne: string;
+    questionnaireTwo: string;
+    questionnaireThree: string;
+    questionnaireFour: string;
+    isDone: boolean;
+  }
+) => {
+  const response = await axiosInstance.put(`/tasks/update/${taskId}`, updatedTask);
+  return response.data;
+};
+
 export const deleteTask = async (taskId: string,) => {
   const response = await axiosInstance.post('/tasks/delete', { taskId });
   return response.data;
