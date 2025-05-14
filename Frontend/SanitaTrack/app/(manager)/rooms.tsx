@@ -390,9 +390,7 @@ export default function RoomsScreen() {
                   >
                     <SelectTrigger variant="outline" size="md" borderColor={Colors.gray}>
                       <SelectInput placeholder={i18n.t('chooseCategory')} />
-                      <SelectIcon>
-                        <Icon as={ChevronDown} />
-                      </SelectIcon>
+                      <SelectIcon as={ChevronDown} mr={5} />
                     </SelectTrigger>
                     <SelectPortal>
                       <SelectContent>
