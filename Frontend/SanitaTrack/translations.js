@@ -138,6 +138,11 @@ export const translations = {
     done: "Done",
     removeTeamMember: "Remove Team Member",
     removeTeamMemberConfirm: "Are you sure to remove this team member? This action can't be reversed.",
+
+    shareRoomQrCode: "Share Room QR Code",
+    scanQrToAccess: "Scan this QR code to access the feedback form",
+    shareQrCode: "Share QR",
+    close: "Close"
   },
   tr: {
     greeting: 'Merhaba',
@@ -279,5 +284,10 @@ export const translations = {
     done: "Tamam",
     removeTeamMember: "Takım üyesini sil.",
     removeTeamMemberConfirm: "Takım üyesini silmek istediğine emin misin? Bu işlem geri alınamaz.",
+
+    shareRoomQrCode: "Oda QR Kodunu Paylaş",
+    scanQrToAccess: "Geri bildirim formuna erişmek için bu QR kodu tarayın",
+    shareQrCode: "QR Paylaş",
+    close: "Kapat"
   },
 };

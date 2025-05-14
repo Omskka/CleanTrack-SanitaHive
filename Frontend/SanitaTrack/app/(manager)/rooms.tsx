@@ -67,13 +67,13 @@ export default function RoomsScreen() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-  
+
   // QR code sharing state
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [qrValue, setQrValue] = useState('');
   const [currentRoomName, setCurrentRoomName] = useState('');
   const qrCodeRef = useRef(null);
-  
+
   // Define styles
   const styles = StyleSheet.create({
     qrContainer: {
@@ -211,11 +211,11 @@ export default function RoomsScreen() {
         alert('Sharing is not available on this device');
         return;
       }
-      
+
       // Capture the QR code as an image
       const uri = await qrCodeRef.current.capture();
       console.log('Captured QR code URI:', uri);
-      
+
       // Use expo-sharing to share the captured image
       await Sharing.shareAsync(uri, {
         dialogTitle: `QR Code for ${currentRoomName}`,
@@ -468,7 +468,7 @@ export default function RoomsScreen() {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="md">Share Room QR Code</Heading>
+            <Heading size="md">{i18n.t('shareRoomQrCode')}</Heading>
           </ModalHeader>
 
           <ModalBody>
@@ -478,8 +478,8 @@ export default function RoomsScreen() {
               </Text>
               {/* The ViewShot component needs to be properly positioned */}
               <View style={styles.qrContainer}>
-                <ViewShot 
-                  ref={qrCodeRef} 
+                <ViewShot
+                  ref={qrCodeRef}
                   options={{ format: 'png', quality: 1 }}
                   style={styles.viewShot}
                 >
@@ -496,33 +496,34 @@ export default function RoomsScreen() {
                 </ViewShot>
               </View>
               <Text textAlign="center" fontSize="$sm" color={Colors.text}>
-                Scan this QR code to access the feedback form
+                {i18n.t('scanQrToAccess')}
               </Text>
             </VStack>
           </ModalBody>
 
           <ModalFooter>
             <HStack space="sm" justifyContent="space-between" w="100%">
-              <Button 
-                onPress={shareQRCode} 
-                bg={Colors.text} 
+              <Button
+                onPress={shareQRCode}
+                bg={Colors.text}
                 flex={1}
               >
-                <Icon as={Share2} color={Colors.white} />
-                <Text color={Colors.white}>Share QR Code</Text>
+                <Icon as={Share2} color={Colors.white} mr={5} />
+                <Text color={Colors.white}>{i18n.t('shareQrCode')}</Text>
               </Button>
-              <Button 
-                onPress={() => setQrModalVisible(false)} 
+              <Button
+                onPress={() => setQrModalVisible(false)}
                 variant="outline"
                 borderColor={Colors.text}
                 flex={1}
               >
-                <Text color={Colors.text}>Close</Text>
+                <Text color={Colors.text}>{i18n.t('close')}</Text>
               </Button>
             </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
     </Box>
   );
 }
