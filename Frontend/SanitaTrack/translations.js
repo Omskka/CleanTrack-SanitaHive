@@ -128,7 +128,8 @@ export const translations = {
       smell: "Smell",
       equipment: "Equipment",
       overall: "Overall"
-    }
+    },
+    yourFeedback: "Provide your feedback:"
   },
   tr: {
     greeting: 'Merhaba',
@@ -260,6 +261,7 @@ export const translations = {
       smell: "Koku",
       equipment: "Ekipman",
       overall: "Genel"
-    }
+    },
+    yourFeedback: "Geri bildiriminizi giriniz:"
   },
 };
