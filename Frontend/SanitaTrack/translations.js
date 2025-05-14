@@ -129,7 +129,11 @@ export const translations = {
       equipment: "Equipment",
       overall: "Overall"
     },
-    yourFeedback: "Provide your feedback:"
+    yourFeedback: "Provide your feedback:",
+    
+    notFound: "Page Not Found",
+    pageNotFound: "Page you are looking for is missing.",
+    returnHome: "Return home"
   },
   tr: {
     greeting: 'Merhaba',
@@ -262,6 +266,10 @@ export const translations = {
       equipment: "Ekipman",
       overall: "Genel"
     },
-    yourFeedback: "Geri bildiriminizi giriniz:"
+    yourFeedback: "Geri bildiriminizi giriniz:",
+
+    notFound: "Sayfa bulunamadı",
+    pageNotFound: "Aradığınız sayfa bulunamadı.",
+    returnHome: "Anasayfaya dön"
   },
 };
