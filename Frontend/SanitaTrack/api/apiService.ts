@@ -15,6 +15,14 @@ export const fetchTeam = async (employeeId: string) => {
   return response.data;
 };
 
+export const removeTeamMember = async (managerId: string, employeeId: string) => {
+  const response = await axiosInstance.post('/teams/remove-member', {
+    managerId,
+    employeeId,
+  });
+  return response.data;
+};
+
 export const fetchTasks = async () => {
   const response = await axiosInstance.get(`/tasks`);
   return response.data;

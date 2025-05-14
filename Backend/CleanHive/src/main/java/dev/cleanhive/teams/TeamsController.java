@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import dev.cleanhive.rooms.Rooms;
+
 @RestController
 @RequestMapping("/api/v1/teams")
 public class TeamsController {
@@ -65,4 +67,17 @@ public class TeamsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // ❗️Remove member from team
+    @PostMapping("/remove-member")
+    public ResponseEntity<?> removeTeamMember(@RequestBody Map<String, String> payload) {
+        try {
+            String managerId = payload.get("managerId");
+            String employeeId = payload.get("employeeId");
+
+            teamsService.removeTeamMember(managerId, employeeId);
+            return new ResponseEntity<>("Member removed from team successfully!", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 }

@@ -47,4 +47,21 @@ public class TeamsService {
     public Optional<Teams> getTeamByEmployeeId(String employeeId) {
         return teamsRepository.findByEmployeeIdContaining(employeeId);
     }
+
+    // Remove member from team
+    public void removeTeamMember(String managerId, String employeeId) {
+        // Find the team by its managerId (NOT by _id)
+        Teams team = teamsRepository.findByManagerId(managerId)
+                .orElseThrow(() -> new RuntimeException("Team not found with manager ID: " + managerId));
+
+        List<String> employees = team.getEmployeeId();
+
+        if (!employees.remove(employeeId)) {
+            throw new RuntimeException("Employee ID not found in team: " + employeeId);
+        }
+
+        team.setEmployeeId(employees);
+        teamsRepository.save(team);
+    }
+
 }

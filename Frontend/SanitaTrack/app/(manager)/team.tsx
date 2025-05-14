@@ -68,7 +68,7 @@ export default function TeamInfoScreen() {
       const ids = Array.isArray(team.employeeId) ? team.employeeId : [];
 
       const allUsers = await fetchAllUsers();
-      
+
       // Filter and format team members
       const members = allUsers
         .filter((u: any) => ids.includes(u.userId))
@@ -76,9 +76,9 @@ export default function TeamInfoScreen() {
           userId: u.userId,
           name: u.name,
           surname: u.surname,
-          phone: u.phone || '800-***-38' // Default phone if not available
+          phone: u.phoneNumber || 'Number Unavailable' 
         }));
-      
+
       console.log('Filtered team members:', members);
       setTeamMembers(members);
     } catch (e) {
@@ -113,8 +113,9 @@ export default function TeamInfoScreen() {
 
   const handleDeleteMember = async () => {
     if (!selectedUserId) return;
-    
+
     try {
+      console.log("selectedUserId : ", selectedUserId);
       await removeTeamMember(userID, selectedUserId);
       // Update local state without refetching
       setTeamMembers(prev => prev.filter(member => member.userId !== selectedUserId));
