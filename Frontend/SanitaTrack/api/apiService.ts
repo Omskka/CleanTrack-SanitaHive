@@ -128,3 +128,8 @@ export const createTeam = async (team: {
   const response = await axiosInstance.post('/teams', team);
   return response.data;
 };
+
+export const createFeedback = async (data: any) => {
+  const response = await axiosInstance.post(`/feedbacks`, data);
+  return response.data;
+};
