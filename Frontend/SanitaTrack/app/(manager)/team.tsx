@@ -16,6 +16,7 @@ import { Search } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchAllUsers, fetchTeamByManager } from '@/api/apiService';
 
 type User = {
   userId: string;    // <-- lowercase
@@ -41,25 +42,12 @@ export default function TeamInfoScreen() {
         const managerId = JSON.parse(raw);
         setUserID(managerId);
 
-        const teamRes = await fetch(`http://10.0.2.2:8080/api/v1/teams/${managerId}`);
-
-        if (!teamRes.ok) {
-          console.error('Failed to fetch team:', await teamRes.text());
-          return;
-        }
-
-        const team = await teamRes.json();
-
+        const team = await fetchTeamByManager(managerId);
         const ids = Array.isArray(team.employeeId) ? team.employeeId : [];
-        const usersRes = await fetch('http://10.0.2.2:8080/api/v1/users');
-        if (!usersRes.ok) {
-          console.error('Failed to fetch users:', await usersRes.text());
-          return;
-        }
 
-        const allUsers: User[] = await usersRes.json();
+        const allUsers = await fetchAllUsers();
 
-        const members = allUsers.filter((u) => ids.includes(u.userId));
+        const members = allUsers.filter((u: any) => ids.includes(u.userId));
         console.log('Filtered team members:', members);
 
         setTeamMembers(members);
