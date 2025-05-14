@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
   HStack,
@@ -29,15 +29,19 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
 } from '@gluestack-ui/themed';
 
-import { Search, Plus, ChevronDown, ChevronUp, Trash } from 'lucide-react-native';
+import { Search, Plus, ChevronDown, ChevronUp, Trash, Share2 } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchRooms, addRoom, deleteRoom } from '@/api/apiService';
+import QRCode from 'react-native-qrcode-svg';
+import { Platform, View, StyleSheet } from 'react-native';
+import * as Sharing from 'expo-sharing';
+import ViewShot from 'react-native-view-shot';
 
 interface Room {
   roomId: string;
@@ -63,6 +67,37 @@ export default function RoomsScreen() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  
+  // QR code sharing state
+  const [qrModalVisible, setQrModalVisible] = useState(false);
+  const [qrValue, setQrValue] = useState('');
+  const [currentRoomName, setCurrentRoomName] = useState('');
+  const qrCodeRef = useRef(null);
+  
+  // Define styles
+  const styles = StyleSheet.create({
+    qrContainer: {
+      backgroundColor: 'white',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 16,
+      borderRadius: 8,
+    },
+    viewShot: {
+      backgroundColor: 'white',
+    },
+    qrContent: {
+      padding: 16,
+      backgroundColor: 'white',
+      alignItems: 'center',
+      borderRadius: 8,
+    },
+    qrText: {
+      marginTop: 12,
+      fontSize: 14,
+      textAlign: 'center',
+    }
+  });
 
   useEffect(() => {
     const fetchUserID = async () => {
@@ -145,6 +180,51 @@ export default function RoomsScreen() {
       setError(error.message || i18n.t('failedToDeleteRoom'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleShareRoom = (roomId: string, roomName: string) => {
+    setQrValue(`https://localhost:8081/feedback/${roomId}`);
+    setCurrentRoomName(roomName);
+    setQrModalVisible(true);
+  };
+
+  // Function to check if sharing is available (for iOS)
+  const checkSharingAvailability = async () => {
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
+      return await Sharing.isAvailableAsync();
+    }
+    return false;
+  };
+
+  // Function to share QR code using ViewShot and expo-share
+  const shareQRCode = async () => {
+    if (!qrCodeRef.current) {
+      alert('QR Code not ready for sharing');
+      return;
+    }
+
+    try {
+      // First check if sharing is available
+      const isSharingAvailable = await checkSharingAvailability();
+      if (!isSharingAvailable) {
+        alert('Sharing is not available on this device');
+        return;
+      }
+      
+      // Capture the QR code as an image
+      const uri = await qrCodeRef.current.capture();
+      console.log('Captured QR code URI:', uri);
+      
+      // Use expo-sharing to share the captured image
+      await Sharing.shareAsync(uri, {
+        dialogTitle: `QR Code for ${currentRoomName}`,
+        mimeType: 'image/png',
+        UTI: 'public.png' // Uniform Type Identifier for iOS
+      });
+    } catch (error: any) {
+      console.error('Error sharing QR code image:', error);
+      alert(`Failed to share QR code image: ${error.message}`);
     }
   };
 
@@ -232,20 +312,30 @@ export default function RoomsScreen() {
                     {roomsInCategory.length > 0 ? (
                       roomsInCategory.map((item) => (
                         <HStack
-                          key={`room-${item.roomName}`}
+                          key={`room-${item.roomId}`}
                           justifyContent="space-between"
                           alignItems="center"
                           py="$2"
                         >
                           <Text fontWeight="$medium">{item.roomName}</Text>
-                          <Button
-                            size="sm"
-                            bg={Colors.error}
-                            rounded="$lg"
-                            onPress={() => handleDeleteRoom(item.roomId)}
-                          >
-                            <Icon as={Trash} size="sm" color={Colors.white} />
-                          </Button>
+                          <HStack space="sm">
+                            <Button
+                              size="sm"
+                              bg={Colors.text}
+                              rounded="$lg"
+                              onPress={() => handleShareRoom(item.roomId, item.roomName)}
+                            >
+                              <Icon as={Share2} size="sm" color={Colors.white} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              bg={Colors.error}
+                              rounded="$lg"
+                              onPress={() => handleDeleteRoom(item.roomId)}
+                            >
+                              <Icon as={Trash} size="sm" color={Colors.white} />
+                            </Button>
+                          </HStack>
                         </HStack>
                       ))
                     ) : (
@@ -259,6 +349,7 @@ export default function RoomsScreen() {
         })}
       </VStack>
 
+      {/* Add Room Modal */}
       <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
         <ModalBackdrop />
         <ModalContent>
@@ -366,6 +457,67 @@ export default function RoomsScreen() {
                 isDisabled={loading}
               >
                 <Text color={Colors.white}>{i18n.t('create')}</Text>
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* QR Code Modal with ViewShot */}
+      <Modal isOpen={qrModalVisible} onClose={() => setQrModalVisible(false)}>
+        <ModalBackdrop />
+        <ModalContent>
+          <ModalHeader>
+            <Heading size="md">Share Room QR Code</Heading>
+          </ModalHeader>
+
+          <ModalBody>
+            <VStack space="md" alignItems="center" py="$4">
+              <Text textAlign="center" fontWeight="$medium">
+                {currentRoomName}
+              </Text>
+              {/* The ViewShot component needs to be properly positioned */}
+              <View style={styles.qrContainer}>
+                <ViewShot 
+                  ref={qrCodeRef} 
+                  options={{ format: 'png', quality: 1 }}
+                  style={styles.viewShot}
+                >
+                  <View style={styles.qrContent}>
+                    <QRCode
+                      value={qrValue}
+                      size={200}
+                      backgroundColor="white"
+                    />
+                    <Text style={styles.qrText}>
+                      {currentRoomName}
+                    </Text>
+                  </View>
+                </ViewShot>
+              </View>
+              <Text textAlign="center" fontSize="$sm" color={Colors.text}>
+                Scan this QR code to access the feedback form
+              </Text>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <HStack space="sm" justifyContent="space-between" w="100%">
+              <Button 
+                onPress={shareQRCode} 
+                bg={Colors.text} 
+                flex={1}
+              >
+                <Icon as={Share2} color={Colors.white} />
+                <Text color={Colors.white}>Share QR Code</Text>
+              </Button>
+              <Button 
+                onPress={() => setQrModalVisible(false)} 
+                variant="outline"
+                borderColor={Colors.text}
+                flex={1}
+              >
+                <Text color={Colors.text}>Close</Text>
               </Button>
             </HStack>
           </ModalFooter>
