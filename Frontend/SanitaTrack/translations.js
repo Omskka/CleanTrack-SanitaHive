@@ -15,7 +15,7 @@ export const translations = {
     createTeam: 'Create team',
     register: 'Register',
 
-    teamTitle: 'TEAM',
+    teamTitle: 'Team',
     searchMemberPlaceholder: 'Search member...',
     edit: 'Edit',
     addMemberButton: 'Add new member to team',
@@ -142,7 +142,15 @@ export const translations = {
     shareRoomQrCode: "Share Room QR Code",
     scanQrToAccess: "Scan this QR code to access the feedback form",
     shareQrCode: "Share QR",
-    close: "Close"
+    close: "Close",
+
+    tabs: {
+      home: "Home",
+      team: "Team",
+      rooms: "Rooms",
+      reports: "Reports",
+      taskpage: "Taskpage"
+    },
   },
   tr: {
     greeting: 'Merhaba',
@@ -157,19 +165,19 @@ export const translations = {
     continue: 'Devam Et',
     isManager: 'Yönetici misiniz?',
     isWorker: 'Çalışan mısınız?',
-    createTeam: 'Takım oluşturun',
+    createTeam: 'Ekip oluşturun',
     register: 'Kayıt Ol',
 
-    teamTitle: 'TAKIM',
+    teamTitle: 'Ekip',
     searchMemberPlaceholder: 'Üye ara...',
     edit: 'Düzenle',
     addMemberButton: 'Takıma yeni üye ekle',
     noResultsMember: 'Üye bulunamadı.',
 
     registerTitle: "Kayıt Ol",
-    teamCode: "Takım Kodu",
-    teamCodePlaceholder: "Takım kodunuzu girin",
-    enterTeamCode: "Lütfen takım kodunuzu girin",
+    teamCode: "Ekip Kodu",
+    teamCodePlaceholder: "Ekip kodunuzu girin",
+    enterTeamCode: "Lütfen ekip kodunuzu girin",
     name: "Ad",
     namePlaceholder: "Adınızı girin",
     enterName: "Lütfen adınızı girin",
@@ -181,10 +189,10 @@ export const translations = {
     loginHere: "Buradan giriş yap",
     allFieldsRequired: "Lütfen tüm alanları doldurun.",
 
-    createTeamTitle: "Takımınızı Oluşturun",
+    createTeamTitle: "Ekibinizi Oluşturun",
     companyNameLabel: "Kurum Adı",
     companyNamePlaceholder: "Kurum adınızı girin",
-    createTeamButton: "Takım Oluştur",
+    createTeamButton: "Ekip Oluştur",
     enterCompanyName: "Lütfen kurum adınızı girin",
 
     roomsTitle: "Odalar",
@@ -282,12 +290,20 @@ export const translations = {
     returnHome: "Anasayfaya dön",
 
     done: "Tamam",
-    removeTeamMember: "Takım üyesini sil.",
-    removeTeamMemberConfirm: "Takım üyesini silmek istediğine emin misin? Bu işlem geri alınamaz.",
+    removeTeamMember: "Ekip üyesini sil.",
+    removeTeamMemberConfirm: "Ekip üyesini silmek istediğine emin misin? Bu işlem geri alınamaz.",
 
     shareRoomQrCode: "Oda QR Kodunu Paylaş",
     scanQrToAccess: "Geri bildirim formuna erişmek için bu QR kodu tarayın",
     shareQrCode: "QR Paylaş",
-    close: "Kapat"
+    close: "Kapat",
+
+    tabs: {
+      home: "Ana Sayfa",
+      team: "Ekip",
+      rooms: "Odalar",
+      reports: "Raporlar",
+      taskpage: "Görevler",
+    },
   },
 };
