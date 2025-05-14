@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Share, ActivityIndicator, Linking } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ScrollView, Share, ActivityIndicator, Linking, RefreshControl } from 'react-native';
 import {
   Box,
   VStack,
@@ -44,6 +44,7 @@ export default function TeamInfoScreen() {
   const [userID, setUserID] = useState<string>('');
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -87,6 +88,17 @@ export default function TeamInfoScreen() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchTeamData();
+    } catch (e) {
+      console.error('Error during refresh:', e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   const handleShare = async () => {
     try {
@@ -175,8 +187,18 @@ export default function TeamInfoScreen() {
         </HStack>
       </Box>
 
-      {/* Team Member List */}
-      <ScrollView style={{ flex: 1 }}>
+      {/* Team Member List with Pull to Refresh */}
+      <ScrollView 
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={[Colors.text]}
+            tintColor={Colors.text}
+          />
+        }
+      >
         <VStack space="md" p="$4">
           {filtered.length > 0 ? (
             filtered.map((user) => (
