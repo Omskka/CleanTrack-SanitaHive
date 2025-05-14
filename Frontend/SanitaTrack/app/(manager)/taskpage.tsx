@@ -57,7 +57,7 @@ interface Task {
 }
 
 interface Room {
-  id: number;
+  roomId: number;
   roomName: string;
   roomFloor: string;
   teamId: string;
@@ -533,7 +533,7 @@ const TaskManagerScreen = () => {
                       <SelectDragIndicator />
                     </SelectDragIndicatorWrapper>
                     {rooms.map((room) => (
-                      <SelectItem key={room.id} label={room.roomName} value={room.roomName} />
+                      <SelectItem key={room.roomId} label={room.roomName} value={room.roomName} />
                     ))}
                   </SelectContent>
                 </SelectPortal>
