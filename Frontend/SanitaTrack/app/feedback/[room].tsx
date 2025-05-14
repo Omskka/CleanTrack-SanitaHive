@@ -49,16 +49,15 @@ export default function FeedbackScreen() {
     const feedbackID = UUID.v4();
     const payload = {
       feedbackId: feedbackID,
-      roomId: roomId,  // This should be passed as part of the payload
+      roomId: roomId.room,  // This should be passed as part of the payload
       rating,           // Ensure rating is correctly set
       category: selectedCategory,  // Selected category of the feedback
       description: feedback, // Feedback content
     };
 
     try {
-      console.log('Submitting feedback with the following data:');
       console.log('Payload:', payload);
-      const updated = await createFeedback(roomId, payload);  // API call to save feedback
+      const updated = await createFeedback(payload);  // API call to save feedback
       console.log('Feedback saved successfully:', updated);
       // Optionally reset the form or show a success message
       alert('Feedback submitted successfully!');

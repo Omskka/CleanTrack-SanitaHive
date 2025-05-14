@@ -129,7 +129,7 @@ export const createTeam = async (team: {
   return response.data;
 };
 
-export const createFeedback = async (roomId: string, data: any) => {
-  const response = await axiosInstance.post(`/feedback/${roomId}`, data);  // Use roomId in the URL path
+export const createFeedback = async (data: any) => {
+  const response = await axiosInstance.post(`/feedbacks`, data);
   return response.data;
 };
