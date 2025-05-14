@@ -37,7 +37,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform, TouchableOpacity } from 'react-native';
 
 // Mock API functions (to be replaced with actual API calls)
-import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask } from '@/api/apiService';
+import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask, fetchTeamByManager } from '@/api/apiService';
 
 interface Task {
   taskId: string;
@@ -176,28 +176,28 @@ const TaskManagerScreen = () => {
   const fetchTeamMembersData = async () => {
     try {
       console.log('Fetching team members for userID:', userID);
-      // Get all users
+
+      // 1. Get all users
       const allUsers = await fetchAllUsers();
       console.log('All users fetched:', allUsers);
 
-      // Fetch team to get employee IDs
-      const teamRes = await fetch(`http://10.0.2.2:8080/api/v1/teams/${userID}`);
-      if (!teamRes.ok) {
-        console.error('Team fetch response not OK:', await teamRes.text());
-        throw new Error('Failed to fetch team');
-      }
-
-      const team = await teamRes.json();
+      // 2. Fetch team to get employee IDs
+      const team = await fetchTeamByManager(userID);
       console.log('Team data:', team);
 
-      // Ensure employeeId is an array
-      const employeeIds = Array.isArray(team.employeeId) ? team.employeeId :
-        (team.employeeId ? [team.employeeId] : []);
+      // 3. Ensure employeeId is an array
+      const employeeIds = Array.isArray(team.employeeId)
+        ? team.employeeId
+        : team.employeeId
+          ? [team.employeeId]
+          : [];
+
       console.log('Employee IDs:', employeeIds);
 
-      // Filter users to get team members
+      // 4. Filter users to get team members
       const members = allUsers.filter((user: User) => employeeIds.includes(user.userId));
       console.log('Filtered team members:', members);
+
       setTeamMembers(members);
     } catch (error) {
       console.error('Error fetching team members:', error);
