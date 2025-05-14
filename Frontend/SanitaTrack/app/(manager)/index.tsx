@@ -1,105 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Text,
-  Pressable,
-  ScrollView,
-  HStack,
-  VStack
-} from '@gluestack-ui/themed';
+import React, { useState, useEffect, useMemo } from 'react';
+import { RefreshControl } from 'react-native';
+import { Box, Text, ScrollView, VStack, HStack, Pressable } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
+import { fetchTasks } from '@/api/apiService'; // Function to fetch data from the backend
+import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 
 interface Task {
-  date: string; // YYYY-MM-DD format
-  startTime: string;
-  finishTime: string;
+  taskId: string;
+  managerId: string;
+  employeeId: string;
   title: string;
   description: string;
-  room: string;
-  completed: boolean;
-  workerName: string;
-  workerSurname: string;
-  taskId: string;
-  totalTime: string;
+  startTime: Date; // ISO format, e.g., '2025-05-11T14:30:00'
+  endTime: Date;   // ISO format
+  time: string; // e.g., '14:30'
+  isDone: boolean;
 }
 
 const ManagerHomepage = () => {
-  const [language, setLanguage] = useState<string>(getCurrentLanguage());
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
+  const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchTasksFromDatabase();
+    setRefreshing(false);
+  };
+
+  // Filter tasks by the selected date
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const taskDate = new Date(task.startTime).toISOString().split('T')[0];  // 'YYYY-MM-DD' format
+      const selectedDateStr = selectedDate.toISOString().split('T')[0];
+      return taskDate === selectedDateStr;  // Show tasks if the dates match
+    });
+  }, [tasks, selectedDate]);
+
+  // This function will be triggered when a day is selected
+  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
+
+  // Function to fetch tasks from the backend
+  const fetchTasksFromDatabase = async () => {
+    try {
+      const response = await fetchTasks(); // Fetch tasks from the backend
+      setTasks(response); // Set tasks to state
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
   useEffect(() => {
-    const mockTasks: Task[] = [
-      {
-        date: '2025-04-01',
-        startTime: '09:00',
-        finishTime: '10:30',
-        totalTime: '1 hour 30 minutes',
-        title: i18n.t('roomCleaning', { roomNumber: '101' }),
-        description: i18n.t('cleaningDescription'),
-        room: '101',
-        completed: false,
-        workerName: 'John',
-        workerSurname: 'Doe',
-        taskId: '1'
-      },
-      {
-        date: '2025-04-02',
-        startTime: '11:00',
-        finishTime: '12:00',
-        totalTime: '1 hour',
-        title: i18n.t('roomCleaning', { roomNumber: '205' }),
-        description: i18n.t('bathroomCleaning'),
-        room: '205',
-        completed: true,
-        workerName: 'Jane',
-        workerSurname: 'Smith',
-        taskId: '2'
-      },
-      {
-        date: '2025-04-02',
-        startTime: '15:00',
-        finishTime: '17:00',
-        totalTime: '2 hour',
-        title: i18n.t('roomCleaning', { roomNumber: '312' }),
-        description: i18n.t('kitchenCleaning'),
-        room: '312',
-        completed: false,
-        workerName: 'Emily',
-        workerSurname: 'Johnson',
-        taskId: '3'
-      }
-    ];
-
-    setTasks(mockTasks);
-  }, [language]);
-
-  const filteredTasks = tasks.filter(
-    task => task.date === selectedDate.toISOString().split('T')[0]
-  );
+    fetchTasksFromDatabase(); // Fetch tasks when the component mounts
+  }, []);
 
   const renderDetail = (rowData: Task) => {
-    const isCompleted = rowData.completed;
+    // Ensure startTime and endTime are being properly parsed as Date objects
+    const startTime = rowData.startTime ? new Date(rowData.startTime) : new Date();
+    const endTime = rowData.endTime ? new Date(rowData.endTime) : new Date();
+
+    // Format start and end time into a 2-digit time format
+    const formattedStart = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedEnd = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Calculate the difference between start and end times in milliseconds
+    const totalTimeInMillis = endTime.getTime() - startTime.getTime();
+    const totalTimeInMinutes = totalTimeInMillis / 60000; // Convert milliseconds to minutes
+
+    // Convert total time to hours and minutes
+    const hours = Math.floor(totalTimeInMinutes / 60);
+    const minutes = Math.round(totalTimeInMinutes % 60);
+    const formattedTotalTime = `${hours}h ${minutes}m`;
 
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
-          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.room}</Text>
+          <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
         </HStack>
 
-        <Text fontSize="$sm" color={Colors.text} >{rowData.description}</Text>
-        <Text fontSize="$sm" color={Colors.text} fontWeight="$bold" mb="$3">{i18n.t('worker')}: {rowData.workerName} {rowData.workerSurname}</Text>
-        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{rowData.startTime} - {rowData.finishTime}</Text>
-        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {rowData.totalTime}</Text>
+        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
+        <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
+        <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
+
+        {rowData.isDone ? (
+          <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
+        ) : null}
       </Box>
     );
   };
@@ -114,31 +107,19 @@ const ManagerHomepage = () => {
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
       </VStack>
 
-      <ScrollView flex={1} mb="$2">
-        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
-          <Timeline
-            data={filteredTasks.map(task => ({
-              ...task,
-              time: `${task.startTime}`
-            }))}
-            circleSize={20}
-            circleColor="#000"
-            lineColor="#6C63FF"
-            timeStyle={{
-              textAlign: 'center',
-              color: '#333',
-              padding: 5,
-              fontSize: 12
-            }}
-            descriptionStyle={{ color: '#555' }}
-            renderDetail={renderDetail}
-            separator={true}
-            showTime={true}
-            innerCircle={'dot'}
+      <ScrollView
+        flex={1}
+        mb="$2"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.text]}
+            tintColor={Colors.text}
           />
-        </Box>
-
-        <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
+        }
+      >
+        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
           <Calendar
             current={selectedDate.toISOString().split('T')[0]}
             onDayPress={onDayPress}
@@ -162,6 +143,35 @@ const ManagerHomepage = () => {
               indicatorColor: Colors.text,
               textSectionTitleColor: Colors.gray,
             }}
+          />
+        </Box>
+
+        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
+          <Timeline
+            data={filteredTasks.map(task => ({
+              time: `${new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+              title: task.title,
+              description: task.description,
+              startTime: task.startTime,
+              endTime: task.endTime,
+              taskId: task.taskId,
+              isDone: task.isDone,
+            }))}
+
+            circleSize={20}
+            circleColor="#000"
+            lineColor="#6C63FF"
+            timeStyle={{
+              textAlign: 'center',
+              color: '#333',
+              padding: 5,
+              fontSize: 12
+            }}
+            descriptionStyle={{ color: '#555' }}
+            renderDetail={renderDetail}
+            separator={true}
+            showTime={true}
+            innerCircle={'dot'}
           />
         </Box>
       </ScrollView>
