@@ -72,7 +72,7 @@ export default function RoomsScreen() {
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [qrValue, setQrValue] = useState('');
   const [currentRoomName, setCurrentRoomName] = useState('');
-  const qrCodeRef = useRef(null);
+  const qrCodeRef = useRef<any>(null);
 
   // Define styles
   const styles = StyleSheet.create({
