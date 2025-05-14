@@ -43,5 +43,29 @@ public class TasksService {
             throw new RuntimeException("Task not found!");
         }
     }
-    
+
+    public Tasks updateTask(String taskId, Tasks updatedTask) {
+        Optional<Tasks> existingTaskOpt = tasksRepository.findByTaskId(taskId);
+        if (existingTaskOpt.isPresent()) {
+            Tasks existingTask = existingTaskOpt.get();
+
+            existingTask.setTitle(updatedTask.getTitle());
+            existingTask.setDescription(updatedTask.getDescription());
+            existingTask.setStartTime(updatedTask.getStartTime());
+            existingTask.setEndTime(updatedTask.getEndTime());
+            existingTask.setManagerId(updatedTask.getManagerId());
+            existingTask.setEmployeeId(updatedTask.getEmployeeId());
+            existingTask.setImageUrl(updatedTask.getImageUrl());
+            existingTask.setQuestionnaireOne(updatedTask.getQuestionnaireOne());
+            existingTask.setQuestionnaireTwo(updatedTask.getQuestionnaireTwo());
+            existingTask.setQuestionnaireThree(updatedTask.getQuestionnaireThree());
+            existingTask.setQuestionnaireFour(updatedTask.getQuestionnaireFour());
+            existingTask.setDone(updatedTask.isDone());
+
+            return tasksRepository.save(existingTask);
+        } else {
+            throw new RuntimeException("Task not found with taskId: " + taskId);
+        }
+    }
+
 }

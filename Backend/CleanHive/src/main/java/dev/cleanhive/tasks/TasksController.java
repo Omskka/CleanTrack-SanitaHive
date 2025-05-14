@@ -45,6 +45,17 @@ public class TasksController {
         }
     }
 
+    // Update tasks
+    @PutMapping("update/{taskId}")
+    public ResponseEntity<?> updateTask(@PathVariable String taskId, @RequestBody Tasks updatedTask) {
+        try {
+            Tasks task = tasksService.updateTask(taskId, updatedTask);
+            return new ResponseEntity<>(task, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     // ❗️This is your DELETE route using POST (since DELETE might not be supported)
     @PostMapping("/delete")
     public ResponseEntity<?> deleteTask(@RequestBody Tasks task) {
