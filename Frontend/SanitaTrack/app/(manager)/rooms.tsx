@@ -35,10 +35,12 @@ import {
 import { Search, Plus, ChevronDown, ChevronUp, Trash } from 'lucide-react-native';
 import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
+import UUID from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchRooms, addRoom, deleteRoom } from '@/api/apiService';
 
 interface Room {
+  roomId: string;
   id: number;
   roomName: string;
   roomFloor: string;
@@ -49,6 +51,7 @@ export default function RoomsScreen() {
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [roomName, setRoomName] = useState('');
+  const [roomId, setRoomId] = useState('');
   const [roomFloor, setRoomFloor] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -87,7 +90,7 @@ export default function RoomsScreen() {
       const roomsData = await fetchRooms();
       const filteredRooms: Room[] = roomsData.filter((room: Room) => room.teamId === userID);
       setRooms(filteredRooms);
-      
+
       // Ensure categories are stored as strings
       const uniqueCategories = Array.from(
         new Set(filteredRooms.map(r => String(r.roomFloor)))
@@ -112,9 +115,11 @@ export default function RoomsScreen() {
     setLoading(true);
     setError('');
     try {
-      await addRoom(roomName.trim(), finalCategory, userID);
+      const roomID = UUID.v4();
+      await addRoom(roomID, roomName.trim(), finalCategory, userID);
       alert(i18n.t('roomCreated'));
       setModalVisible(false);
+      setRoomId(roomID);
       setRoomName('');
       setRoomFloor('');
       setSelectedCategory('');
@@ -129,14 +134,12 @@ export default function RoomsScreen() {
     }
   };
 
-  const handleDeleteRoom = async (teamId: string, roomName: string) => {
+  const handleDeleteRoom = async (roomId: string) => {
     setLoading(true);
     try {
-      await deleteRoom(teamId, roomName);
+      await deleteRoom(roomId); // now only sends roomId
       alert('Room deleted successfully!');
-      setRooms((prev) =>
-        prev.filter((room) => !(room.roomName === roomName && room.teamId === teamId))
-      );
+      setRooms((prev) => prev.filter((room) => room.roomId !== roomId)); // filter by roomId
     } catch (error: any) {
       console.error('Error deleting room:', error);
       setError(error.message || i18n.t('failedToDeleteRoom'));
@@ -225,7 +228,7 @@ export default function RoomsScreen() {
               {isExpanded && (
                 <Box px="$3" pb="$3">
                   <VStack space="sm">
-                    <Divider/>
+                    <Divider />
                     {roomsInCategory.length > 0 ? (
                       roomsInCategory.map((item) => (
                         <HStack
@@ -239,7 +242,7 @@ export default function RoomsScreen() {
                             size="sm"
                             bg={Colors.error}
                             rounded="$lg"
-                            onPress={() => handleDeleteRoom(item.teamId, item.roomName)}
+                            onPress={() => handleDeleteRoom(item.roomId)}
                           >
                             <Icon as={Trash} size="sm" color={Colors.white} />
                           </Button>

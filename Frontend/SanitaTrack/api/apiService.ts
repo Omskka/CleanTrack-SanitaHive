@@ -79,8 +79,9 @@ export const fetchAllUsers = async () => {
   return response.data; // Should be an array of users
 };
 
-export const addRoom = async (roomName: string, roomFloor: string, teamId: string) => {
+export const addRoom = async (roomId: string, roomName: string, roomFloor: string, teamId: string) => {
   const response = await axiosInstance.post('/rooms', {
+    roomId,
     roomName,
     roomFloor,
     teamId,
@@ -88,8 +89,8 @@ export const addRoom = async (roomName: string, roomFloor: string, teamId: strin
   return response.data;
 };
 
-export const deleteRoom = async (teamId: string, roomName: string) => {
-  const response = await axiosInstance.post('/rooms/delete', { teamId, roomName });
+export const deleteRoom = async (roomId: string) => {
+  const response = await axiosInstance.post('/rooms/delete', { roomId });
   return response.data;
 };
 

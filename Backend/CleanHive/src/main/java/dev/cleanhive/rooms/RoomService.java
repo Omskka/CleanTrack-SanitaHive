@@ -20,10 +20,10 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public void deleteRoom(String roomName, String teamId) {
-        Optional<Rooms> room = roomRepository.findByRoomNameAndTeamId(roomName, teamId);
+    public void deleteRoom(String roomId) {
+        Optional<Rooms> room = roomRepository.findByRoomId(roomId);
         if (room.isPresent()) {
-            roomRepository.deleteByRoomNameAndTeamId(roomName, teamId);
+            roomRepository.deleteByRoomId(roomId);
         } else {
             throw new RuntimeException("Room not found!");
         }

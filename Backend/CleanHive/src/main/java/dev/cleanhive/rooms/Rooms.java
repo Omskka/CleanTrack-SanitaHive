@@ -18,6 +18,8 @@ public class Rooms {
     @Id
     private ObjectId id;
 
+    private String roomId;
+
     private String roomName;
 
     private String roomFloor;

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 import dev.cleanhive.rooms.Rooms;
 
 public interface RoomRepository extends MongoRepository<Rooms, ObjectId> {
-    Optional<Rooms> findByRoomNameAndTeamId(String roomName, String teamId);
-    void deleteByRoomNameAndTeamId(String roomName, String teamId);
+    Optional<Rooms> findByRoomId(String roomId);
+    void deleteByRoomId(String roomId);
 }

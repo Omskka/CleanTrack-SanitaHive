@@ -32,7 +32,7 @@ public class RoomController {
     @PostMapping("/delete")
     public ResponseEntity<?> deleteRoom(@RequestBody Rooms room) {
         try {
-            roomService.deleteRoom(room.getRoomName(), room.getTeamId());
+            roomService.deleteRoom(room.getRoomId());
             return new ResponseEntity<>("Room deleted successfully!", HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
