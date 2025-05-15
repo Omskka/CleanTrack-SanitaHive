@@ -173,7 +173,7 @@ export default function RoomsScreen() {
     setLoading(true);
     try {
       await deleteRoom(roomId); // now only sends roomId
-      alert('Room deleted successfully!');
+      alert(i18n.t('roomDeleted'));
       setRooms((prev) => prev.filter((room) => room.roomId !== roomId)); // filter by roomId
     } catch (error: any) {
       console.error('Error deleting room:', error);
@@ -200,7 +200,7 @@ export default function RoomsScreen() {
   // Function to share QR code using ViewShot and expo-share
   const shareQRCode = async () => {
     if (!qrCodeRef.current) {
-      alert('QR Code not ready for sharing');
+      alert(i18n.t('qrCodeNotReady'));
       return;
     }
 
@@ -208,7 +208,7 @@ export default function RoomsScreen() {
       // First check if sharing is available
       const isSharingAvailable = await checkSharingAvailability();
       if (!isSharingAvailable) {
-        alert('Sharing is not available on this device');
+        alert(i18n.t('sharingUnavailable'));
         return;
       }
 
@@ -218,13 +218,13 @@ export default function RoomsScreen() {
 
       // Use expo-sharing to share the captured image
       await Sharing.shareAsync(uri, {
-        dialogTitle: `QR Code for ${currentRoomName}`,
+        dialogTitle: i18n.t('qrCodeDialogTitle', { roomName: currentRoomName }),
         mimeType: 'image/png',
         UTI: 'public.png' // Uniform Type Identifier for iOS
       });
     } catch (error: any) {
       console.error('Error sharing QR code image:', error);
-      alert(`Failed to share QR code image: ${error.message}`);
+      alert(i18n.t('shareQrFailed'));
     }
   };
 
@@ -249,7 +249,7 @@ export default function RoomsScreen() {
     <Box flex={1} bg={Colors.background}>
       {/* Header */}
       <Box px="$4" py="$6" bg={Colors.white}>
-        <Heading size="lg" color={Colors.heading}>Rooms</Heading>
+        <Heading size="lg" color={Colors.heading}>{i18n.t('roomsTitle')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>
             <InputSlot pl="$3">

@@ -151,6 +151,12 @@ export const translations = {
       reports: "Reports",
       taskpage: "Taskpage"
     },
+
+    roomDeleted: "Room deleted successfully!",
+    qrCodeNotReady: "QR code not ready for sharing",
+    sharingUnavailable: "Sharing is not available for this device",
+    shareQrFailed: "Failed to share QR code",
+    qrCodeDialogTitle: "QR Code for ${currentRoomName}",
   },
   tr: {
     greeting: 'Merhaba',
@@ -305,5 +311,11 @@ export const translations = {
       reports: "Raporlar",
       taskpage: "Görevler",
     },
+
+    roomDeleted: "Oda başarıyla silindi!",
+    qrCodeNotReady: "QR kodu paylaşmaya hazır değil",
+    sharingUnavailable: "Paylaşım bu cihazda mevcut değil",
+    shareQrFailed: "QR kodunu paylaşma başarısız oldu",
+    qrCodeDialogTitle: "${currentRoomName} için QR Kodu",
   },
 };
