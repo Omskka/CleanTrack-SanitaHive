@@ -28,7 +28,8 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider config={config}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index"/>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login"/>
         <Stack.Screen name="createTeam" />
         <Stack.Screen name="createAccount" />
         <Stack.Screen name="workerHomepage" />

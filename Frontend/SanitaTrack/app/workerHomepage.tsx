@@ -98,7 +98,7 @@ const WorkerHomepage = () => {
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userToken'); // Remove user token from AsyncStorage
-      router.replace('/'); // Redirect to the login page
+      router.replace('/login'); // Redirect to the login page
     } catch (error) {
       console.error('Logout error:', error);
     }
