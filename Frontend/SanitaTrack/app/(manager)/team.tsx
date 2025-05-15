@@ -31,6 +31,7 @@ import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchAllUsers, fetchTeamByManager, removeTeamMember } from '@/api/apiService';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 type User = {
   userId: string;
@@ -48,6 +49,7 @@ export default function TeamInfoScreen() {
   const [editMode, setEditMode] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
     fetchTeamData();
@@ -77,7 +79,7 @@ export default function TeamInfoScreen() {
           userId: u.userId,
           name: u.name,
           surname: u.surname,
-          phone: u.phoneNumber || 'Number Unavailable' 
+          phone: u.phoneNumber || 'Number Unavailable'
         }));
 
       console.log('Filtered team members:', members);
@@ -178,7 +180,7 @@ export default function TeamInfoScreen() {
             onPress={toggleEditMode}
           >
             <HStack alignItems="center">
-              <Icon as={Edit} color={Colors.white} size="sm" mr={5}/>
+              <Icon as={Edit} color={Colors.white} size="sm" mr={5} />
               <Text color={Colors.white} fontWeight="bold">
                 {editMode ? i18n.t('done') : i18n.t('edit')}
               </Text>
@@ -188,11 +190,11 @@ export default function TeamInfoScreen() {
       </Box>
 
       {/* Team Member List with Pull to Refresh */}
-      <ScrollView 
+      <ScrollView
         style={{ flex: 1 }}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
             colors={[Colors.text]}
             tintColor={Colors.text}

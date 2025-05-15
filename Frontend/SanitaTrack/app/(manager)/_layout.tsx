@@ -7,6 +7,7 @@ import { Icon } from '@gluestack-ui/themed';
 import { i18n } from '@/hooks/i18n';
 
 export default function TabLayout() {
+
   return (
     <Tabs
       screenOptions={{
@@ -21,7 +22,8 @@ export default function TabLayout() {
             backgroundColor: Colors.white,
           },
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{

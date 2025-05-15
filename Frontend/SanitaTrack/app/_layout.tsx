@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { GluestackUIProvider } from "@gluestack-ui/themed"
 import { config } from "@gluestack-ui/config"
+import { LanguageProvider } from '@/app/contexts/LanguageContext';
 
 // the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -26,18 +27,20 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider config={config}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login"/>
-        <Stack.Screen name="createTeam" />
-        <Stack.Screen name="createAccount" />
-        <Stack.Screen name="workerHomepage" />
-        <Stack.Screen name="(manager)" />
-        <Stack.Screen name="feedback" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="light" />
-    </GluestackUIProvider>
+    <LanguageProvider>
+      <GluestackUIProvider config={config}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="createTeam" />
+          <Stack.Screen name="createAccount" />
+          <Stack.Screen name="workerHomepage" />
+          <Stack.Screen name="(manager)" />
+          <Stack.Screen name="feedback" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="light" />
+      </GluestackUIProvider>
+    </LanguageProvider>
   );
 }

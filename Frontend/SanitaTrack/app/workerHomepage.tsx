@@ -27,12 +27,14 @@ import {
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import * as ImagePicker from 'expo-image-picker';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import { Phone, Calendar as CalendarIcon, X, LogOut } from 'lucide-react-native';
 import { Linking, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { useLanguage } from '@/app/contexts/LanguageContext';
+
 
 import { fetchAllUsers, fetchTasks, fetchTeam, markTaskAsDone } from '@/api/apiService';
 
@@ -77,23 +79,13 @@ const WorkerHomepage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
-  const [language, setLanguage] = useState<string>(getCurrentLanguage());
+  const { language, changeLanguage } = useLanguage();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [userID, setUserID] = useState('');
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
   const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
 
   const logout = async () => {
     try {
@@ -363,7 +355,9 @@ const WorkerHomepage = () => {
 
         <HStack alignItems='center' justifyContent="space-between" space="md">
           <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-            <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+            <Text fontWeight="$bold" color={Colors.text}>
+              {language === 'en' ? 'TR' : 'EN'}
+            </Text>
           </Pressable>
 
           <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>

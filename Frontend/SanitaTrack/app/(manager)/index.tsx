@@ -5,10 +5,11 @@ import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Colors } from '@/constants/Colors';
 import { fetchTasks } from '@/api/apiService'; // Function to fetch data from the backend
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { LogOut } from 'lucide-react-native';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface Task {
   taskId: string;
@@ -26,17 +27,7 @@ const ManagerHomepage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [language, setLanguage] = useState<string>(getCurrentLanguage());
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
+  const { language, changeLanguage } = useLanguage();
 
   const logout = async () => {
     try {
@@ -122,7 +113,9 @@ const ManagerHomepage = () => {
 
         <HStack alignItems='center' justifyContent="space-between" space="md">
           <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-            <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+            <Text fontWeight="$bold" color={Colors.text}>
+              {language === 'en' ? 'TR' : 'EN'}
+            </Text>
           </Pressable>
 
           <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>

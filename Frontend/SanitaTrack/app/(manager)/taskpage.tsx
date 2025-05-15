@@ -31,10 +31,11 @@ import { Calendar, DateData } from 'react-native-calendars';
 import { Calendar as CalendarIcon, Edit, Plus, Trash, ChevronDown } from 'lucide-react-native';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
-import { i18n, getCurrentLanguage } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform, TouchableOpacity } from 'react-native';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Mock API functions (to be replaced with actual API calls)
 import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask, fetchTeamByManager } from '@/api/apiService';
@@ -71,7 +72,6 @@ interface User {
 }
 
 const TaskManagerScreen = () => {
-  const [language, setLanguage] = useState<string>(getCurrentLanguage());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [userID, setUserID] = useState('');
@@ -83,6 +83,7 @@ const TaskManagerScreen = () => {
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const { language, changeLanguage } = useLanguage();
 
   // For editing / creating tasks
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
@@ -98,16 +99,6 @@ const TaskManagerScreen = () => {
   const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
   const [startTimeMode, setStartTimeMode] = useState<'date' | 'time'>('date');
   const [endTimeMode, setEndTimeMode] = useState<'date' | 'time'>('date');
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
 
   useEffect(() => {
     const fetchUserID = async () => {
@@ -410,13 +401,15 @@ const TaskManagerScreen = () => {
 
   return (
     <Box flex={1} p="$2" bg={Colors.background}>
-      <VStack mt="$7">
-        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
-        </Pressable>
-
+      <HStack justifyContent="space-between" mt="$7">
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('taskManager')}</Text>
-      </VStack>
+
+        <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+          <Text fontWeight="$bold" color={Colors.text}>
+            {language === 'en' ? 'TR' : 'EN'}
+          </Text>
+        </Pressable>
+      </HStack>
 
       <ScrollView flex={1} mb="$2">
         {calendarVisible && (

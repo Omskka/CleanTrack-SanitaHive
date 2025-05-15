@@ -42,6 +42,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { Platform, View, StyleSheet } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import ViewShot from 'react-native-view-shot';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface Room {
   roomId: string;
@@ -67,6 +68,7 @@ export default function RoomsScreen() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const { language } = useLanguage();
 
   // QR code sharing state
   const [qrModalVisible, setQrModalVisible] = useState(false);
