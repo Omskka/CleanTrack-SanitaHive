@@ -366,7 +366,7 @@ const WorkerHomepage = () => {
             <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
           </Pressable>
 
-          <Button flex={1} bg={Colors.heading} borderRadius="$lg" px="$2" onPress={() => logout()}>
+          <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
             <HStack alignItems="center" justifyContent="center" space="xs">
               <Icon as={LogOut} color={Colors.white} size="md" />
             </HStack>
