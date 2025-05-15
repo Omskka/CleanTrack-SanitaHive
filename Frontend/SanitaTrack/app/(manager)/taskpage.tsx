@@ -99,6 +99,11 @@ const TaskManagerScreen = () => {
   const [startTimeMode, setStartTimeMode] = useState<'date' | 'time'>('date');
   const [endTimeMode, setEndTimeMode] = useState<'date' | 'time'>('date');
 
+  useEffect(() => {
+    // Update component when language changes
+    setLanguage(getCurrentLanguage());
+  }, [language]);
+
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 import { Box, VStack, Heading, Input, InputField, Button, Text, Pressable, FormControl, FormControlLabel, FormControlError, Image, HStack } from '@gluestack-ui/themed';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
@@ -44,6 +44,11 @@ export default function LoginScreen() {
       setError(i18n.t('serverError'));
     }
   };
+
+  useEffect(() => {
+    // Update component when language changes
+    setLanguage(getCurrentLanguage());
+  }, [language]);
 
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);

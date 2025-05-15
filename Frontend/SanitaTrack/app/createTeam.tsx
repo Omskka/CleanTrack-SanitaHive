@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dimensions, Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 import {
   Box,
@@ -19,7 +19,7 @@ import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language suppor
 import { Colors } from '../constants/Colors';
 import { Link, router } from 'expo-router';
 import UUID from 'react-native-uuid';
-import { registerUser, createTeam } from '@/api/apiService'; 
+import { registerUser, createTeam } from '@/api/apiService';
 
 export default function CreateTeam() {
   const [name, setName] = useState('');
@@ -31,6 +31,11 @@ export default function CreateTeam() {
   const [language, setLanguage] = useState(getCurrentLanguage());  // For language state
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // Update component when language changes
+    setLanguage(getCurrentLanguage());
+  }, [language]);
+
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
@@ -41,13 +46,13 @@ export default function CreateTeam() {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       // Generate a unique userId
       const userId = UUID.v4();
-  
+
       // 1️⃣ Register the Manager User
       const newUser = {
         userId: userId as string, // UUID.v4() returns string | number[], so we cast it
@@ -58,34 +63,34 @@ export default function CreateTeam() {
         isManager: true,
         lang: language,
       };
-  
+
       const userData = await registerUser(newUser);
       console.log('User Data:', userData);
-  
+
       if (!userData || !userData.userId) {
         throw new Error('User registration failed: Missing userId');
       }
-  
+
       const managerId = userData.userId;
       console.log('--userID--:', managerId);
-  
+
       // 2️⃣ Create a Team for this Manager
       const teamData = {
         teamName: teamName.trim(),
         managerId: managerId,
         employeeId: [],
       };
-  
+
       const teamResult = await createTeam(teamData);
       console.log('Team created successfully:', teamResult);
-  
+
       // 3️⃣ Success: Show alert and navigate
       setError('');
       alert('Account and team created successfully!');
       setTimeout(() => {
         router.push('/');
       }, 100);
-  
+
     } catch (error: any) {
       console.error('Error during team creation flow:', error);
       setError(error.message || i18n.t('networkError'));

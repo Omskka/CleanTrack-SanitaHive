@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 import {
     Box,
@@ -15,7 +15,6 @@ import {
 } from '@gluestack-ui/themed';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
-import { useRouter } from 'expo-router';  // Navigation with useRouter 
 import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
@@ -32,6 +31,11 @@ export default function CreateAccount() {
     const [error, setError] = useState('');
     const [language, setLanguage] = useState(getCurrentLanguage());
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        // Update component when language changes
+        setLanguage(getCurrentLanguage());
+    }, [language]);
 
     const changeLanguage = (newLanguage: string) => {
         setLanguage(newLanguage);

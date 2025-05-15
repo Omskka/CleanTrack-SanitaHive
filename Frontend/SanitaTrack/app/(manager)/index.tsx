@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RefreshControl } from 'react-native';
-import { Box, Text, ScrollView, VStack, HStack, Pressable } from '@gluestack-ui/themed';
+import { Box, Text, ScrollView, HStack, Pressable, Button, Icon } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Colors } from '@/constants/Colors';
 import { fetchTasks } from '@/api/apiService'; // Function to fetch data from the backend
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import { LogOut } from 'lucide-react-native';
 
 interface Task {
   taskId: string;
@@ -24,9 +27,24 @@ const ManagerHomepage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [language, setLanguage] = useState<string>(getCurrentLanguage());
+
+  useEffect(() => {
+    // Update component when language changes
+    setLanguage(getCurrentLanguage());
+  }, [language]);
+
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
+  };
+
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken'); // Remove user token from AsyncStorage
+      router.replace('/'); // Redirect to the login page
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const onRefresh = async () => {
@@ -99,13 +117,21 @@ const ManagerHomepage = () => {
 
   return (
     <Box flex={1} p="$4" bg={Colors.background}>
-      <VStack mt="$7">
-        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
-        </Pressable>
-
+      <HStack justifyContent="space-between" mt="$7">
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
-      </VStack>
+
+        <HStack alignItems='center' justifyContent="space-between" space="md">
+          <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+            <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+          </Pressable>
+
+          <Button flex={1} bg={Colors.heading} borderRadius="$lg" px="$2" onPress={() => logout()}>
+            <HStack alignItems="center" justifyContent="center" space="xs">
+              <Icon as={LogOut} color={Colors.white} size="md" />
+            </HStack>
+          </Button>
+        </HStack>
+      </HStack>
 
       <ScrollView
         flex={1}

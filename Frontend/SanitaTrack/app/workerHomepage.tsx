@@ -29,9 +29,11 @@ import { Calendar, DateData } from 'react-native-calendars';
 import * as ImagePicker from 'expo-image-picker';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
-import { Phone, Calendar as CalendarIcon, X } from 'lucide-react-native';
+import { Phone, Calendar as CalendarIcon, X, LogOut } from 'lucide-react-native';
 import { Linking, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+
 import { fetchAllUsers, fetchTasks, fetchTeam, markTaskAsDone } from '@/api/apiService';
 
 interface Task {
@@ -82,25 +84,25 @@ const WorkerHomepage = () => {
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
   const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
+
+  useEffect(() => {
+    // Update component when language changes
+    setLanguage(getCurrentLanguage());
+  }, [language]);
+
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
-  useEffect(() => {
-    const fetchUserID = async () => {
-      try {
-        const storedUserID = await AsyncStorage.getItem('userToken');
-        if (storedUserID) {
-          setUserID(storedUserID);
-        }
-      } catch (error) {
-        console.error('Error fetching userID from AsyncStorage:', error);
-      }
-    };
-
-    fetchUserID();
-  }, []);
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken'); // Remove user token from AsyncStorage
+      router.replace('/'); // Redirect to the login page
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const isFormValid = () => {
     if (!productUsage[0] || challenges.length === 0 || !safety[0] || !roomCondition || !satisfaction[0] ||
@@ -123,6 +125,21 @@ const WorkerHomepage = () => {
     await fetchTasksFromDatabase();
     setRefreshing(false);
   };
+
+  useEffect(() => {
+    const fetchUserID = async () => {
+      try {
+        const storedUserID = await AsyncStorage.getItem('userToken');
+        if (storedUserID) {
+          setUserID(storedUserID);
+        }
+      } catch (error) {
+        console.error('Error fetching userID from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserID();
+  }, []);
 
   // Call manager function
   const callPhone = async () => {
@@ -341,13 +358,21 @@ const WorkerHomepage = () => {
 
   return (
     <Box flex={1} p="$2" bg={Colors.background}>
-      <VStack mt="$7">
-        <Pressable position="absolute" top={16} right={16} zIndex={10} onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-          <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
-        </Pressable>
-
+      <HStack justifyContent="space-between" mt="$7">
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
-      </VStack>
+
+        <HStack alignItems='center' justifyContent="space-between" space="md">
+          <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+            <Text fontWeight="$bold" color={Colors.text}>{language === 'en' ? 'TR' : 'EN'}</Text>
+          </Pressable>
+
+          <Button flex={1} bg={Colors.heading} borderRadius="$lg" px="$2" onPress={() => logout()}>
+            <HStack alignItems="center" justifyContent="center" space="xs">
+              <Icon as={LogOut} color={Colors.white} size="md" />
+            </HStack>
+          </Button>
+        </HStack>
+      </HStack>
 
       <ScrollView
         flex={1}
@@ -420,16 +445,16 @@ const WorkerHomepage = () => {
         )}
       </ScrollView>
 
-      <HStack space="md" justifyContent="space-between" mb="$4">
+      <HStack space="xs" justifyContent="space-between" mb="$4">
         <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone()}>
-          <HStack alignItems="center" justifyContent="center" space="sm">
+          <HStack alignItems="center" justifyContent="center" space="xs">
             <Icon as={Phone} color={Colors.white} size="sm" />
             <Text color={Colors.white}>{i18n.t('contactManager')}</Text>
           </HStack>
         </Button>
 
         <Button flex={1} variant="outline" bg={Colors.heading} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
-          <HStack alignItems="center" justifyContent="center" space="sm">
+          <HStack alignItems="center" justifyContent="center" space="xs">
             <Icon as={CalendarIcon} color={Colors.white} size="sm" />
             <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
           </HStack>
