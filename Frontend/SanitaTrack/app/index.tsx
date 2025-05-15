@@ -3,7 +3,11 @@ import { router } from 'expo-router';
 
 export default function Index() {
   useEffect(() => {
-    router.replace('/login');
+    const raf = requestAnimationFrame(() => {
+      router.replace('/login');
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return null;
