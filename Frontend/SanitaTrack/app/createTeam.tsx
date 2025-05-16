@@ -68,7 +68,7 @@ export default function CreateTeam() {
       console.log('User Data:', userData);
 
       if (!userData || !userData.userId) {
-        throw new Error('User registration failed: Missing userId');
+        throw new Error(i18n.t('userCreationError'));
       }
 
       const managerId = userData.userId;
@@ -86,7 +86,7 @@ export default function CreateTeam() {
 
       // 3️⃣ Success: Show alert and navigate
       setError('');
-      alert('Account and team created successfully!');
+      alert(i18n.t('teamCreatedSuccess'));
       setTimeout(() => {
         router.push('/');
       }, 100);

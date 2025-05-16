@@ -86,13 +86,13 @@ export default function CreateAccount() {
             console.log('Response status:', updateResponse.status);
 
             if (!updateResponse.ok) {
-                throw new Error('Failed to update team with employee ID');
+                throw new Error(i18n.t('teamUpdateFailed'));
             }
 
             console.log('User registered successfully:', userData);
 
             setError('');
-            alert('Account registered successfully!');
+            alert(i18n.t('registrationSuccess'));
             setTimeout(() => {
                 router.push('/');
             }, 100);
@@ -165,7 +165,7 @@ export default function CreateAccount() {
 
                             {!!error && !teamCode.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
-                                    <Text color={Colors.error} fontSize="$xs">{('enterTeamCode')}</Text>
+                                    <Text color={Colors.error} fontSize="$xs">{i18n.t('enterTeamCode')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
