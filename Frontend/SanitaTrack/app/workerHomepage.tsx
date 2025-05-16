@@ -96,11 +96,24 @@ const WorkerHomepage = () => {
     }
   };
 
+  // Reset modal form fields
+  const resetForm = () => {
+    setProductUsage(['']);
+    setChallenges([]);
+    setOtherDescription('');
+    setSafety(['']);
+    setYesDescription('');
+    setRoomCondition('');
+    setSatisfaction(['']);
+    setCurrentTaskId(null);
+    setUploadedImages({});
+  };
+
   const isFormValid = () => {
     if (!productUsage[0] || challenges.length === 0 || !safety[0] || !roomCondition || !satisfaction[0] ||
       !currentTaskId || !uploadedImages[currentTaskId] || uploadedImages[currentTaskId].length < 1 ||
       (challenges.includes('other') && !otherDescription.trim())) {
-      alert('Please fill all required fields (Product Usage, Challenges, Safety, Room Condition, Satisfaction, Image Upload).');
+      alert(i18n.t('fillRequiredFields'));
       return false;
     }
     return true;
@@ -140,7 +153,7 @@ const WorkerHomepage = () => {
 
       if (!userID) {
         console.error("❌ userID is not set yet.");
-        alert("User ID is not available. Please try again later.");
+        alert(i18n.t('userIdUnavailable'));
         return;
       }
 
@@ -154,7 +167,7 @@ const WorkerHomepage = () => {
       console.log("Manager UserID:", managerUserID);
       if (!managerUserID) {
         console.error("❌ Manager UserID is not available.");
-        alert("Manager UserID is not available. Please try again later.");
+        alert(i18n.t('managerIdUnavailable'));
         return;
       }
 
@@ -164,7 +177,7 @@ const WorkerHomepage = () => {
 
       if (!manager) {
         console.error("❌ Manager not found in user list.");
-        alert("Manager not found. Please try again later.");
+        alert(i18n.t('managerNotFound'));
         return;
       }
 
@@ -175,7 +188,7 @@ const WorkerHomepage = () => {
       Linking.openURL(`tel:${phoneNumber}`);
     } catch (error) {
       console.error("❌ Error calling manager:", error);
-      alert("Failed to initiate call. Please try again later.");
+      alert(i18n.t('callFailed'));
     }
   };
 
@@ -455,46 +468,51 @@ const WorkerHomepage = () => {
         </Button>
       </HStack>
 
-      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+      <Modal
+        isOpen={modalVisible}
+        onClose={() => {
+          setModalVisible(false);
+          resetForm();
+        }}
+      >
         <Modal.Backdrop />
         <Modal.Content maxWidth="$96" height="85%">
           <Modal.CloseButton />
-          <Modal.Header>
-            <Text fontWeight="$bold">Task Feedback</Text>
+          <Modal.Header alignItems="center" justifyContent="center">
+            <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>{i18n.t('taskFeedback')}</Text>
           </Modal.Header>
           <Modal.Body>
             <VStack space="md">
-
-              <Text fontWeight="$bold">How much cleaning product did you use today?</Text>
+              <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>1. {i18n.t('productUsageQuestion')}</Text>
               <RadioGroup value={productUsage[0] || ''} onChange={(value: string) => setProductUsage([value])}>
                 <Radio value="less" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Less than expected</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('lessThanExpected')}</RadioLabel>
                 </Radio>
                 <Radio value="expected" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>As expected</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('asExpected')}</RadioLabel>
                 </Radio>
                 <Radio value="more" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>More than expected</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('moreThanExpected')}</RadioLabel>
                 </Radio>
               </RadioGroup>
 
-              <Text fontWeight="$bold">Did you face any challenges?</Text>
+              <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>2. {i18n.t('challengeQuestion')}</Text>
               <VStack space="md">
                 {[
-                  { value: 'equipment', label: 'Lack of equipment' },
-                  { value: 'instructions', label: 'Incomplete instructions' },
-                  { value: 'shortage', label: 'Shortage of cleaning products' },
-                  { value: 'time', label: 'Time constraints' },
-                  { value: 'other', label: 'Other' },
+                  { value: 'equipment', label: i18n.t('lackOfEquipment') },
+                  { value: 'instructions', label: i18n.t('incompleteInstructions') },
+                  { value: 'shortage', label: i18n.t('shortageOfProducts') },
+                  { value: 'time', label: i18n.t('timeConstraints') },
+                  { value: 'other', label: i18n.t('other') },
                 ].map(option => (
                   <Checkbox
                     key={option.value}
@@ -512,118 +530,118 @@ const WorkerHomepage = () => {
                     <CheckboxIndicator>
                       <CheckboxIcon as={CheckIcon} />
                     </CheckboxIndicator>
-                    <CheckboxLabel>{option.label}</CheckboxLabel>
+                    <CheckboxLabel ml="$1">{option.label}</CheckboxLabel>
                   </Checkbox>
                 ))}
               </VStack>
               {challenges.includes('other') && (
                 <Textarea mt="$2">
                   <TextareaInput
-                    placeholder="Please describe"
+                    placeholder={i18n.t('describeOther')}
                     value={otherDescription}
                     onChangeText={setOtherDescription}
                   />
                 </Textarea>
               )}
 
-              <Text fontWeight="$bold">Did you encounter any safety issues?</Text>
+              <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>3. {i18n.t('safetyQuestion')}</Text>
               <RadioGroup value={safety[0] || ''} onChange={(value: string) => setSafety([value])}>
                 <Radio value="yes" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Yes</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('yes')}</RadioLabel>
                 </Radio>
                 <Radio value="no" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>No</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('no')}</RadioLabel>
                 </Radio>
               </RadioGroup>
               {safety[0] === 'yes' && (
                 <Textarea mt="$2">
                   <TextareaInput
-                    placeholder="Please describe"
+                    placeholder={i18n.t('describeSafety')}
                     value={yesDescription}
                     onChangeText={setYesDescription}
                   />
                 </Textarea>
               )}
 
-              <Text fontWeight="$bold">How was the room's condition when you came in?</Text>
+              <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>4. {i18n.t('roomCondition')}</Text>
               <RadioGroup value={roomCondition} onChange={(value: string) => setRoomCondition(value)}>
                 <Radio value="excellent" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Excellent</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('excellent')}</RadioLabel>
                 </Radio>
 
                 <Radio value="good" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Good</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('good')}</RadioLabel>
                 </Radio>
 
                 <Radio value="fair" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Fair</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('fair')}</RadioLabel>
                 </Radio>
 
                 <Radio value="poor" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Poor</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('poor')}</RadioLabel>
                 </Radio>
 
                 <Radio value="unacceptable" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Unacceptable</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('unacceptable')}</RadioLabel>
                 </Radio>
               </RadioGroup>
 
-              <Text fontWeight="$bold">Overall Satisfaction</Text>
+              <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>5. {i18n.t('overallSatisfaction')}</Text>
               <RadioGroup value={satisfaction[0] || ''} onChange={(value: string) => setSatisfaction([value])}>
                 <Radio value="verySatisfied" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Very Satisfied</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('verySatisfied')}</RadioLabel>
                 </Radio>
                 <Radio value="satisfied" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Satisfied</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('satisfied')}</RadioLabel>
                 </Radio>
                 <Radio value="neutral" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Neutral</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('neutral')}</RadioLabel>
                 </Radio>
                 <Radio value="dissatisfied" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Dissatisfied</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('dissatisfied')}</RadioLabel>
                 </Radio>
                 <Radio value="veryDissatisfied" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel>Very Dissatisfied</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('veryDissatisfied')}</RadioLabel>
                 </Radio>
               </RadioGroup>
 
-              <Text fontWeight="$bold">Upload Image</Text>
+              <Text color={Colors.text} fontWeight="$bold" mt="$1" ml="$2">6. {i18n.t('uploadImage')}</Text>
               <Button
                 bg={Colors.tint}
                 onPress={() => {
@@ -674,7 +692,7 @@ const WorkerHomepage = () => {
               }}
               bg={Colors.text}
             >
-              <Text color={Colors.white}>Submit</Text>
+              <Text color={Colors.white}>{i18n.t('submit')}</Text>
             </Button>
           </Modal.Footer>
         </Modal.Content>
