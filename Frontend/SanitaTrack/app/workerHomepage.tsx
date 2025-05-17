@@ -22,7 +22,8 @@ import {
   CheckboxIcon,
   CheckIcon,
   Textarea,
-  TextareaInput
+  TextareaInput,
+  Heading
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
@@ -34,7 +35,6 @@ import { Linking, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useLanguage } from '@/app/contexts/LanguageContext';
-
 
 import { fetchAllUsers, fetchTasks, fetchTeam, markTaskAsDone } from '@/api/apiService';
 
@@ -121,7 +121,7 @@ const WorkerHomepage = () => {
 
   const removeImage = (taskId: string, imageUri: string) => {
     const updatedImages = { ...uploadedImages };
-    updatedImages[taskId] = updatedImages[taskId].filter((uri: string) => uri !== imageUri); // Silinen fotoğrafın URI'sini listeden çıkarıyoruz
+    updatedImages[taskId] = updatedImages[taskId].filter((uri: string) => uri !== imageUri);
     setUploadedImages(updatedImages);
   };
 
@@ -297,11 +297,6 @@ const WorkerHomepage = () => {
     const minutes = Math.round(totalTimeInMinutes % 60);
     const formattedTotalTime = `${hours}h ${minutes}m`;
 
-    // Debugging logs
-    console.log('Start Time:', rowData.startTime, 'Formatted Start:', formattedStart);
-    console.log('End Time:', rowData.endTime, 'Formatted End:', formattedEnd);
-    console.log('Total Time (in minutes):', totalTimeInMinutes);
-
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
@@ -336,7 +331,7 @@ const WorkerHomepage = () => {
                     right={-5}
                     onPress={() => removeImage(rowData.taskId, uri)}
                   >
-                    <Icon as={CheckIcon} color={Colors.error} size="sm" />
+                    <Icon as={X} color={Colors.error} size="sm" />
                   </Pressable>
                 </Box>
               ))}
@@ -362,28 +357,28 @@ const WorkerHomepage = () => {
   };
 
   return (
-    <Box flex={1} p="$2" bg={Colors.background}>
-      <HStack justifyContent="space-between" mt="$7">
-        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+    <Box flex={1} bg={Colors.background}>
+      {/* Header - Similar to ManagerHomepage */}
+      <Box px="$4" py="$4" bg={Colors.white}>
+        <HStack justifyContent="space-between" alignItems="center">
+          <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
+          
+          <HStack alignItems='center' space="md">
+            <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+              <Text fontWeight="$bold" color={Colors.text}>
+                {language === 'en' ? 'TR' : 'EN'}
+              </Text>
+            </Pressable>
 
-        <HStack alignItems='center' justifyContent="space-between" space="md">
-          <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-            <Text fontWeight="$bold" color={Colors.text}>
-              {language === 'en' ? 'TR' : 'EN'}
-            </Text>
-          </Pressable>
-
-          <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
-            <HStack alignItems="center" justifyContent="center" space="xs">
+            <Button bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
               <Icon as={LogOut} color={Colors.white} size="md" />
-            </HStack>
-          </Button>
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
+      </Box>
 
       <ScrollView
         flex={1}
-        mb="$2"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -393,37 +388,9 @@ const WorkerHomepage = () => {
           />
         }
       >
-        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
-          <Timeline
-            data={filteredTasks.map(task => ({
-              time: `${new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-              title: task.title,
-              description: task.description,
-              startTime: task.startTime,
-              endTime: task.endTime,
-              taskId: task.taskId,
-              done: task.done,
-            }))}
-
-            circleSize={20}
-            circleColor="#000"
-            lineColor="#6C63FF"
-            timeStyle={{
-              textAlign: 'center',
-              color: '#333',
-              padding: 5,
-              fontSize: 12
-            }}
-            descriptionStyle={{ color: '#555' }}
-            renderDetail={renderDetail}
-            separator={true}
-            showTime={true}
-            innerCircle={'dot'}
-          />
-        </Box>
-
+        {/* Calendar section at the top when visible */}
         {calendarVisible && (
-          <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
+          <Box bg={Colors.white} p="$2" mb="$4">
             <Calendar
               current={selectedDate.toISOString().split('T')[0]}
               onDayPress={onDayPress}
@@ -450,24 +417,70 @@ const WorkerHomepage = () => {
             />
           </Box>
         )}
+
+        {/* Timeline section */}
+        <Box flex={1} borderRadius="$2xl" mb="$4">
+          <Timeline
+            data={filteredTasks.map(task => ({
+              time: `${new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+              title: task.title,
+              description: task.description,
+              startTime: task.startTime,
+              endTime: task.endTime,
+              taskId: task.taskId,
+              done: task.done,
+            }))}
+            circleSize={20}
+            circleColor="#000"
+            lineColor="#6C63FF"
+            timeStyle={{
+              textAlign: 'center',
+              color: '#333',
+              padding: 5,
+              fontSize: 12
+            }}
+            descriptionStyle={{ color: '#555' }}
+            renderDetail={renderDetail}
+            separator={true}
+            showTime={true}
+            innerCircle={'dot'}
+            style={{ flex: 1, marginTop: 20 }}
+          />
+          
+          {filteredTasks.length === 0 && !refreshing && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
+            </Box>
+          )}
+
+          {refreshing && filteredTasks.length === 0 && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('loading')}</Text>
+            </Box>
+          )}
+        </Box>
       </ScrollView>
 
-      <HStack space="xs" justifyContent="space-between" mb="$4">
-        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => callPhone()}>
-          <HStack alignItems="center" justifyContent="center" space="xs">
-            <Icon as={Phone} color={Colors.white} size="sm" />
-            <Text color={Colors.white}>{i18n.t('contactManager')}</Text>
-          </HStack>
-        </Button>
+      {/* Footer - Similar to ManagerHomepage */}
+      <Box bg={Colors.white} px="$4" py="$4">
+        <HStack space="md" justifyContent="space-between">
+          <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => callPhone()}>
+            <HStack alignItems="center" justifyContent="center" space="sm">
+              <Icon as={Phone} color={Colors.white} size="sm" />
+              <Text color={Colors.white}>{i18n.t('contactManager')}</Text>
+            </HStack>
+          </Button>
 
-        <Button flex={1} variant="outline" bg={Colors.heading} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
-          <HStack alignItems="center" justifyContent="center" space="xs">
-            <Icon as={CalendarIcon} color={Colors.white} size="sm" />
-            <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
-          </HStack>
-        </Button>
-      </HStack>
+          <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
+            <HStack alignItems="center" justifyContent="center" space="sm">
+              <Icon as={CalendarIcon} color={Colors.white} size="sm" />
+              <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
+            </HStack>
+          </Button>
+        </HStack>
+      </Box>
 
+      {/* Feedback Modal */}
       <Modal
         isOpen={modalVisible}
         onClose={() => {
@@ -676,7 +689,6 @@ const WorkerHomepage = () => {
                     </Box>
                   ))}
               </HStack>
-
             </VStack>
           </Modal.Body>
 
@@ -702,4 +714,3 @@ const WorkerHomepage = () => {
 };
 
 export default WorkerHomepage;
-
