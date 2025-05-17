@@ -41,7 +41,7 @@ export const createTask = async (task: {
   questionnaireTwo: string;
   questionnaireThree: string;
   questionnaireFour: string;
-  isDone: boolean;
+  done: boolean;
 }) => {
   const response = await axiosInstance.post('/tasks', task);
   return response.data;
@@ -62,7 +62,7 @@ export const updateTask = async (
     questionnaireTwo: string;
     questionnaireThree: string;
     questionnaireFour: string;
-    isDone: boolean;
+    done: boolean;
   }
 ) => {
   const response = await axiosInstance.put(`/tasks/update/${taskId}`, updatedTask);
