@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RefreshControl } from 'react-native';
-import { Box, Text, ScrollView, HStack, Pressable, Button, Icon } from '@gluestack-ui/themed';
+import { 
+  Box, 
+  Text, 
+  ScrollView, 
+  HStack, 
+  Pressable, 
+  Button, 
+  Icon, 
+  Heading 
+} from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Colors } from '@/constants/Colors';
@@ -8,7 +17,7 @@ import { fetchTasks } from '@/api/apiService'; // Function to fetch data from th
 import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { LogOut } from 'lucide-react-native';
+import { LogOut, Calendar as CalendarIcon } from 'lucide-react-native';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 interface Task {
@@ -27,6 +36,7 @@ const ManagerHomepage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
   const { language, changeLanguage } = useLanguage();
 
   const logout = async () => {
@@ -87,7 +97,6 @@ const ManagerHomepage = () => {
     const hours = Math.floor(totalTimeInMinutes / 60);
     const minutes = Math.round(totalTimeInMinutes % 60);
     const formattedTotalTime = `${hours}h ${minutes}m`;
-    console.log("rowdata : ", rowData);
 
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
@@ -108,24 +117,25 @@ const ManagerHomepage = () => {
   };
 
   return (
-    <Box flex={1} p="$4" bg={Colors.background}>
-      <HStack justifyContent="space-between" mt="$7">
-        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('welcome')}</Text>
+    <Box flex={1} bg={Colors.background}>
+      {/* Header - Similar to TaskManagerScreen */}
+      <Box px="$4" py="$4" bg={Colors.white}>
+        <HStack justifyContent="space-between" alignItems="center">
+          <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
+          
+          <HStack alignItems='center' space="md">
+            <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
+              <Text fontWeight="$bold" color={Colors.text}>
+                {language === 'en' ? 'TR' : 'EN'}
+              </Text>
+            </Pressable>
 
-        <HStack alignItems='center' justifyContent="space-between" space="md">
-          <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-            <Text fontWeight="$bold" color={Colors.text}>
-              {language === 'en' ? 'TR' : 'EN'}
-            </Text>
-          </Pressable>
-
-          <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
-            <HStack alignItems="center" justifyContent="center" space="xs">
+            <Button bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
               <Icon as={LogOut} color={Colors.white} size="md" />
-            </HStack>
-          </Button>
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
+      </Box>
 
       <ScrollView
         flex={1}
@@ -139,34 +149,38 @@ const ManagerHomepage = () => {
           />
         }
       >
-        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
-          <Calendar
-            current={selectedDate.toISOString().split('T')[0]}
-            onDayPress={onDayPress}
-            markedDates={{
-              [selectedDate.toISOString().split('T')[0]]: {
-                selected: true,
-                selectedColor: Colors.text,
-                selectedTextColor: Colors.white,
-              }
-            }}
-            theme={{
-              backgroundColor: Colors.white,
-              calendarBackground: Colors.white,
-              selectedDayBackgroundColor: Colors.text,
-              selectedDayTextColor: Colors.white,
-              todayTextColor: Colors.error,
-              dayTextColor: Colors.heading,
-              textDisabledColor: Colors.gray,
-              arrowColor: Colors.text,
-              monthTextColor: Colors.heading,
-              indicatorColor: Colors.text,
-              textSectionTitleColor: Colors.gray,
-            }}
-          />
-        </Box>
+        {/* Calendar section at the top when visible */}
+        {calendarVisible && (
+          <Box bg={Colors.white} p="$2" mb="$4">
+            <Calendar
+              current={selectedDate.toISOString().split('T')[0]}
+              onDayPress={onDayPress}
+              markedDates={{
+                [selectedDate.toISOString().split('T')[0]]: {
+                  selected: true,
+                  selectedColor: Colors.text,
+                  selectedTextColor: Colors.white,
+                }
+              }}
+              theme={{
+                backgroundColor: Colors.white,
+                calendarBackground: Colors.white,
+                selectedDayBackgroundColor: Colors.text,
+                selectedDayTextColor: Colors.white,
+                todayTextColor: Colors.error,
+                dayTextColor: Colors.heading,
+                textDisabledColor: Colors.gray,
+                arrowColor: Colors.text,
+                monthTextColor: Colors.heading,
+                indicatorColor: Colors.text,
+                textSectionTitleColor: Colors.gray,
+              }}
+            />
+          </Box>
+        )}
 
-        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
+        {/* Timeline section */}
+        <Box flex={1} borderRadius="$2xl" mb="$4">
           <Timeline
             data={filteredTasks.map(task => ({
               time: `${new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
@@ -177,7 +191,6 @@ const ManagerHomepage = () => {
               taskId: task.taskId,
               done: task.done,
             }))}
-
             circleSize={20}
             circleColor="#000"
             lineColor="#6C63FF"
@@ -192,9 +205,34 @@ const ManagerHomepage = () => {
             separator={true}
             showTime={true}
             innerCircle={'dot'}
+            style={{ flex: 1, marginTop: 20 }}
           />
+          
+          {filteredTasks.length === 0 && !refreshing && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
+            </Box>
+          )}
+
+          {refreshing && filteredTasks.length === 0 && (
+            <Box alignItems="center" py="$6">
+              <Text color={Colors.gray}>{i18n.t('loading')}</Text>
+            </Box>
+          )}
         </Box>
       </ScrollView>
+
+      {/* Footer - Similar to TaskManagerScreen */}
+      <Box bg={Colors.white} px="$4" py="$4">
+        <HStack space="md" justifyContent="space-between">
+          <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
+            <HStack alignItems="center" justifyContent="center" space="sm">
+              <Icon as={CalendarIcon} color={Colors.white} size="sm" />
+              <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
+            </HStack>
+          </Button>
+        </HStack>
+      </Box>
     </Box>
   );
 };
