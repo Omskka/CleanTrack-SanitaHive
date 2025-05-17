@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Text,
   Pressable,
-  ScrollView,
   Button,
   VStack,
   HStack,
@@ -24,17 +23,20 @@ import {
   FormControlLabel,
   FormControlLabelText,
   Textarea,
-  TextareaInput
+  TextareaInput,
+  Heading,
+  InputSlot,
+  ScrollView
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
-import { Calendar as CalendarIcon, Edit, Plus, Trash, ChevronDown } from 'lucide-react-native';
+import { Calendar as CalendarIcon, Edit, Plus, Trash, ChevronDown, Scroll } from 'lucide-react-native';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
 import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform, TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity, View, RefreshControl } from 'react-native';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Mock API functions (to be replaced with actual API calls)
@@ -54,7 +56,7 @@ interface Task {
   questionnaireTwo: string;
   questionnaireThree: string;
   questionnaireFour: string;
-  isDone: boolean;
+  done: boolean;
 }
 
 interface Room {
@@ -82,6 +84,7 @@ const TaskManagerScreen = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const { language, changeLanguage } = useLanguage();
 
@@ -157,6 +160,7 @@ const TaskManagerScreen = () => {
       setError(i18n.t('failedToFetchTasks'));
     } finally {
       setIsLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -200,11 +204,23 @@ const TaskManagerScreen = () => {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchTasksData();
+    fetchRoomsData();
+    fetchTeamMembersData();
+  }, [userID, selectedDate]);
+
   const onDayPress = (day: DateData) => {
     setSelectedDate(new Date(day.dateString));
   };
 
   const handleShowModal = (task?: Task) => {
+    // Don't allow editing for completed tasks
+    if (task && task.done) {
+      return;
+    }
+    
     if (task) {
       // Edit existing task
       setCurrentTask(task);
@@ -247,7 +263,7 @@ const TaskManagerScreen = () => {
 
     setIsLoading(true);
     try {
-      const taskID = UUID.v4();
+      const taskID = isCreating ? UUID.v4() : (currentTask?.taskId || UUID.v4());
       const taskData = {
         taskId: taskID,
         managerId: userID,
@@ -262,7 +278,7 @@ const TaskManagerScreen = () => {
         questionnaireTwo: '',
         questionnaireThree: '',
         questionnaireFour: '',
-        isDone: currentTask?.isDone || false
+        done: currentTask?.done || false
       };
 
       if (isCreating) {
@@ -282,6 +298,10 @@ const TaskManagerScreen = () => {
   };
 
   const handleShowDeleteModal = (task: Task) => {
+    // Don't allow deleting completed tasks
+    if (task.done) {
+      return;
+    }
     setCurrentTask(task);
     setIsDeleteModalVisible(true);
   };
@@ -342,6 +362,19 @@ const TaskManagerScreen = () => {
   };
 
   const renderDetail = (rowData: Task) => {
+    // Calculate total time
+    const startTime = new Date(rowData.startTime);
+    const endTime = new Date(rowData.endTime);
+    const totalTimeInMillis = endTime.getTime() - startTime.getTime();
+    const totalTimeInMinutes = totalTimeInMillis / 60000;
+    const hours = Math.floor(totalTimeInMinutes / 60);
+    const minutes = Math.round(totalTimeInMinutes % 60);
+    const formattedTotalTime = `${hours}h ${minutes}m`;
+    
+    // Format time strings
+    const formattedStart = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedEnd = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">
@@ -364,33 +397,28 @@ const TaskManagerScreen = () => {
         )}
 
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">
-          {new Date(rowData.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
-          {new Date(rowData.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {formattedStart} - {formattedEnd}
         </Text>
 
-        {/* Calculate and display total time */}
-        {(() => {
-          const totalTimeInMillis = new Date(rowData.endTime).getTime() - new Date(rowData.startTime).getTime();
-          const totalTimeInMinutes = totalTimeInMillis / 60000;
-          const hours = Math.floor(totalTimeInMinutes / 60);
-          const minutes = Math.round(totalTimeInMinutes % 60);
-          return (
-            <Text fontSize="$sm" color={Colors.black} mb="$3">
-              {i18n.t('totalTime')}: {hours}h {minutes}m
-            </Text>
-          );
-        })()}
+        <Text fontSize="$sm" color={Colors.black} mb="$3">
+          {i18n.t('totalTime')}: {formattedTotalTime}
+        </Text>
+        
+        {/* Show completed status if task is done */}
+        {rowData.done ? (
+          <Text mt="$2" color={Colors.text} fontWeight="$bold">{i18n.t('completed')}</Text>
+        ) : (
+          <HStack justifyContent="flex-end" space="md">
+            <Button bg={Colors.text} onPress={() => handleShowModal(rowData)}>
+              <Icon as={Edit} color={Colors.white} size="sm" />
+              <Text color={Colors.white} ml="$1">{i18n.t('edit')}</Text>
+            </Button>
 
-        <HStack justifyContent="flex-end" space="md">
-          <Button bg={Colors.text} onPress={() => handleShowModal(rowData)}>
-            <Icon as={Edit} color={Colors.white} size="sm" />
-            <Text color={Colors.white} ml="$1">{i18n.t('edit')}</Text>
-          </Button>
-
-          <Button bg={Colors.error} onPress={() => handleShowDeleteModal(rowData)}>
-            <Icon as={Trash} color={Colors.white} size="sm" />
-          </Button>
-        </HStack>
+            <Button bg={Colors.error} onPress={() => handleShowDeleteModal(rowData)}>
+              <Icon as={Trash} color={Colors.white} size="sm" />
+            </Button>
+          </HStack>
+        )}
       </Box>
     );
   };
@@ -400,20 +428,27 @@ const TaskManagerScreen = () => {
   };
 
   return (
-    <Box flex={1} p="$2" bg={Colors.background}>
-      <HStack justifyContent="space-between" mt="$7">
-        <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading} mb="$4">{i18n.t('taskManager')}</Text>
+    <Box flex={1} bg={Colors.background}>
+      {/* Header - Similar to RoomsScreen */}
+      <Box px="$4" py="$4" bg={Colors.white}>
+        <Heading size="lg" color={Colors.heading}>{i18n.t('taskManager')}</Heading>
+      </Box>
 
-        <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
-          <Text fontWeight="$bold" color={Colors.text}>
-            {language === 'en' ? 'TR' : 'EN'}
-          </Text>
-        </Pressable>
-      </HStack>
-
-      <ScrollView flex={1} mb="$2">
+      <ScrollView 
+        flex={1} 
+        mb="$2"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.text]}
+            tintColor={Colors.text}
+          />
+        }
+      >
+        {/* Calendar section at the top when visible */}
         {calendarVisible && (
-          <Box bg={Colors.white} borderRadius="$2xl" p="$2" mb="$4">
+          <Box bg={Colors.white} p="$2" mb="$4">
             <Calendar
               current={selectedDate.toISOString().split('T')[0]}
               onDayPress={onDayPress}
@@ -441,7 +476,8 @@ const TaskManagerScreen = () => {
           </Box>
         )}
 
-        <Box p="$3" pl={0} borderRadius="$2xl" mb="$4">
+        {/* Timeline takes the remaining space */}
+        <Box flex={1} borderRadius="$2xl" mb="$4">
           <Timeline
             data={tasks.map(task => ({
               time: new Date(task.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -451,6 +487,7 @@ const TaskManagerScreen = () => {
               endTime: task.endTime,
               employeeId: task.employeeId,
               taskId: task.taskId,
+              done: task.done, // Make sure to include the done property
             }))}
             circleSize={20}
             circleColor="#000"
@@ -466,15 +503,16 @@ const TaskManagerScreen = () => {
             separator={true}
             showTime={true}
             innerCircle={'dot'}
+            style={{ flex: 1, marginTop: 20 }}
           />
 
-          {tasks.length === 0 && !isLoading && (
+          {tasks.length === 0 && !isLoading && !refreshing && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
             </Box>
           )}
 
-          {isLoading && (
+          {(isLoading || refreshing) && tasks.length === 0 && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('loading')}</Text>
             </Box>
@@ -482,21 +520,25 @@ const TaskManagerScreen = () => {
         </Box>
       </ScrollView>
 
-      <HStack space="md" justifyContent="space-between" mb="$4">
-        <Button flex={1} bg={Colors.heading} borderRadius="$lg" onPress={() => handleShowModal()}>
-          <HStack alignItems="center" justifyContent="center" space="sm">
-            <Icon as={Plus} color={Colors.white} size="sm" />
-            <Text color={Colors.white}>{i18n.t('createTask')}</Text>
-          </HStack>
-        </Button>
+      {/* Footer - Similar to RoomsScreen */}
+      {/* Footer Actions - Similar to RoomsScreen */}
+      <Box bg={Colors.white} px="$4" py="$4">
+        <HStack space="md" justifyContent="space-between">
+          <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => handleShowModal()}>
+            <HStack alignItems="center" justifyContent="center" space="sm">
+              <Icon as={Plus} color={Colors.white} size="sm" />
+              <Text color={Colors.white}>{i18n.t('createTask')}</Text>
+            </HStack>
+          </Button>
 
-        <Button flex={1} variant="outline" bg={Colors.heading} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
-          <HStack alignItems="center" justifyContent="center" space="sm">
-            <Icon as={CalendarIcon} color={Colors.white} size="sm" />
-            <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
-          </HStack>
-        </Button>
-      </HStack>
+          <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
+            <HStack alignItems="center" justifyContent="center" space="sm">
+              <Icon as={CalendarIcon} color={Colors.white} size="sm" />
+              <Text color={Colors.white}>{calendarVisible ? i18n.t('hideCalendar') : i18n.t('selectDate')}</Text>
+            </HStack>
+          </Button>
+        </HStack>
+      </Box>
 
       {/* Task Edit/Create Modal */}
       <Modal isOpen={modalVisible} onClose={handleCloseModal} avoidKeyboard>

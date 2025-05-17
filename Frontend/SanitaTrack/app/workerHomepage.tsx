@@ -84,7 +84,7 @@ const WorkerHomepage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [userID, setUserID] = useState('');
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
-  const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
 
   const logout = async () => {
