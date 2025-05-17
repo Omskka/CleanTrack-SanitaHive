@@ -39,7 +39,7 @@ public class TasksService {
 
     // Delete tasks
     public void deleteTask(String taskId) {
-        Optional<Tasks> task = tasksRepository.findByTaskId(taskId); 
+        Optional<Tasks> task = tasksRepository.findByTaskId(taskId);
         if (task.isPresent()) {
             tasksRepository.deleteByTaskId(taskId);
         } else {
@@ -64,7 +64,7 @@ public class TasksService {
             existingTask.setQuestionnaireTwo(updatedTask.getQuestionnaireTwo());
             existingTask.setQuestionnaireThree(updatedTask.getQuestionnaireThree());
             existingTask.setQuestionnaireFour(updatedTask.getQuestionnaireFour());
-            existingTask.setDone(updatedTask.done());
+            existingTask.setDone(updatedTask.isDone());
 
             return tasksRepository.save(existingTask);
         } else {
