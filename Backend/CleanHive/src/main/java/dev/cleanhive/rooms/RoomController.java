@@ -18,11 +18,13 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
+    // Fetch all rooms
     @GetMapping
     public ResponseEntity<List<Rooms>> getAllRooms() {
         return ResponseEntity.ok(roomService.getAllRooms());
     }
 
+    // Create new room
     @PostMapping
     public ResponseEntity<Rooms> createRoom(@RequestBody Rooms room) {
         return new ResponseEntity<>(roomService.saveRoom(room), HttpStatus.CREATED);

@@ -46,6 +46,7 @@ public class TeamsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Add employee to team
     @PutMapping("/add-employee/{managerId}")
     public ResponseEntity<Teams> addEmployeeToTeam(@PathVariable String managerId,
             @RequestBody Map<String, String> body) {

@@ -35,6 +35,7 @@ public class TeamsService {
         return teamsRepository.findById(id);
     }
 
+    // Add employees to the team
     public Teams addEmployeeToTeam(Teams team, String employeeId) {
         if (!team.getEmployeeIds().contains(employeeId)) {
             team.getEmployeeIds().add(employeeId);

@@ -20,10 +20,12 @@ public class TasksService {
         return tasksRepository.findAll();
     }
 
+    // Create a new task
     public Tasks createTask(Tasks task) {
         return tasksRepository.save(task);
     }
 
+    // Mark task as done
     public boolean markTaskAsDone(String taskId) {
         Optional<Tasks> opt = tasksRepository.findByTaskId(taskId);
         if (opt.isPresent()) {
@@ -35,15 +37,17 @@ public class TasksService {
         return false;
     }
 
+    // Delete tasks
     public void deleteTask(String taskId) {
-        Optional<Tasks> task = tasksRepository.findByTaskId(taskId); // ✅ semicolon here
+        Optional<Tasks> task = tasksRepository.findByTaskId(taskId); 
         if (task.isPresent()) {
-            tasksRepository.deleteByTaskId(taskId); // ✅ method name should match your repo
+            tasksRepository.deleteByTaskId(taskId);
         } else {
             throw new RuntimeException("Task not found!");
         }
     }
 
+    // Update tasks
     public Tasks updateTask(String taskId, Tasks updatedTask) {
         Optional<Tasks> existingTaskOpt = tasksRepository.findByTaskId(taskId);
         if (existingTaskOpt.isPresent()) {
@@ -67,5 +71,4 @@ public class TasksService {
             throw new RuntimeException("Task not found with taskId: " + taskId);
         }
     }
-
 }

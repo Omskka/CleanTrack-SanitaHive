@@ -26,12 +26,14 @@ public class TasksController {
         return new ResponseEntity<>(tasksService.allTasks(), HttpStatus.OK);
     }
 
+    // Create a new task
     @PostMapping
     public ResponseEntity<Tasks> createTask(@RequestBody Tasks task) {
         Tasks createdTask = tasksService.createTask(task);
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
+    // Mark task as done
     @PutMapping("/{taskId}/complete")
     public ResponseEntity<?> markTaskAsDone(@PathVariable String taskId) {
         Optional<Tasks> taskOptional = tasksRepository.findByTaskId(taskId);
@@ -56,7 +58,7 @@ public class TasksController {
         }
     }
 
-    // ❗️This is your DELETE route using POST (since DELETE might not be supported)
+    // ❗️This is your DELETE route using POST 
     @PostMapping("/delete")
     public ResponseEntity<?> deleteTask(@RequestBody Tasks task) {
         try {

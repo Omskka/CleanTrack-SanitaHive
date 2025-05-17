@@ -12,14 +12,17 @@ public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
 
+    // Fetch all rooms
     public List<Rooms> getAllRooms() {
         return roomRepository.findAll();
     }
 
+    // Save room to team
     public Rooms saveRoom(Rooms room) {
         return roomRepository.save(room);
     }
 
+    // Delete room from team
     public void deleteRoom(String roomId) {
         Optional<Rooms> room = roomRepository.findByRoomId(roomId);
         if (room.isPresent()) {
