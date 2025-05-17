@@ -20,7 +20,7 @@ interface Task {
   startTime: Date; // ISO format, e.g., '2025-05-11T14:30:00'
   endTime: Date;   // ISO format
   time: string; // e.g., '14:30'
-  isDone: boolean;
+  done: boolean;
 }
 
 const ManagerHomepage = () => {
@@ -87,6 +87,7 @@ const ManagerHomepage = () => {
     const hours = Math.floor(totalTimeInMinutes / 60);
     const minutes = Math.round(totalTimeInMinutes % 60);
     const formattedTotalTime = `${hours}h ${minutes}m`;
+    console.log("rowdata : ", rowData);
 
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
@@ -99,7 +100,7 @@ const ManagerHomepage = () => {
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
         <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
-        {rowData.isDone ? (
+        {rowData.done ? (
           <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
         ) : null}
       </Box>
@@ -174,7 +175,7 @@ const ManagerHomepage = () => {
               startTime: task.startTime,
               endTime: task.endTime,
               taskId: task.taskId,
-              isDone: task.isDone,
+              done: task.done,
             }))}
 
             circleSize={20}

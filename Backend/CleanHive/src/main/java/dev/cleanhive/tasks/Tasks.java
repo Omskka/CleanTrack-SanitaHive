@@ -55,5 +55,5 @@ public class Tasks {
     private String questionnaireFour;
 
     // Task done
-    private boolean isDone;
+    private boolean done;
 }

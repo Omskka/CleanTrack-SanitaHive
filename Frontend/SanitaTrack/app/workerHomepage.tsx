@@ -53,7 +53,7 @@ interface Task {
   questionnaireThree: string;
   questionnaireFour: string;
   questionnaireFive: string;
-  isDone: boolean;
+  done: boolean;
 };
 
 interface User {
@@ -242,7 +242,7 @@ const WorkerHomepage = () => {
       if (existing) {
         return {
           ...task,
-          isDone: existing.isDone || task.isDone, // if the existing task is done, keep it as done
+          done: existing.done || task.done, // if the existing task is done, keep it as done
         };
       }
       return task; // new task
@@ -270,7 +270,7 @@ const WorkerHomepage = () => {
     try {
       await markTaskAsDone(taskId); // Mark the task as done in backend
       setTasks(tasks.map(task =>
-        task.taskId === taskId ? { ...task, isDone: true } : task
+        task.taskId === taskId ? { ...task, done: true } : task
       ));
     } catch (err) {
       console.error('Failed to complete task:', err);
@@ -313,7 +313,7 @@ const WorkerHomepage = () => {
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
         <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
-        {rowData.isDone ? (
+        {rowData.done ? (
           <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
         ) : (
           <>
@@ -350,7 +350,7 @@ const WorkerHomepage = () => {
                   setModalVisible(true);
                 }}
                 size="sm"
-                isDisabled={rowData.isDone}
+                isDisabled={rowData.done}
               >
                 <Text color={Colors.white}>{i18n.t('submit')}</Text>
               </Button>
@@ -402,7 +402,7 @@ const WorkerHomepage = () => {
               startTime: task.startTime,
               endTime: task.endTime,
               taskId: task.taskId,
-              isDone: task.isDone,
+              done: task.done,
             }))}
 
             circleSize={20}
