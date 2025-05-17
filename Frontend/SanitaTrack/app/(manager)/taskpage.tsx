@@ -54,7 +54,7 @@ interface Task {
   questionnaireTwo: string;
   questionnaireThree: string;
   questionnaireFour: string;
-  isDone: boolean;
+  done: boolean;
 }
 
 interface Room {
@@ -262,7 +262,7 @@ const TaskManagerScreen = () => {
         questionnaireTwo: '',
         questionnaireThree: '',
         questionnaireFour: '',
-        isDone: currentTask?.isDone || false
+        done: currentTask?.done || false
       };
 
       if (isCreating) {
