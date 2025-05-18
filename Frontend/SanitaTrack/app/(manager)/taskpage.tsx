@@ -87,6 +87,7 @@ const TaskManagerScreen = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const { language, changeLanguage } = useLanguage();
+  const selectedMember = teamMembers.find(member => member.userId === taskEmployee);
 
   // For editing / creating tasks
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
@@ -220,7 +221,7 @@ const TaskManagerScreen = () => {
     if (task && task.done) {
       return;
     }
-    
+
     if (task) {
       // Edit existing task
       setCurrentTask(task);
@@ -370,7 +371,7 @@ const TaskManagerScreen = () => {
     const hours = Math.floor(totalTimeInMinutes / 60);
     const minutes = Math.round(totalTimeInMinutes % 60);
     const formattedTotalTime = `${hours}h ${minutes}m`;
-    
+
     // Format time strings
     const formattedStart = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const formattedEnd = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -403,7 +404,7 @@ const TaskManagerScreen = () => {
         <Text fontSize="$sm" color={Colors.black} mb="$3">
           {i18n.t('totalTime')}: {formattedTotalTime}
         </Text>
-        
+
         {/* Show completed status if task is done */}
         {rowData.done ? (
           <Text mt="$2" color={Colors.text} fontWeight="$bold">{i18n.t('completed')}</Text>
@@ -434,8 +435,8 @@ const TaskManagerScreen = () => {
         <Heading size="lg" color={Colors.heading}>{i18n.t('taskManager')}</Heading>
       </Box>
 
-      <ScrollView 
-        flex={1} 
+      <ScrollView
+        flex={1}
         mb="$2"
         refreshControl={
           <RefreshControl
@@ -589,7 +590,10 @@ const TaskManagerScreen = () => {
                 onValueChange={value => setTaskEmployee(value)}
               >
                 <SelectTrigger variant="outline" size="md">
-                  <SelectInput placeholder={i18n.t('selectEmployee')} />
+                  <SelectInput
+                    placeholder={i18n.t('selectEmployee')}
+                    value={selectedMember ? `${selectedMember.name} ${selectedMember.surname}` : undefined}
+                  />
                   <SelectIcon>
                     <Icon as={ChevronDown} />
                   </SelectIcon>
