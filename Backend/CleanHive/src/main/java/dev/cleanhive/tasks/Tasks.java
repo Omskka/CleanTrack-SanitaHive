@@ -54,6 +54,9 @@ public class Tasks {
     // Questionnaire 4
     private String questionnaireFour;
 
+    // Questionnaire 5
+    private String questionnaireFive;
+
     // Task done
     private boolean done;
 }

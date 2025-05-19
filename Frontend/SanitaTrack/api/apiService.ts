@@ -41,6 +41,7 @@ export const createTask = async (task: {
   questionnaireTwo: string;
   questionnaireThree: string;
   questionnaireFour: string;
+  questionnaireFive: string;
   done: boolean;
 }) => {
   const response = await axiosInstance.post('/tasks', task);
@@ -62,6 +63,7 @@ export const updateTask = async (
     questionnaireTwo: string;
     questionnaireThree: string;
     questionnaireFour: string;
+    questionnaireFive: string;
     done: boolean;
   }
 ) => {

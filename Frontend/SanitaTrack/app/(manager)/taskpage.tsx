@@ -56,6 +56,7 @@ interface Task {
   questionnaireTwo: string;
   questionnaireThree: string;
   questionnaireFour: string;
+  questionnaireFive: string;
   done: boolean;
 }
 
@@ -279,6 +280,7 @@ const TaskManagerScreen = () => {
         questionnaireTwo: '',
         questionnaireThree: '',
         questionnaireFour: '',
+        questionnaireFive: '',
         done: currentTask?.done || false
       };
 
@@ -375,7 +377,7 @@ const TaskManagerScreen = () => {
     // Format time strings
     const formattedStart = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const formattedEnd = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
+
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
         <HStack justifyContent="space-between" mb="$2">

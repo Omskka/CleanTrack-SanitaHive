@@ -64,6 +64,7 @@ public class TasksService {
             existingTask.setQuestionnaireTwo(updatedTask.getQuestionnaireTwo());
             existingTask.setQuestionnaireThree(updatedTask.getQuestionnaireThree());
             existingTask.setQuestionnaireFour(updatedTask.getQuestionnaireFour());
+            existingTask.setQuestionnaireFive(updatedTask.getQuestionnaireFive());
             existingTask.setDone(updatedTask.isDone());
 
             return tasksRepository.save(existingTask);
