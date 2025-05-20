@@ -503,7 +503,7 @@ const ReportsScreen = () => {
                     >
                       <HStack justifyContent="space-between" alignItems="center" mb="$2">
                         <Text fontWeight="$bold" fontSize="$md" flex={1}>
-                          {getRoomNameById(feedback.roomId)} - {feedback.category}
+                          {getRoomNameById(feedback.roomId)} - {i18n.t(feedback.category)}
                         </Text>
                         <RatingDisplay rating={feedback.rating} />
                       </HStack>
