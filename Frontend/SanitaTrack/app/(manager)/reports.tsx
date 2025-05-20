@@ -732,7 +732,7 @@ const ReportsScreen = () => {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="md">{i18n.t(selectedFeedback?.category)}</Heading>
+            <Heading size="md">{selectedFeedback ? i18n.t(selectedFeedback.category) : ''}</Heading>
           </ModalHeader>
 
           <ModalBody>
