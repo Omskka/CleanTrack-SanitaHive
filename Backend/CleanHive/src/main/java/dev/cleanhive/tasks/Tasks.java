@@ -57,6 +57,9 @@ public class Tasks {
     // Questionnaire 5
     private String questionnaireFive;
 
+    // submission time
+    private Instant submissionTime;
+
     // Task done
     private boolean done;
 }

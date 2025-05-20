@@ -58,6 +58,7 @@ export const updateTask = async (
     description: string;
     startTime: Date;
     endTime: Date;
+    submissionTime: Date;
     imageUrl: string;
     questionnaireOne: string;
     questionnaireTwo: string;

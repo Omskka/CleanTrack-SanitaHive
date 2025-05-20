@@ -7,8 +7,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dev.cleanhive.rooms.Rooms;
-
 @Service
 public class TasksService {
 
@@ -65,6 +63,7 @@ public class TasksService {
             existingTask.setQuestionnaireThree(updatedTask.getQuestionnaireThree());
             existingTask.setQuestionnaireFour(updatedTask.getQuestionnaireFour());
             existingTask.setQuestionnaireFive(updatedTask.getQuestionnaireFive());
+            existingTask.setSubmissionTime(updatedTask.getSubmissionTime());
             existingTask.setDone(updatedTask.isDone());
 
             return tasksRepository.save(existingTask);
@@ -74,33 +73,33 @@ public class TasksService {
     }
 
     // Evaluate task status
-    // This method evaluates the status of a task based on the answers to the questionnaires.
+    // This method evaluates the status of a task based on the answers to the
+    // questionnaires.
     public String evaluateStatus(Tasks task) {
         String q1 = task.getQuestionnaireOne();
         String q2 = task.getQuestionnaireTwo();
         String q3 = task.getQuestionnaireThree();
         String q4 = task.getQuestionnaireFour();
         String q5 = task.getQuestionnaireFive();
-    
+
         // RED: If safety issue exists
         if (q3 != null && !q3.equalsIgnoreCase("No")) {
             return "Critical";
         }
-    
+
         // GREEN: Everything perfect
-        boolean isPerfect =
-            "As expected".equalsIgnoreCase(q1) &&
-            (q2 == null || q2.trim().isEmpty()) &&
-            "No".equalsIgnoreCase(q3) &&
-            (q4 != null && (q4.equalsIgnoreCase("Excellent") || q4.equalsIgnoreCase("Good"))) &&
-            (q5 != null && (q5.equalsIgnoreCase("Very Satisfied") || q5.equalsIgnoreCase("Satisfied")));
-    
+        boolean isPerfect = "As expected".equalsIgnoreCase(q1) &&
+                (q2 == null || q2.trim().isEmpty()) &&
+                "No".equalsIgnoreCase(q3) &&
+                (q4 != null && (q4.equalsIgnoreCase("Excellent") || q4.equalsIgnoreCase("Good"))) &&
+                (q5 != null && (q5.equalsIgnoreCase("Very Satisfied") || q5.equalsIgnoreCase("Satisfied")));
+
         if (isPerfect) {
             return "Normal";
         }
-    
+
         // ORANGE: At least one issue
         return "Urgent";
     }
-    
+
 }

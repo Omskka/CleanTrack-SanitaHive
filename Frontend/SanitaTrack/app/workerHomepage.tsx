@@ -46,6 +46,7 @@ interface Task {
   description: string;
   startTime: Date; // ISO format, e.g., '2025-05-11T14:30:00'
   endTime: Date;   // ISO format
+  submissionTime: Date;   // ISO format
   time: string; // e.g., '14:30'
   imageUrl: string;
   questionnaireOne: string;
@@ -269,6 +270,7 @@ const WorkerHomepage = () => {
   const submitTask = async (
     taskId: string,
     updatedData: {
+      submissionTime: Date;
       questionnaireOne: string;
       questionnaireTwo: string;
       questionnaireThree: string;
@@ -718,6 +720,7 @@ const WorkerHomepage = () => {
 
                 if (currentTaskId) {
                   await submitTask(currentTaskId, {
+                    submissionTime: new Date(),
                     questionnaireOne: productUsage[0] || '',
                     questionnaireTwo: challenges.length > 0 ? challenges.join(', ') + (challenges.includes('other') && otherDescription ? `: ${otherDescription}` : '') : '',
                     questionnaireThree: safety[0] || '',

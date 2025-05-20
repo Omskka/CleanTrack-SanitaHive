@@ -47,7 +47,7 @@ interface Task {
   description: string;
   startTime: Date;
   endTime: Date;
-  time: string;
+  submissionTime: Date;
   imageUrl: string;
   questionnaireOne: string;
   questionnaireTwo: string;
@@ -271,6 +271,7 @@ const TaskManagerScreen = () => {
         description: taskDescription,
         startTime: taskStartTime,
         endTime: taskEndTime,
+        submissionTime: new Date(),
         time: taskStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         imageUrl: '',
         questionnaireOne: '',
