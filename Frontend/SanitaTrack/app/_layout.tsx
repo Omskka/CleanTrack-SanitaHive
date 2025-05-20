@@ -7,15 +7,23 @@ import 'react-native-reanimated';
 import { GluestackUIProvider } from "@gluestack-ui/themed"
 import { config } from "@gluestack-ui/config"
 import { LanguageProvider } from '@/app/contexts/LanguageContext';
-import { LogBox } from 'react-native';
+import { LogBox, BackHandler } from 'react-native';
 
 // the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   LogBox.ignoreLogs([
-    'VirtualizedLists should never be nested', // nesting warning
+    'VirtualizedLists should never be nested inside plain ScrollViews',
   ]);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => true 
+    );
+    return () => backHandler.remove();
+  }, []);
 
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
