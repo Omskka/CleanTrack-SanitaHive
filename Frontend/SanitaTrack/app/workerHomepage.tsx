@@ -444,7 +444,7 @@ const WorkerHomepage = () => {
             separator={true}
             showTime={true}
             innerCircle={'dot'}
-            style={{ flex: 1, marginTop: 20 }}
+            style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
           
           {filteredTasks.length === 0 && !refreshing && (
