@@ -229,6 +229,7 @@ export const translations = {
     taskDetails: "Task details",
     questionnaire: "Questionnaire",
     feedbackDetails: "Feedback details",
+    submissionTime: "Submission time",
   },
   tr: {
     greeting: 'Merhaba',
@@ -460,5 +461,6 @@ export const translations = {
     taskDetails: "Görev detayları",
     questionnaire: "Anket",
     feedbackDetails: "Geri bildirim detayları",
+    submissionTime: "Teslim zamanı",
   },
 };

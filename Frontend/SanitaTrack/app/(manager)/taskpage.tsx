@@ -592,7 +592,7 @@ const TaskManagerScreen = () => {
                 <SelectTrigger variant="outline" size="md">
                   <SelectInput
                     placeholder={i18n.t('selectEmployee')}
-                    value={selectedMember ? `${selectedMember.name} ${selectedMember.surname}` : undefined}
+                    aria-label={selectedMember ? `${selectedMember.name} ${selectedMember.surname}` : undefined}
                   />
                   <SelectIcon>
                     <Icon as={ChevronDown} />
