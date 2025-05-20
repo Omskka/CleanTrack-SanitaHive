@@ -2,9 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Text,
-  Pressable,
   Button,
-  VStack,
   HStack,
   Input,
   InputField,
@@ -25,7 +23,6 @@ import {
   Textarea,
   TextareaInput,
   Heading,
-  InputSlot,
   ScrollView
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
@@ -506,7 +503,7 @@ const TaskManagerScreen = () => {
             separator={true}
             showTime={true}
             innerCircle={'dot'}
-            style={{ flex: 1, marginTop: 20 }}
+            style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
 
           {tasks.length === 0 && !isLoading && !refreshing && (
