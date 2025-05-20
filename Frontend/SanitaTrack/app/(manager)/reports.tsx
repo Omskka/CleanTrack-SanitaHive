@@ -163,7 +163,7 @@ const ReportsScreen = () => {
 
           return {
             ...task,
-            submissionTime: new Date(task.endTime), // Using endTime as submission time for demo
+            submissionTime: tasksData.find((t: Task) => t.taskId === task.taskId)?.submissionTime,  // Use the submission time from the tasksData
             status: statusData.status // Use the status from the API response
           };
         } catch (error) {
