@@ -7,11 +7,16 @@ import 'react-native-reanimated';
 import { GluestackUIProvider } from "@gluestack-ui/themed"
 import { config } from "@gluestack-ui/config"
 import { LanguageProvider } from '@/app/contexts/LanguageContext';
+import { LogBox } from 'react-native';
 
 // the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  LogBox.ignoreLogs([
+    'VirtualizedLists should never be nested', // nesting warning
+  ]);
+
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
