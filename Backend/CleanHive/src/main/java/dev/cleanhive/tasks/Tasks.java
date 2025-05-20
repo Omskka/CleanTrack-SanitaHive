@@ -62,4 +62,12 @@ public class Tasks {
 
     // Task done
     private boolean done;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

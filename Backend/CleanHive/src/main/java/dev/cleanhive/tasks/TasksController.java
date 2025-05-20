@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import dev.cleanhive.config.S3Service;
 
 import dev.cleanhive.rooms.Rooms;
 
@@ -19,6 +21,9 @@ public class TasksController {
 
     @Autowired
     private TasksRepository tasksRepository;
+
+    @Autowired
+    private S3Service s3Service;
 
     // Get all tasks
     @GetMapping
@@ -78,6 +83,32 @@ public class TasksController {
             return ResponseEntity.ok(status);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+    }
+
+    @PutMapping(value = "update/{taskId}", consumes = { "multipart/form-data" })
+    public ResponseEntity<?> updateTaskWithImage(
+            @PathVariable String taskId,
+            @RequestPart("task") Tasks updatedTask,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        try {
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // Upload image to S3
+                String key = "tasks/" + taskId + "/" + imageFile.getOriginalFilename();
+                byte[] bytes = imageFile.getBytes();
+                String contentType = imageFile.getContentType();
+
+                String imageUrl = s3Service.uploadFile(key, bytes, contentType);
+
+                // Set imageUrl in task
+                updatedTask.setImageUrl(imageUrl);
+            }
+
+            Tasks task = tasksService.updateTask(taskId, updatedTask);
+            return new ResponseEntity<>(task, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
