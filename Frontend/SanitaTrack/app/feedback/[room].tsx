@@ -53,6 +53,7 @@ export default function FeedbackScreen() {
       rating,           // Ensure rating is correctly set
       category: selectedCategory,  // Selected category of the feedback
       description: feedback, // Feedback content
+      submissionTime: new Date(), // Feedback content
     };
 
     try {

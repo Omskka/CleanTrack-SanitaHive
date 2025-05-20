@@ -32,5 +32,6 @@ public class Feedback {
     // Description
     private String description;
 
-
+    // Submission time
+    private String submissionTime;
 }
