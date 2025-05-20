@@ -36,7 +36,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
-import { fetchAllUsers, fetchTasks, fetchTeam, markTaskAsDone } from '@/api/apiService';
+import { fetchAllUsers, fetchTasks, fetchTeam, getTaskStatus, markTaskAsDone, updateTask } from '@/api/apiService';
 
 interface Task {
   taskId: string; // corresponds to `id: ObjectId`
@@ -75,6 +75,8 @@ const WorkerHomepage = () => {
   const [roomCondition, setRoomCondition] = useState<string>('');
   const [otherDescription, setOtherDescription] = useState('');
   const [yesDescription, setYesDescription] = useState('');
+  const [taskStatusColor, setTaskStatusColor] = useState<string | null>(null);
+  const [taskStatusLabel, setTaskStatusLabel] = useState<string | null>(null);
 
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -265,15 +267,43 @@ const WorkerHomepage = () => {
     }
   }, [userID]);
 
-  // Submit task
-  const submitTask = async (taskId: string) => {
+  // submitTask function
+  const submitTask = async (
+    taskId: string,
+    updatedData: {
+      questionnaireOne: string;
+      questionnaireTwo: string;
+      questionnaireThree: string;
+      questionnaireFour: string;
+      questionnaireFive: string;
+    }
+  ) => {
     try {
-      await markTaskAsDone(taskId); // Mark the task as done in backend
+      const existingTask = tasks.find(task => task.taskId === taskId);
+      if (!existingTask) throw new Error("Task not found in local state");
+
+      const updatedTask = {
+        ...existingTask,
+        ...updatedData,
+        done: true,
+      };
+
+      const updated = await updateTask(taskId, updatedTask);
       setTasks(tasks.map(task =>
-        task.taskId === taskId ? { ...task, done: true } : task
+        task.taskId === taskId ? updated : task
       ));
+
+      // ✅ Use Axios to get status
+      const status = await getTaskStatus(taskId);
+      console.log("Task status:", status);
+
+      const color = status === "Green" ? "green" : status === "Orange" ? "orange" : "red";
+
+      setTaskStatusColor(color);99
+      setTaskStatusLabel(status);
+
     } catch (err) {
-      console.error('Failed to complete task:', err);
+      console.error('Failed to update task with questionnaire:', err);
     }
   };
 
@@ -362,7 +392,7 @@ const WorkerHomepage = () => {
       <Box px="$4" py="$4" bg={Colors.white}>
         <HStack justifyContent="space-between" alignItems="center">
           <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
-          
+
           <HStack alignItems='center' space="md">
             <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
               <Text fontWeight="$bold" color={Colors.text}>
@@ -446,7 +476,7 @@ const WorkerHomepage = () => {
             innerCircle={'dot'}
             style={{ flex: 1, marginTop: 20 }}
           />
-          
+
           {filteredTasks.length === 0 && !refreshing && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
@@ -698,7 +728,13 @@ const WorkerHomepage = () => {
                 if (!isFormValid()) return;
 
                 if (currentTaskId) {
-                  await submitTask(currentTaskId);
+                  await submitTask(currentTaskId, {
+                    questionnaireOne: productUsage[0] || '',
+                    questionnaireTwo: challenges.length > 0 ? challenges.join(', ') + (challenges.includes('other') && otherDescription ? `: ${otherDescription}` : '') : '',
+                    questionnaireThree: safety[0] || '',
+                    questionnaireFour: roomCondition,
+                    questionnaireFive: satisfaction[0] || '',
+                  });
                   setModalVisible(false);
                 }
               }}

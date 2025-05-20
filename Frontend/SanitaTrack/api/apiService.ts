@@ -83,6 +83,11 @@ export const markTaskAsDone = async (taskId: string) => {
   return response.data;
 };
 
+// Get the status of a task
+export const getTaskStatus = async (taskId: string) => {
+  const response = await axiosInstance.get(`/tasks/${taskId}/status`);
+  return response.data; // This should return "Red", "Green", or "Orange"
+};
 
 export const fetchAllUsers = async () => {
   const response = await axiosInstance.get('/users');
@@ -135,3 +140,4 @@ export const createFeedback = async (data: any) => {
   const response = await axiosInstance.post(`/feedbacks`, data);
   return response.data;
 };
+

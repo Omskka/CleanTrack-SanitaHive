@@ -72,4 +72,35 @@ public class TasksService {
             throw new RuntimeException("Task not found with taskId: " + taskId);
         }
     }
+
+    // Evaluate task status
+    // This method evaluates the status of a task based on the answers to the questionnaires.
+    public String evaluateStatus(Tasks task) {
+        String q1 = task.getQuestionnaireOne();
+        String q2 = task.getQuestionnaireTwo();
+        String q3 = task.getQuestionnaireThree();
+        String q4 = task.getQuestionnaireFour();
+        String q5 = task.getQuestionnaireFive();
+    
+        // RED: If safety issue exists
+        if (q3 != null && !q3.equalsIgnoreCase("No")) {
+            return "Red";
+        }
+    
+        // GREEN: Everything perfect
+        boolean isPerfect =
+            "As expected".equalsIgnoreCase(q1) &&
+            (q2 == null || q2.trim().isEmpty()) &&
+            "No".equalsIgnoreCase(q3) &&
+            (q4 != null && (q4.equalsIgnoreCase("Excellent") || q4.equalsIgnoreCase("Good"))) &&
+            (q5 != null && (q5.equalsIgnoreCase("Very Satisfied") || q5.equalsIgnoreCase("Satisfied")));
+    
+        if (isPerfect) {
+            return "Green";
+        }
+    
+        // ORANGE: At least one issue
+        return "Orange";
+    }
+    
 }

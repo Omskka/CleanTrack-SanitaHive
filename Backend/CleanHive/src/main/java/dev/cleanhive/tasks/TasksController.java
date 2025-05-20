@@ -58,7 +58,7 @@ public class TasksController {
         }
     }
 
-    // ❗️This is your DELETE route using POST 
+    // ❗️This is your DELETE route using POST
     @PostMapping("/delete")
     public ResponseEntity<?> deleteTask(@RequestBody Tasks task) {
         try {
@@ -68,4 +68,17 @@ public class TasksController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    // Evaluate task status
+    @GetMapping("/{taskId}/status")
+    public ResponseEntity<String> getTaskStatus(@PathVariable String taskId) {
+        Optional<Tasks> taskOptional = tasksRepository.findByTaskId(taskId);
+        if (taskOptional.isPresent()) {
+            String status = tasksService.evaluateStatus(taskOptional.get());
+            return ResponseEntity.ok(status);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");
+        }
+    }
+
 }
