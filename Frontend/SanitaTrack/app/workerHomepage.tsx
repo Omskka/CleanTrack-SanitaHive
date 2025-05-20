@@ -35,8 +35,9 @@ import { Linking, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import * as FileSystem from 'expo-file-system';
 
-import { fetchAllUsers, fetchTasks, fetchTeam, getTaskStatus, markTaskAsDone, updateTask } from '@/api/apiService';
+import { fetchAllUsers, fetchTasks, fetchTeam, getTaskStatus, markTaskAsDone, updateTask, uploadImage } from '@/api/apiService';
 
 interface Task {
   taskId: string; // corresponds to `id: ObjectId`
@@ -86,6 +87,7 @@ const WorkerHomepage = () => {
   const [userID, setUserID] = useState('');
   const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
   const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
 
   const logout = async () => {
@@ -276,6 +278,7 @@ const WorkerHomepage = () => {
       questionnaireThree: string;
       questionnaireFour: string;
       questionnaireFive: string;
+      imageUrl: string;  
     }
   ) => {
     try {
@@ -292,7 +295,6 @@ const WorkerHomepage = () => {
       setTasks(tasks.map(task =>
         task.taskId === taskId ? updated : task
       ));
-
     } catch (err) {
       console.error('Failed to update task with questionnaire:', err);
     }
@@ -717,17 +719,35 @@ const WorkerHomepage = () => {
             <Button
               onPress={async () => {
                 if (!isFormValid()) return;
-
                 if (currentTaskId) {
-                  await submitTask(currentTaskId, {
-                    submissionTime: new Date(),
-                    questionnaireOne: productUsage[0] || '',
-                    questionnaireTwo: challenges.length > 0 ? challenges.join(', ') + (challenges.includes('other') && otherDescription ? `: ${otherDescription}` : '') : '',
-                    questionnaireThree: safety[0] || '',
-                    questionnaireFour: roomCondition,
-                    questionnaireFive: satisfaction[0] || '',
-                  });
-                  setModalVisible(false);
+                  try {
+                    const localUri = uploadedImages[currentTaskId]?.[0];
+                    let imageUrl = '';
+
+                    if (localUri && localUri.startsWith('file://')) {
+                      const uploadedImageData = await uploadImage(localUri);
+                      imageUrl = uploadedImageData.url;
+                      console.log('Uploaded image data:', uploadedImageData);
+                    } else {
+                      imageUrl = localUri || '';
+                    }
+
+                    await submitTask(currentTaskId, {
+                      submissionTime: new Date(),
+                      questionnaireOne: productUsage[0] || '',
+                      questionnaireTwo: challenges.length > 0
+                        ? challenges.join(', ') + (challenges.includes('other') && otherDescription ? `: ${otherDescription}` : '')
+                        : '',
+                      questionnaireThree: safety[0] || '',
+                      questionnaireFour: roomCondition,
+                      questionnaireFive: satisfaction[0] || '',
+                      imageUrl: imageUrl,
+                    });
+
+                    setModalVisible(false);
+                  } catch (err) {
+                    console.error('Failed to upload image and submit task:', err);
+                  }
                 }
               }}
               bg={Colors.text}

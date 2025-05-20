@@ -74,6 +74,11 @@
         <artifactId>s3</artifactId>
         <version>2.20.77</version> <!-- or latest -->
     </dependency>
+	<dependency>
+		<groupId>com.amazonaws</groupId>
+		<artifactId>aws-java-sdk-s3</artifactId>
+		<version>1.12.664</version> <!-- Use latest compatible version -->
+	</dependency>
 	</dependencies>
 
 	<build>

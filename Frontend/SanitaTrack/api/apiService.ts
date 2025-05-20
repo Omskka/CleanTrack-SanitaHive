@@ -1,4 +1,6 @@
 import axiosInstance from './axiosInstance';
+import * as FileSystem from 'expo-file-system';
+import mime from 'mime';
 
 export const login = async (phoneNumber: string, password: string) => {
   const response = await axiosInstance.post('/users/login', { phoneNumber, password });
@@ -146,5 +148,24 @@ export const createFeedback = async (data: any) => {
 // Get feedbacks by task ID
 export const fetchFeedbacks = async () => {
   const response = await axiosInstance.get(`/feedbacks`);
+  return response.data;
+};
+
+export const uploadImage = async (fileUri: string) => {
+  const mimeType = mime.getType(fileUri) || 'image/jpeg';
+
+  const formData = new FormData();
+  formData.append('file', {
+    uri: fileUri,
+    name: 'upload.jpg',
+    type: mimeType,
+  } as any); // 'as any' is a known workaround for FormData in React Native
+
+  const response = await axiosInstance.post('/file/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
   return response.data;
 };
