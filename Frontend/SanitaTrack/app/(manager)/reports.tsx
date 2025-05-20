@@ -163,7 +163,7 @@ const ReportsScreen = () => {
 
           return {
             ...task,
-            submissionTime: tasksData.find((t: Task) => t.taskId === task.taskId)?.submissionTime,  // Use the submission time from the tasksData
+            submissionTime: new Date(task.endTime), // Using endTime as submission time for demo
             status: statusData.status // Use the status from the API response
           };
         } catch (error) {
@@ -675,17 +675,15 @@ const ReportsScreen = () => {
                   <Text>{getUserNameById(selectedTask.employeeId)}</Text>
                 </VStack>
 
-                <HStack justifyContent="space-between">
-                  <VStack space="sm">
-                    <Text fontWeight="$medium">{i18n.t('startTime')}</Text>
-                    <Text>{formatDate(selectedTask.startTime)}</Text>
-                  </VStack>
-
-                  <VStack space="sm">
-                    <Text fontWeight="$medium">{i18n.t('endTime')}</Text>
-                    <Text>{formatDate(selectedTask.endTime)}</Text>
-                  </VStack>
-                </HStack>
+                <VStack space="sm">
+                  <Text fontWeight="$medium">{i18n.t('startTime')}</Text>
+                  <Text>{formatDate(selectedTask.startTime)}</Text>
+                </VStack>
+                
+                <VStack space="sm">
+                  <Text fontWeight="$medium">{i18n.t('endTime')}</Text>
+                  <Text>{formatDate(selectedTask.endTime)}</Text>
+                </VStack>
 
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('submissionTime')}</Text>
@@ -697,11 +695,20 @@ const ReportsScreen = () => {
                   <VStack space="sm">
                     <Text fontWeight="$medium">{i18n.t('questionnaire')}</Text>
                     <VStack space="xs">
-                      <Text>Q1: {selectedTask.questionnaireOne}</Text>
-                      {selectedTask.questionnaireTwo && <Text>Q2: {selectedTask.questionnaireTwo}</Text>}
-                      {selectedTask.questionnaireThree && <Text>Q3: {selectedTask.questionnaireThree}</Text>}
-                      {selectedTask.questionnaireFour && <Text>Q4: {selectedTask.questionnaireFour}</Text>}
-                      {selectedTask.questionnaireFive && <Text>Q5: {selectedTask.questionnaireFive}</Text>}
+                      {[
+                        { key: 'productUsageQuestion', value: selectedTask.questionnaireOne },
+                        { key: 'challengeQuestion', value: selectedTask.questionnaireTwo },
+                        { key: 'safetyQuestion', value: selectedTask.questionnaireThree },
+                        { key: 'roomCondition', value: selectedTask.questionnaireFour },
+                        { key: 'overallSatisfaction', value: selectedTask.questionnaireFive },
+                      ].map(
+                        ({ key, value }) =>
+                          value && (
+                            <Text key={key}>
+                              {i18n.t(key)}: <Text bold>{i18n.t(value)}</Text>
+                            </Text>
+                          )
+                      )}
                     </VStack>
                   </VStack>
                 )}
@@ -725,7 +732,7 @@ const ReportsScreen = () => {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="md">{i18n.t('feedbackDetails')}</Heading>
+            <Heading size="md">{i18n.t(selectedFeedback?.category)}</Heading>
           </ModalHeader>
 
           <ModalBody>
@@ -739,11 +746,6 @@ const ReportsScreen = () => {
                 </HStack>
 
                 <Divider />
-
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('category')}</Text>
-                  <Text>{selectedFeedback.category}</Text>
-                </VStack>
 
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('feedback')}</Text>
