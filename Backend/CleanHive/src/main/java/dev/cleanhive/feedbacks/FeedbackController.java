@@ -19,6 +19,13 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
+    // Endpoint to get all feedbacks
+    @GetMapping
+    public ResponseEntity<List<Feedback>> getAllFeedbacks() {
+        List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
+        return new ResponseEntity<>(feedbacks, HttpStatus.OK);
+    }
+
     // Endpoint to update feedback for a given roomId
     @PostMapping
     public ResponseEntity<?> createFeedback(@RequestBody Feedback feedback) {

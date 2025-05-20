@@ -16,6 +16,11 @@ public class FeedbackService {
         this.feedbackRepository = feedbackRepository;
     }
 
+    // Fetch all feedbacks
+    public List<Feedback> getAllFeedbacks() {
+        return feedbackRepository.findAll();
+    }
+
     // Save feedback
     public Feedback saveFeedback(Feedback feedback) {
         return feedbackRepository.save(feedback);

@@ -84,7 +84,7 @@ public class TasksService {
     
         // RED: If safety issue exists
         if (q3 != null && !q3.equalsIgnoreCase("No")) {
-            return "Red";
+            return "Critical";
         }
     
         // GREEN: Everything perfect
@@ -96,11 +96,11 @@ public class TasksService {
             (q5 != null && (q5.equalsIgnoreCase("Very Satisfied") || q5.equalsIgnoreCase("Satisfied")));
     
         if (isPerfect) {
-            return "Green";
+            return "Normal";
         }
     
         // ORANGE: At least one issue
-        return "Orange";
+        return "Urgent";
     }
     
 }

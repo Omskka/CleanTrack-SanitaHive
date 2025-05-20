@@ -151,13 +151,16 @@ const ReportsScreen = () => {
 
       // Process tasks data - only include completed tasks for the report
       const completedTasks = tasksData.filter((task: Task) => task.done && task.managerId === userID);
-      
+      console.log("feedbacks", feedbacksData);
+
+
       // Fetch status for each task using getTaskStatus API
       const tasksWithStatusPromises = completedTasks.map(async (task: Task) => {
         try {
           // Call the getTaskStatus API to get the task's status
           const statusData = await getTaskStatus(task.taskId);
-          
+          console.log("statusData", statusData);
+
           return {
             ...task,
             submissionTime: new Date(task.endTime), // Using endTime as submission time for demo
@@ -173,31 +176,17 @@ const ReportsScreen = () => {
           };
         }
       });
-      
+
       // Resolve all promises
       const tasksWithStatus = await Promise.all(tasksWithStatusPromises);
-      
+
       // Sort tasks by submission time (newest first)
       const sortedTasks = tasksWithStatus.sort((a: Task, b: Task) => {
         return new Date(b.submissionTime!).getTime() - new Date(a.submissionTime!).getTime();
       });
-      
+
       setTasks(sortedTasks);
-      
-      // Filter feedbacks by rooms managed by the current user
-      const userRooms = roomsData.filter((room: Room) => room.teamId === userID);
-      const userRoomIds = userRooms.map((room: Room) => room.roomId);
-      
-      const relevantFeedbacks = feedbacksData.filter((feedback: Feedback) => 
-        userRoomIds.includes(feedback.roomId)
-      );
-      
-      // Sort feedbacks by submission time (newest first)
-      const sortedFeedbacks = relevantFeedbacks.sort((a: Feedback, b: Feedback) => {
-        return new Date(b.submissionTime).getTime() - new Date(a.submissionTime).getTime();
-      });
-      
-      setFeedbacks(sortedFeedbacks);
+      setFeedbacks(feedbacksData);
       setRooms(roomsData);
       setUsers(usersData);
       setError('');
@@ -217,16 +206,16 @@ const ReportsScreen = () => {
 
   // Filter tasks based on search text, date filter, and status filter
   const filteredTasks = tasks.filter(task => {
-    const matchesSearch = 
-      task.title.toLowerCase().includes(searchText.toLowerCase()) || 
+    const matchesSearch =
+      task.title.toLowerCase().includes(searchText.toLowerCase()) ||
       task.description.toLowerCase().includes(searchText.toLowerCase());
-    
+
     // Date filtering
     let matchesDate = true;
     const submissionDate = new Date(task.submissionTime!);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (dateFilter === 'today') {
       const todayEnd = new Date(today);
       todayEnd.setHours(23, 59, 59, 999);
@@ -253,16 +242,16 @@ const ReportsScreen = () => {
 
   // Filter feedbacks based on search text, date filter, and rating filter
   const filteredFeedbacks = feedbacks.filter(feedback => {
-    const matchesSearch = 
-      feedback.description.toLowerCase().includes(searchText.toLowerCase()) || 
+    const matchesSearch =
+      feedback.description.toLowerCase().includes(searchText.toLowerCase()) ||
       feedback.category.toLowerCase().includes(searchText.toLowerCase());
-    
+
     // Date filtering
     let matchesDate = true;
     const submissionDate = new Date(feedback.submissionTime);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (dateFilter === 'today') {
       const todayEnd = new Date(today);
       todayEnd.setHours(23, 59, 59, 999);
@@ -302,13 +291,13 @@ const ReportsScreen = () => {
   // Status badge component
   const StatusBadge = ({ status }: { status: string }) => {
     let bgColor = Colors.text;
-    
+
     if (status === 'urgent') {
       bgColor = '#FF9800';
     } else if (status === 'critical') {
       bgColor = Colors.error;
     }
-    
+
     return (
       <Badge bg={bgColor} borderRadius="$md" px="$2" py="$1">
         <Text color={Colors.white} fontSize="$xs">
@@ -321,7 +310,7 @@ const ReportsScreen = () => {
   // Rating component
   const RatingDisplay = ({ rating }: { rating: number }) => {
     let bgColor = Colors.text;
-    
+
     if (rating <= 2) {
       bgColor = Colors.error;
     } else if (rating <= 3) {
@@ -331,7 +320,7 @@ const ReportsScreen = () => {
     } else {
       bgColor = '#3F51B5';
     }
-    
+
     return (
       <Badge bg={bgColor} borderRadius="$md" px="$2" py="$1">
         <Text color={Colors.white} fontSize="$xs">
@@ -364,9 +353,9 @@ const ReportsScreen = () => {
               onChangeText={setSearchText}
             />
           </Input>
-          <Button 
-            bg={Colors.text} 
-            rounded="$lg" 
+          <Button
+            bg={Colors.text}
+            rounded="$lg"
             onPress={() => setFilterModalVisible(true)}
           >
             <Icon as={Filter} color={Colors.white} />
@@ -387,7 +376,7 @@ const ReportsScreen = () => {
       >
         {/* Task Submissions Section */}
         <Box px="$4" py="$4">
-          <Pressable 
+          <Pressable
             onPress={() => setExpandedTasks(!expandedTasks)}
             mb="$2"
           >
@@ -395,14 +384,14 @@ const ReportsScreen = () => {
               <Heading size="md" color={Colors.heading}>
                 {i18n.t('taskSubmissions')} ({filteredTasks.length})
               </Heading>
-              <Icon 
-                as={expandedTasks ? ChevronUp : ChevronDown} 
-                size="sm" 
-                color={Colors.text} 
+              <Icon
+                as={expandedTasks ? ChevronUp : ChevronDown}
+                size="sm"
+                color={Colors.text}
               />
             </HStack>
           </Pressable>
-          
+
           {expandedTasks && (
             <VStack space="md">
               {loading && filteredTasks.length === 0 ? (
@@ -424,10 +413,10 @@ const ReportsScreen = () => {
                       borderRadius="$lg"
                       borderLeftWidth={4}
                       borderLeftColor={
-                        task.status === 'critical' 
-                          ? Colors.error 
-                          : task.status === 'urgent' 
-                            ? '#FF9800' 
+                        task.status === 'critical'
+                          ? Colors.error
+                          : task.status === 'urgent'
+                            ? '#FF9800'
                             : Colors.text
                       }
                     >
@@ -437,11 +426,11 @@ const ReportsScreen = () => {
                         </Text>
                         <StatusBadge status={task.status || 'normal'} />
                       </HStack>
-                      
+
                       <Text numberOfLines={2} mb="$2" color={Colors.text}>
                         {task.description}
                       </Text>
-                      
+
                       <HStack justifyContent="space-between" mt="$2">
                         <Text fontSize="$xs" color={Colors.gray}>
                           {i18n.t('submittedBy')}: {getUserNameById(task.employeeId)}
@@ -466,7 +455,7 @@ const ReportsScreen = () => {
 
         {/* Feedback Section */}
         <Box px="$4" py="$4">
-          <Pressable 
+          <Pressable
             onPress={() => setExpandedFeedbacks(!expandedFeedbacks)}
             mb="$2"
           >
@@ -474,14 +463,14 @@ const ReportsScreen = () => {
               <Heading size="md" color={Colors.heading}>
                 {i18n.t('userFeedbacks')} ({filteredFeedbacks.length})
               </Heading>
-              <Icon 
-                as={expandedFeedbacks ? ChevronUp : ChevronDown} 
-                size="sm" 
-                color={Colors.text} 
+              <Icon
+                as={expandedFeedbacks ? ChevronUp : ChevronDown}
+                size="sm"
+                color={Colors.text}
               />
             </HStack>
           </Pressable>
-          
+
           {expandedFeedbacks && (
             <VStack space="md">
               {loading && filteredFeedbacks.length === 0 ? (
@@ -503,10 +492,10 @@ const ReportsScreen = () => {
                       borderRadius="$lg"
                       borderLeftWidth={4}
                       borderLeftColor={
-                        feedback.rating <= 2 
-                          ? Colors.error 
-                          : feedback.rating <= 3 
-                            ? '#FF9800' 
+                        feedback.rating <= 2
+                          ? Colors.error
+                          : feedback.rating <= 3
+                            ? '#FF9800'
                             : feedback.rating <= 4
                               ? '#4CAF50'
                               : '#3F51B5'
@@ -518,11 +507,11 @@ const ReportsScreen = () => {
                         </Text>
                         <RatingDisplay rating={feedback.rating} />
                       </HStack>
-                      
+
                       <Text numberOfLines={2} mb="$2" color={Colors.text}>
                         {feedback.description}
                       </Text>
-                      
+
                       <HStack justifyContent="flex-end" mt="$2">
                         <Text fontSize="$xs" color={Colors.gray}>
                           {formatDate(feedback.submissionTime)}
@@ -548,7 +537,7 @@ const ReportsScreen = () => {
           <ModalHeader>
             <Heading size="md">{i18n.t('filterReports')}</Heading>
           </ModalHeader>
-          
+
           <ModalBody>
             <VStack space="md">
               {/* Date Filter */}
@@ -577,7 +566,7 @@ const ReportsScreen = () => {
                   </SelectPortal>
                 </Select>
               </Box>
-              
+
               {/* Status Filter */}
               <Box>
                 <Text fontWeight="$medium" mb="$2">{i18n.t('statusFilter')}</Text>
@@ -604,7 +593,7 @@ const ReportsScreen = () => {
                   </SelectPortal>
                 </Select>
               </Box>
-              
+
               {/* Rating Filter */}
               <Box>
                 <Text fontWeight="$medium" mb="$2">{i18n.t('ratingFilter')}</Text>
@@ -635,11 +624,11 @@ const ReportsScreen = () => {
               </Box>
             </VStack>
           </ModalBody>
-          
+
           <ModalFooter>
-            <Button 
-              variant="outline" 
-              mr="$3" 
+            <Button
+              variant="outline"
+              mr="$3"
               onPress={() => {
                 setDateFilter('all');
                 setStatusFilter('all');
@@ -648,8 +637,8 @@ const ReportsScreen = () => {
             >
               <Text>{i18n.t('resetFilters')}</Text>
             </Button>
-            <Button 
-              bg={Colors.text} 
+            <Button
+              bg={Colors.text}
               onPress={() => setFilterModalVisible(false)}
             >
               <Text color={Colors.white}>{i18n.t('applyFilters')}</Text>
@@ -665,7 +654,7 @@ const ReportsScreen = () => {
           <ModalHeader>
             <Heading size="md">{i18n.t('taskDetails')}</Heading>
           </ModalHeader>
-          
+
           <ModalBody>
             {selectedTask && (
               <VStack space="md">
@@ -673,36 +662,36 @@ const ReportsScreen = () => {
                   <Text fontWeight="$bold" fontSize="$lg">{selectedTask.title}</Text>
                   <StatusBadge status={selectedTask.status || 'normal'} />
                 </HStack>
-                
+
                 <Divider />
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('description')}</Text>
                   <Text>{selectedTask.description}</Text>
                 </VStack>
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('assignedTo')}</Text>
                   <Text>{getUserNameById(selectedTask.employeeId)}</Text>
                 </VStack>
-                
+
                 <HStack justifyContent="space-between">
                   <VStack space="sm">
                     <Text fontWeight="$medium">{i18n.t('startTime')}</Text>
                     <Text>{formatDate(selectedTask.startTime)}</Text>
                   </VStack>
-                  
+
                   <VStack space="sm">
                     <Text fontWeight="$medium">{i18n.t('endTime')}</Text>
                     <Text>{formatDate(selectedTask.endTime)}</Text>
                   </VStack>
                 </HStack>
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('submissionTime')}</Text>
                   <Text>{formatDate(selectedTask.submissionTime!)}</Text>
                 </VStack>
-                
+
                 {/* Questionnaire responses - Just placeholders for now */}
                 {selectedTask.questionnaireOne && (
                   <VStack space="sm">
@@ -719,10 +708,10 @@ const ReportsScreen = () => {
               </VStack>
             )}
           </ModalBody>
-          
+
           <ModalFooter>
-            <Button 
-              bg={Colors.text} 
+            <Button
+              bg={Colors.text}
               onPress={() => setTaskModalVisible(false)}
             >
               <Text color={Colors.white}>{i18n.t('close')}</Text>
@@ -738,7 +727,7 @@ const ReportsScreen = () => {
           <ModalHeader>
             <Heading size="md">{i18n.t('feedbackDetails')}</Heading>
           </ModalHeader>
-          
+
           <ModalBody>
             {selectedFeedback && (
               <VStack space="md">
@@ -748,19 +737,19 @@ const ReportsScreen = () => {
                   </Text>
                   <RatingDisplay rating={selectedFeedback.rating} />
                 </HStack>
-                
+
                 <Divider />
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('category')}</Text>
                   <Text>{selectedFeedback.category}</Text>
                 </VStack>
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('feedback')}</Text>
                   <Text>{selectedFeedback.description}</Text>
                 </VStack>
-                
+
                 <VStack space="sm">
                   <Text fontWeight="$medium">{i18n.t('submissionTime')}</Text>
                   <Text>{formatDate(selectedFeedback.submissionTime)}</Text>
@@ -768,10 +757,10 @@ const ReportsScreen = () => {
               </VStack>
             )}
           </ModalBody>
-          
+
           <ModalFooter>
-            <Button 
-              bg={Colors.text} 
+            <Button
+              bg={Colors.text}
               onPress={() => setFeedbackModalVisible(false)}
             >
               <Text color={Colors.white}>{i18n.t('close')}</Text>

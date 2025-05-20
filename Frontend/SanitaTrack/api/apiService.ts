@@ -136,8 +136,14 @@ export const createTeam = async (team: {
   return response.data;
 };
 
+// Create feedbacks
 export const createFeedback = async (data: any) => {
   const response = await axiosInstance.post(`/feedbacks`, data);
   return response.data;
 };
 
+// Get feedbacks by task ID
+export const fetchFeedbacks = async () => {
+  const response = await axiosInstance.get(`/feedbacks`);
+  return response.data;
+};
