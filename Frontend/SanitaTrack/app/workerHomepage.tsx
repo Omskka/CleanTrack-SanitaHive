@@ -75,8 +75,6 @@ const WorkerHomepage = () => {
   const [roomCondition, setRoomCondition] = useState<string>('');
   const [otherDescription, setOtherDescription] = useState('');
   const [yesDescription, setYesDescription] = useState('');
-  const [taskStatusColor, setTaskStatusColor] = useState<string | null>(null);
-  const [taskStatusLabel, setTaskStatusLabel] = useState<string | null>(null);
 
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -292,15 +290,6 @@ const WorkerHomepage = () => {
       setTasks(tasks.map(task =>
         task.taskId === taskId ? updated : task
       ));
-
-      // ✅ Use Axios to get status
-      const status = await getTaskStatus(taskId);
-      console.log("Task status:", status);
-
-      const color = status === "Green" ? "green" : status === "Orange" ? "orange" : "red";
-
-      setTaskStatusColor(color);99
-      setTaskStatusLabel(status);
 
     } catch (err) {
       console.error('Failed to update task with questionnaire:', err);
