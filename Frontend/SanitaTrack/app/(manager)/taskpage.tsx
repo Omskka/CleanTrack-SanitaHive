@@ -543,6 +543,7 @@ const TaskManagerScreen = () => {
 
       {/* Task Edit/Create Modal */}
       <Modal isOpen={modalVisible} onClose={handleCloseModal} avoidKeyboard>
+        <Modal.Backdrop />
         <Modal.Content maxWidth="90%">
           <Modal.CloseButton />
           <Modal.Header>
