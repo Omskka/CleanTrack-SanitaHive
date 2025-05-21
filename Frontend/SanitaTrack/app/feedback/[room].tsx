@@ -17,7 +17,7 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import { createFeedback } from '@/api/apiService';
 import { useLocalSearchParams } from 'expo-router';
 
-const categories = ['suggestion', 'smell', 'equipment', 'overall'];
+const categories = [i18n.t('suggestion'), i18n.t('smell'), i18n.t('equipment'), i18n.t('overall')];
 
 export default function FeedbackScreen() {
   const [rating, setRating] = useState(0); // Rating state (1 to 5)
@@ -42,7 +42,7 @@ export default function FeedbackScreen() {
   const handleSubmit = async () => {
     // Ensure roomId is available
     if (!roomId) {
-      alert('Room ID is required to submit feedback');
+      alert(i18n.t('roomIdError'));
       return;
     }
 
@@ -61,11 +61,11 @@ export default function FeedbackScreen() {
       const updated = await createFeedback(payload);  // API call to save feedback
       console.log('Feedback saved successfully:', updated);
       // Optionally reset the form or show a success message
-      alert('Feedback submitted successfully!');
+      alert(i18n.t('feedbackSuccess'));
       // Reset form or navigate to another page if necessary
     } catch (err: any) {
       console.error('Error saving feedback:', err);
-      alert(`Failed to save feedback: ${err.message}`);
+      alert(`${i18n.t('feedbackError')}: ${err.message}`);
     }
   };
 

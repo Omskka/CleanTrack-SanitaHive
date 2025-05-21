@@ -421,7 +421,7 @@ const ReportsScreen = () => {
                       }
                     >
                       <HStack justifyContent="space-between" alignItems="center" mb="$2">
-                        <Text fontWeight="$bold" fontSize="$md" flex={1}>
+                        <Text color={Colors.black} fontWeight="$bold" fontSize="$md" flex={1}>
                           {task.title}
                         </Text>
                         <StatusBadge status={task.status || 'normal'} />
@@ -432,10 +432,10 @@ const ReportsScreen = () => {
                       </Text>
 
                       <HStack justifyContent="space-between" mt="$2">
-                        <Text fontSize="$xs" color={Colors.gray}>
+                        <Text fontSize="$xs">
                           {i18n.t('submittedBy')}: {getUserNameById(task.employeeId)}
                         </Text>
-                        <Text fontSize="$xs" color={Colors.gray}>
+                        <Text fontSize="$xs">
                           {formatDate(task.submissionTime!)}
                         </Text>
                       </HStack>
@@ -502,7 +502,7 @@ const ReportsScreen = () => {
                       }
                     >
                       <HStack justifyContent="space-between" alignItems="center" mb="$2">
-                        <Text fontWeight="$bold" fontSize="$md" flex={1}>
+                        <Text color={Colors.black} fontWeight="$bold" fontSize="$md" flex={1}>
                           {getRoomNameById(feedback.roomId)} - {i18n.t(feedback.category)}
                         </Text>
                         <RatingDisplay rating={feedback.rating} />
@@ -513,7 +513,7 @@ const ReportsScreen = () => {
                       </Text>
 
                       <HStack justifyContent="flex-end" mt="$2">
-                        <Text fontSize="$xs" color={Colors.gray}>
+                        <Text fontSize="$xs">
                           {formatDate(feedback.submissionTime)}
                         </Text>
                       </HStack>
@@ -652,60 +652,60 @@ const ReportsScreen = () => {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="md">{i18n.t('taskDetails')}</Heading>
+            <Heading color={Colors.heading} size="md">{i18n.t('taskDetails')}</Heading>
           </ModalHeader>
 
           <ModalBody>
             {selectedTask && (
               <VStack space="md">
                 <HStack justifyContent="space-between" alignItems="center">
-                  <Text fontWeight="$bold" fontSize="$lg">{selectedTask.title}</Text>
+                  <Text color={Colors.black} fontWeight="$bold" fontSize="$lg">{selectedTask.title}</Text>
                   <StatusBadge status={selectedTask.status || 'normal'} />
                 </HStack>
 
                 <Divider />
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('description')}</Text>
-                  <Text>{selectedTask.description}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('description')}</Text>
+                  <Text color={Colors.black}>{selectedTask.description}</Text>
                 </VStack>
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('assignedTo')}</Text>
-                  <Text>{getUserNameById(selectedTask.employeeId)}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('assignedTo')}</Text>
+                  <Text color={Colors.black}>{getUserNameById(selectedTask.employeeId)}</Text>
                 </VStack>
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('startTime')}</Text>
-                  <Text>{formatDate(selectedTask.startTime)}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('startTime')}</Text>
+                  <Text color={Colors.black}>{formatDate(selectedTask.startTime)}</Text>
                 </VStack>
                 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('endTime')}</Text>
-                  <Text>{formatDate(selectedTask.endTime)}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('endTime')}</Text>
+                  <Text color={Colors.black}>{formatDate(selectedTask.endTime)}</Text>
                 </VStack>
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('submissionTime')}</Text>
-                  <Text>{formatDate(selectedTask.submissionTime!)}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('submissionTime')}</Text>
+                  <Text color={Colors.black}>{formatDate(selectedTask.submissionTime!)}</Text>
                 </VStack>
 
                 {/* Questionnaire responses - Just placeholders for now */}
                 {selectedTask.questionnaireOne && (
                   <VStack space="sm">
-                    <Text fontWeight="$medium">{i18n.t('questionnaire')}</Text>
+                    <Text color={Colors.text} fontWeight="$medium">{i18n.t('questionnaire')}</Text>
                     <VStack space="xs">
                       {[
-                        { key: 'productUsageQuestion', value: selectedTask.questionnaireOne },
-                        { key: 'challengeQuestion', value: selectedTask.questionnaireTwo },
-                        { key: 'safetyQuestion', value: selectedTask.questionnaireThree },
-                        { key: 'roomCondition', value: selectedTask.questionnaireFour },
-                        { key: 'overallSatisfaction', value: selectedTask.questionnaireFive },
+                        { key: 'product', value: selectedTask.questionnaireOne },
+                        { key: 'challenge', value: selectedTask.questionnaireTwo },
+                        { key: 'safety', value: selectedTask.questionnaireThree },
+                        { key: 'condition', value: selectedTask.questionnaireFour },
+                        { key: 'satisfaction', value: selectedTask.questionnaireFive },
                       ].map(
                         ({ key, value }) =>
                           value && (
-                            <Text key={key}>
-                              {i18n.t(key)}: <Text bold>{i18n.t(value)}</Text>
+                            <Text mb="$1" color={Colors.black} key={key}>
+                              {i18n.t(key)}: <Text bold color={Colors.black}>{i18n.t(value)}</Text>
                             </Text>
                           )
                       )}
@@ -732,14 +732,14 @@ const ReportsScreen = () => {
         <ModalBackdrop />
         <ModalContent>
           <ModalHeader>
-            <Heading size="md">{selectedFeedback ? i18n.t(selectedFeedback.category) : ''}</Heading>
+            <Heading color={Colors.heading} size="md">{selectedFeedback ? i18n.t(selectedFeedback.category) : ''}</Heading>
           </ModalHeader>
 
           <ModalBody>
             {selectedFeedback && (
               <VStack space="md">
                 <HStack justifyContent="space-between" alignItems="center">
-                  <Text fontWeight="$bold" fontSize="$lg">
+                  <Text color={Colors.black} fontWeight="$bold" fontSize="$lg">
                     {getRoomNameById(selectedFeedback.roomId)}
                   </Text>
                   <RatingDisplay rating={selectedFeedback.rating} />
@@ -747,14 +747,14 @@ const ReportsScreen = () => {
 
                 <Divider />
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('feedback')}</Text>
-                  <Text>{selectedFeedback.description}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('feedback')}</Text>
+                  <Text color={Colors.black}>{selectedFeedback.description}</Text>
                 </VStack>
 
-                <VStack space="sm">
-                  <Text fontWeight="$medium">{i18n.t('submissionTime')}</Text>
-                  <Text>{formatDate(selectedFeedback.submissionTime)}</Text>
+                <VStack space="xs">
+                  <Text color={Colors.text} fontWeight="$medium">{i18n.t('submissionTime')}</Text>
+                  <Text color={Colors.black}>{formatDate(selectedFeedback.submissionTime)}</Text>
                 </VStack>
               </VStack>
             )}

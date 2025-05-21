@@ -525,29 +525,29 @@ const WorkerHomepage = () => {
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel ml="$1">{i18n.t('lessThanExpected')}</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('less')}</RadioLabel>
                 </Radio>
                 <Radio value="expected" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel ml="$1">{i18n.t('asExpected')}</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('expected')}</RadioLabel>
                 </Radio>
                 <Radio value="more" size="md">
                   <RadioIndicator>
                     <RadioIcon as={CircleIcon} />
                   </RadioIndicator>
-                  <RadioLabel ml="$1">{i18n.t('moreThanExpected')}</RadioLabel>
+                  <RadioLabel ml="$1">{i18n.t('more')}</RadioLabel>
                 </Radio>
               </RadioGroup>
 
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>2. {i18n.t('challengeQuestion')}</Text>
               <VStack space="md">
                 {[
-                  { value: 'equipment', label: i18n.t('lackOfEquipment') },
-                  { value: 'instructions', label: i18n.t('incompleteInstructions') },
-                  { value: 'shortage', label: i18n.t('shortageOfProducts') },
-                  { value: 'time', label: i18n.t('timeConstraints') },
+                  { value: 'equipment', label: i18n.t('equipment') },
+                  { value: 'instructions', label: i18n.t('instructions') },
+                  { value: 'shortage', label: i18n.t('shortage') },
+                  { value: 'time', label: i18n.t('time') },
                   { value: 'other', label: i18n.t('other') },
                 ].map(option => (
                   <Checkbox
