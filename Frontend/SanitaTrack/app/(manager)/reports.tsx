@@ -164,7 +164,7 @@ const ReportsScreen = () => {
           return {
             ...task,
             submissionTime: new Date(task.endTime), // Using endTime as submission time for demo
-            status: statusData // Use the status from the API response
+            statusData: statusData // Use the status from the API response
           };
         } catch (error) {
           console.error(`Error fetching status for task ${task.taskId}:`, error);
@@ -172,7 +172,7 @@ const ReportsScreen = () => {
           return {
             ...task,
             submissionTime: new Date(task.endTime),
-            status: 'Normal' as 'Normal' | 'Urgent' | 'Critical'
+            statusData: 'Normal' as 'Normal' | 'Urgent' | 'Critical'
           };
         }
       });
@@ -235,7 +235,7 @@ const ReportsScreen = () => {
     }
 
     // Status filtering
-    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || task.statusData === statusFilter;
 
     return matchesSearch && matchesDate && matchesStatus;
   });
@@ -289,19 +289,19 @@ const ReportsScreen = () => {
   };
 
   // Status badge component
-  const StatusBadge = ({ status }: { status: string }) => {
+  const StatusBadge = ({ statusData }: { statusData: string }) => {
     let bgColor = Colors.text;
 
-    if (status === 'Urgent') {
+    if (statusData === 'Urgent') {
       bgColor = '#FF9800';
-    } else if (status === 'Critical') {
+    } else if (statusData === 'Critical') {
       bgColor = Colors.error;
     }
 
     return (
       <Badge bg={bgColor} borderRadius="$md" px="$2" py="$1">
         <Text color={Colors.white} fontSize="$xs">
-          {status.toUpperCase()}
+          {statusData.toUpperCase()}
         </Text>
       </Badge>
     );
@@ -413,9 +413,9 @@ const ReportsScreen = () => {
                       borderRadius="$lg"
                       borderLeftWidth={4}
                       borderLeftColor={
-                        task.status === 'Critical'
+                        task.statusData === 'Critical'
                           ? Colors.error
-                          : task.status === 'Urgent'
+                          : task.statusData === 'Urgent'
                             ? '#FF9800'
                             : Colors.text
                       }
@@ -424,7 +424,7 @@ const ReportsScreen = () => {
                         <Text color={Colors.black} fontWeight="$bold" fontSize="$md" flex={1}>
                           {task.title}
                         </Text>
-                        <StatusBadge status={task.status || 'Normal'} />
+                        <StatusBadge statusData={task.statusData || 'Normal'} />
                       </HStack>
 
                       <Text numberOfLines={2} mb="$2" color={Colors.text}>
@@ -660,7 +660,7 @@ const ReportsScreen = () => {
               <VStack space="md">
                 <HStack justifyContent="space-between" alignItems="center">
                   <Text color={Colors.black} fontWeight="$bold" fontSize="$lg">{selectedTask.title}</Text>
-                  <StatusBadge status={selectedTask.status || 'Normal'} />
+                  <StatusBadge statusData={selectedTask.statusData || 'Normal'} />
                 </HStack>
 
                 <Divider />
