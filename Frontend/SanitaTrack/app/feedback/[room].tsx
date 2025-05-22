@@ -130,7 +130,7 @@ export default function FeedbackScreen() {
                 mb="$2"
               >
                 <Text color={selectedCategory === cat ? Colors.text : Colors.black}>
-                  {i18n.t(`category.${cat}`)}
+                  {i18n.t(`${cat.toLocaleLowerCase()}`)}
                 </Text>
               </Pressable>
             ))}
