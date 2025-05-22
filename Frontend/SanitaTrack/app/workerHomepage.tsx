@@ -278,16 +278,20 @@ const WorkerHomepage = () => {
       questionnaireThree: string;
       questionnaireFour: string;
       questionnaireFive: string;
-      imageUrl: string;  
+      imageUrl?: string; // make optional
     }
   ) => {
     try {
       const existingTask = tasks.find(task => task.taskId === taskId);
       if (!existingTask) throw new Error("Task not found in local state");
 
+      // Use fallback imageUrl if not provided
+      const imageUrlToUse = updatedData.imageUrl || existingTask.imageUrl || '';
+      console.log('Using imageUrl for update:', imageUrlToUse);
       const updatedTask = {
         ...existingTask,
         ...updatedData,
+        imageUrl: imageUrlToUse, // ensure imageUrl always preserved
         done: true,
       };
 

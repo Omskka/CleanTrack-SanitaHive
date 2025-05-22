@@ -1,5 +1,7 @@
 import axiosInstance from './axiosInstance';
 import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Permissions from 'expo-permissions';
 import mime from 'mime';
 
 export const login = async (phoneNumber: string, password: string) => {
@@ -159,7 +161,7 @@ export const uploadImage = async (fileUri: string) => {
     uri: fileUri,
     name: 'upload.jpg',
     type: mimeType,
-  } as any); // 'as any' is a known workaround for FormData in React Native
+  } as any);
 
   const response = await axiosInstance.post('/file/upload', formData, {
     headers: {
@@ -167,5 +169,43 @@ export const uploadImage = async (fileUri: string) => {
     },
   });
 
-  return response.data;
+  console.log('Raw upload response:', response.data); // Debug log
+
+  // If the response is just a message like "File uploaded : filename.jpg"
+  const message = response.data as string;
+  const filename = message.split(':').pop()?.trim();
+
+  // Construct full URL manually if needed
+  const baseUrl = `https://cleanhivebucket.s3.eu-north-1.amazonaws.com/${filename}`; // Replace with your actual base path
+  return {
+    url: `${baseUrl}${filename}`,
+  };
 };
+
+export const downloadImage = async (fileUrl: string) => {
+  try {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access media library is required!');
+      return;
+    }
+
+    const fileName = fileUrl.split('/').pop() ?? 'downloaded-image.jpg';
+    const fileUri = FileSystem.documentDirectory! + fileName;
+
+    const downloadResumable = FileSystem.createDownloadResumable(fileUrl, fileUri);
+    const result = await downloadResumable.downloadAsync();
+
+    if (!result) {
+      alert('Failed to download file');
+      return;
+    }
+
+    await MediaLibrary.saveToLibraryAsync(result.uri);
+    alert('Image downloaded to gallery!');
+  } catch (error) {
+    console.error('Download failed:', error);
+    alert('Download failed!');
+  }
+};
+

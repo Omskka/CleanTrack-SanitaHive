@@ -38,7 +38,7 @@ import { RefreshControl } from 'react-native';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 // Import API services (replace with your actual API services)
-import { fetchTasks, fetchFeedbacks, fetchRooms, fetchAllUsers, getTaskStatus } from '@/api/apiService';
+import { fetchTasks, fetchFeedbacks, fetchRooms, fetchAllUsers, getTaskStatus, downloadImage } from '@/api/apiService';
 
 // Define interfaces
 interface Task {
@@ -679,7 +679,7 @@ const ReportsScreen = () => {
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('startTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedTask.startTime)}</Text>
                 </VStack>
-                
+
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('endTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedTask.endTime)}</Text>
@@ -710,10 +710,21 @@ const ReportsScreen = () => {
                           )
                       )}
                     </VStack>
+
+                    {/* Download Button here */}
+                    <Button
+                      mt="$3"
+                      onPress={() => {
+                        downloadImage(selectedTask.imageUrl); 
+                      }}
+                    >
+                      <Text color={Colors.white}>Download Image</Text>
+                    </Button>
                   </VStack>
                 )}
               </VStack>
             )}
+
           </ModalBody>
 
           <ModalFooter>
