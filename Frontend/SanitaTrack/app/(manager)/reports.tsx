@@ -58,7 +58,7 @@ interface Task {
   questionnaireFive: string;
   done: boolean;
   submissionTime?: Date;
-  status?: 'normal' | 'urgent' | 'critical';
+  statusData?: 'Normal' | 'Urgent' | 'Critical';
 }
 
 interface Feedback {
@@ -164,7 +164,7 @@ const ReportsScreen = () => {
           return {
             ...task,
             submissionTime: new Date(task.endTime), // Using endTime as submission time for demo
-            status: statusData.status // Use the status from the API response
+            status: statusData // Use the status from the API response
           };
         } catch (error) {
           console.error(`Error fetching status for task ${task.taskId}:`, error);
@@ -172,7 +172,7 @@ const ReportsScreen = () => {
           return {
             ...task,
             submissionTime: new Date(task.endTime),
-            status: 'normal' as 'normal' | 'urgent' | 'critical'
+            status: 'Normal' as 'Normal' | 'Urgent' | 'Critical'
           };
         }
       });
@@ -292,9 +292,9 @@ const ReportsScreen = () => {
   const StatusBadge = ({ status }: { status: string }) => {
     let bgColor = Colors.text;
 
-    if (status === 'urgent') {
+    if (status === 'Urgent') {
       bgColor = '#FF9800';
-    } else if (status === 'critical') {
+    } else if (status === 'Critical') {
       bgColor = Colors.error;
     }
 
@@ -413,9 +413,9 @@ const ReportsScreen = () => {
                       borderRadius="$lg"
                       borderLeftWidth={4}
                       borderLeftColor={
-                        task.status === 'critical'
+                        task.status === 'Critical'
                           ? Colors.error
-                          : task.status === 'urgent'
+                          : task.status === 'Urgent'
                             ? '#FF9800'
                             : Colors.text
                       }
@@ -424,7 +424,7 @@ const ReportsScreen = () => {
                         <Text color={Colors.black} fontWeight="$bold" fontSize="$md" flex={1}>
                           {task.title}
                         </Text>
-                        <StatusBadge status={task.status || 'normal'} />
+                        <StatusBadge status={task.status || 'Normal'} />
                       </HStack>
 
                       <Text numberOfLines={2} mb="$2" color={Colors.text}>
@@ -586,9 +586,9 @@ const ReportsScreen = () => {
                         <SelectDragIndicator />
                       </SelectDragIndicatorWrapper>
                       <SelectItem label={i18n.t('all')} value="all" />
-                      <SelectItem label={i18n.t('normal')} value="normal" />
-                      <SelectItem label={i18n.t('urgent')} value="urgent" />
-                      <SelectItem label={i18n.t('critical')} value="critical" />
+                      <SelectItem label={i18n.t('normal')} value="Normal" />
+                      <SelectItem label={i18n.t('urgent')} value="Urgent" />
+                      <SelectItem label={i18n.t('critical')} value="Critical" />
                     </SelectContent>
                   </SelectPortal>
                 </Select>
@@ -660,7 +660,7 @@ const ReportsScreen = () => {
               <VStack space="md">
                 <HStack justifyContent="space-between" alignItems="center">
                   <Text color={Colors.black} fontWeight="$bold" fontSize="$lg">{selectedTask.title}</Text>
-                  <StatusBadge status={selectedTask.status || 'normal'} />
+                  <StatusBadge status={selectedTask.status || 'Normal'} />
                 </HStack>
 
                 <Divider />
