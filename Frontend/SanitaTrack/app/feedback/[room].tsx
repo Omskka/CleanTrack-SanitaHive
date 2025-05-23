@@ -10,12 +10,13 @@ import {
   TextareaInput
 } from '@gluestack-ui/themed';
 import { Star } from 'lucide-react-native';
-import { i18n, getCurrentLanguage } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { createFeedback } from '@/api/apiService';
 import { useLocalSearchParams } from 'expo-router';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Feedback categories for selection
 const categories = [i18n.t('suggestion'), i18n.t('smell'), i18n.t('equipment'), i18n.t('overall')];
@@ -27,23 +28,12 @@ export default function FeedbackScreen() {
   const [selectedCategory, setSelectedCategory] = useState('');
   // State for feedback text input
   const [feedback, setFeedback] = useState('');
-  // State for current language
-  const [language, setLanguage] = useState(getCurrentLanguage());
+  // Language context for i18n
+  const { language, changeLanguage } = useLanguage();
 
   // Use the useRoute hook to get route parameters, including roomId
   const roomId: any = useLocalSearchParams();
   console.log("roomId :", roomId);
-
-  useEffect(() => {
-    // Update language state if the language changes elsewhere in the app
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  // Handler to change the app language
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
 
   // Handle feedback form submission
   const handleSubmit = async () => {

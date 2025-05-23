@@ -34,6 +34,7 @@ import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform, TouchableOpacity, RefreshControl } from 'react-native';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Mock API functions (to be replaced with actual API calls)
 import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask, fetchTeamByManager } from '@/api/apiService';
@@ -98,6 +99,8 @@ const TaskManagerScreen = () => {
   const [error, setError] = useState<string>('');
   // Find the selected member for display in select
   const selectedMember = teamMembers.find(member => member.userId === taskEmployee);
+  // Get current language from context (triggers re-render on language change)
+  const { language } = useLanguage();
 
   // States for task form fields
   const [currentTask, setCurrentTask] = useState<Task | null>(null);

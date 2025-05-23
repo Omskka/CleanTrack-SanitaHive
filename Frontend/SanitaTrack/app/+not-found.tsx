@@ -1,24 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Box, Text, VStack, Pressable, Center } from '@gluestack-ui/themed';
 import { Link } from 'expo-router';
 import { AlertCircle } from 'lucide-react-native';
-import { i18n, getCurrentLanguage } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function NotFoundScreen() {
-  // State to hold the current language
-  const [language, setLanguage] = useState(getCurrentLanguage());
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  // Handler to change the app language
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
+  // Language context for i18n
+  const { language, changeLanguage } = useLanguage();
 
   return (
     <Box flex={1} bg={Colors.background}>
@@ -28,13 +18,13 @@ export default function NotFoundScreen() {
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>
           {i18n.t('notFound') || 'Page Not Found'}
         </Text>
-        
+
         {/* Language Toggle Button in the top right */}
-        <Pressable 
-          position="absolute" 
-          top={30} 
-          right={16} 
-          zIndex={10} 
+        <Pressable
+          position="absolute"
+          top={30}
+          right={16}
+          zIndex={10}
           onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}
         >
           <Text fontWeight="$bold" color={Colors.heading}>
@@ -48,17 +38,17 @@ export default function NotFoundScreen() {
         <VStack space="lg" alignItems="center">
           {/* Warning icon */}
           <AlertCircle size={64} color={Colors.error} />
-          
+
           {/* Not found message */}
           <Text fontSize="$xl" fontWeight="$semibold" color={Colors.heading} textAlign="center">
             {i18n.t('pageNotFound') || 'This is not the page you are looking for.'}
           </Text>
-          
+
           {/* Button to return to home page */}
-          <Box 
-            bg={Colors.tint} 
-            px="$4" 
-            py="$3" 
+          <Box
+            bg={Colors.tint}
+            px="$4"
+            py="$3"
             borderRadius="$lg"
             borderWidth={1}
             borderColor={Colors.text}
