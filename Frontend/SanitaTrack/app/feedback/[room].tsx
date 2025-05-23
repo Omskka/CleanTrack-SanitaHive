@@ -17,12 +17,17 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import { createFeedback } from '@/api/apiService';
 import { useLocalSearchParams } from 'expo-router';
 
+// Feedback categories for selection
 const categories = [i18n.t('suggestion'), i18n.t('smell'), i18n.t('equipment'), i18n.t('overall')];
 
 export default function FeedbackScreen() {
-  const [rating, setRating] = useState(0); // Rating state (1 to 5)
+  // State for star rating (1 to 5)
+  const [rating, setRating] = useState(0);
+  // State for selected feedback category
   const [selectedCategory, setSelectedCategory] = useState('');
+  // State for feedback text input
   const [feedback, setFeedback] = useState('');
+  // State for current language
   const [language, setLanguage] = useState(getCurrentLanguage());
 
   // Use the useRoute hook to get route parameters, including roomId
@@ -30,15 +35,17 @@ export default function FeedbackScreen() {
   console.log("roomId :", roomId);
 
   useEffect(() => {
-    // Update component when language changes
+    // Update language state if the language changes elsewhere in the app
     setLanguage(getCurrentLanguage());
   }, [language]);
 
+  // Handler to change the app language
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
+  // Handle feedback form submission
   const handleSubmit = async () => {
     // Ensure roomId is available
     if (!roomId) {
@@ -46,34 +53,38 @@ export default function FeedbackScreen() {
       return;
     }
 
+    // Generate a unique feedback ID
     const feedbackID = UUID.v4();
+    // Prepare feedback payload to send to backend
     const payload = {
       feedbackId: feedbackID,
-      roomId: roomId.room,  // This should be passed as part of the payload
-      rating,           // Ensure rating is correctly set
-      category: selectedCategory,  // Selected category of the feedback
-      description: feedback, // Feedback content
-      submissionTime: new Date(), // Feedback content
+      roomId: roomId.room,  // Room ID from route params
+      rating,               // Ensure rating is correctly set
+      category: selectedCategory,  // Selected feedback category
+      description: feedback,       // Feedback text
+      submissionTime: new Date(),  // Current time
     };
 
     try {
       console.log('Payload:', payload);
-      const updated = await createFeedback(payload);  // API call to save feedback
+      // Call backend API to save feedback
+      const updated = await createFeedback(payload);
       console.log('Feedback saved successfully:', updated);
       // Optionally reset the form or show a success message
       alert(i18n.t('feedbackSuccess'));
       // Reset form or navigate to another page if necessary
     } catch (err: any) {
+      // Handle errors during feedback submission
       console.error('Error saving feedback:', err);
       alert(`${i18n.t('feedbackError')}: ${err.message}`);
     }
   };
 
-
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header */}
       <Box px="$4" py="$6" bg={Colors.white} position="relative">
+        {/* Feedback page title */}
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>
           {i18n.t('feedbackTitle')}
         </Text>
@@ -92,13 +103,15 @@ export default function FeedbackScreen() {
         </Pressable>
       </Box>
 
-      {/* Content */}
+      {/* Main Content */}
       <VStack px="$4" py="$4" space="md">
+        {/* Star Rating Section */}
         <Box>
           <Text fontSize="$md" fontWeight="$medium" mb="$2" color={Colors.text}>
             {i18n.t('rateExperience')}
           </Text>
           <HStack space="md" mb="$4">
+            {/* Render 5 stars for rating */}
             {[1, 2, 3, 4, 5].map((i) => (
               <Pressable key={i} onPress={() => setRating(i)}>
                 <Star
@@ -111,11 +124,13 @@ export default function FeedbackScreen() {
           </HStack>
         </Box>
 
+        {/* Category Selection Section */}
         <Box>
           <Text fontSize="$md" fontWeight="$medium" mb="$2" color={Colors.text}>
             {i18n.t('selectCategory')}
           </Text>
           <HStack flexWrap="wrap" space="sm" mb="$4">
+            {/* Render category buttons */}
             {categories.map((cat) => (
               <Pressable
                 key={cat}
@@ -137,6 +152,7 @@ export default function FeedbackScreen() {
           </HStack>
         </Box>
 
+        {/* Feedback Textarea Section */}
         <Box>
           <Text fontSize="$md" fontWeight="$medium" mb="$2" color={Colors.text}>
             {i18n.t('yourFeedback')}
@@ -157,6 +173,7 @@ export default function FeedbackScreen() {
           </Textarea>
         </Box>
 
+        {/* Submit Button */}
         <Button
           onPress={handleSubmit}
           bg={Colors.text}

@@ -53,30 +53,48 @@ interface Room {
 }
 
 export default function RoomsScreen() {
+  // State for search input in the room list
   const [searchText, setSearchText] = useState('');
+  // State for modal visibility (add room)
   const [modalVisible, setModalVisible] = useState(false);
+  // State for new room name input
   const [roomName, setRoomName] = useState('');
+  // State for new room ID (generated)
   const [roomId, setRoomId] = useState('');
+  // State for new room's floor/category
   const [roomFloor, setRoomFloor] = useState('');
+  // State for error messages
   const [error, setError] = useState('');
+  // State for loading spinner
   const [loading, setLoading] = useState(false);
+  // State for current user's (manager's) user ID
   const [userID, setUserID] = useState('');
+  // State for all rooms fetched from backend
   const [rooms, setRooms] = useState<Room[]>([]);
 
+  // State for expanded/collapsed categories in the UI
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  // State for new category input
   const [newCategory, setNewCategory] = useState('');
+  // State for toggling between selecting and adding a new category
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  // State for all unique categories (room floors)
   const [categories, setCategories] = useState<string[]>([]);
+  // State for currently selected category in the add room modal
   const [selectedCategory, setSelectedCategory] = useState('');
+  // Language context for i18n
   const { language } = useLanguage();
 
   // QR code sharing state
   const [qrModalVisible, setQrModalVisible] = useState(false);
+  // Value to encode in the QR code (room feedback URL)
   const [qrValue, setQrValue] = useState('');
+  // Name of the room for which QR is generated
   const [currentRoomName, setCurrentRoomName] = useState('');
+  // Ref for capturing QR code image
   const qrCodeRef = useRef<any>(null);
 
-  // Define styles
+  // Define styles for QR code and modal
   const styles = StyleSheet.create({
     qrContainer: {
       backgroundColor: 'white',
@@ -102,6 +120,7 @@ export default function RoomsScreen() {
   });
 
   useEffect(() => {
+    // Fetch user ID from AsyncStorage on mount
     const fetchUserID = async () => {
       try {
         const storedUserID = await AsyncStorage.getItem('userToken');
@@ -117,18 +136,21 @@ export default function RoomsScreen() {
   }, []);
 
   useEffect(() => {
+    // Fetch rooms when userID is available
     if (!userID) return;
     handleFetchRooms();
   }, [userID]);
 
+  // Fetch all rooms for the current team/manager
   const handleFetchRooms = async () => {
     setLoading(true);
     try {
       const roomsData = await fetchRooms();
+      // Only show rooms belonging to this manager's team
       const filteredRooms: Room[] = roomsData.filter((room: Room) => room.teamId === userID);
       setRooms(filteredRooms);
 
-      // Ensure categories are stored as strings
+      // Extract unique categories (room floors) for filtering/grouping
       const uniqueCategories = Array.from(
         new Set(filteredRooms.map(r => String(r.roomFloor)))
       );
@@ -142,7 +164,9 @@ export default function RoomsScreen() {
     }
   };
 
+  // Add a new room to the backend
   const handleAddRoom = async () => {
+    // Use new category if adding, otherwise use selected
     const finalCategory = isAddingCategory ? newCategory.trim() : selectedCategory;
     if (!roomName.trim() || !finalCategory) {
       setError(i18n.t('allFieldsRequired'));
@@ -171,6 +195,7 @@ export default function RoomsScreen() {
     }
   };
 
+  // Delete a room by roomId
   const handleDeleteRoom = async (roomId: string) => {
     setLoading(true);
     try {
@@ -185,13 +210,14 @@ export default function RoomsScreen() {
     }
   };
 
+  // Open QR modal for sharing room feedback link
   const handleShareRoom = (roomId: string, roomName: string) => {
     setQrValue(`https://localhost:8081/feedback/${roomId}`);
     setCurrentRoomName(roomName);
     setQrModalVisible(true);
   };
 
-  // Function to check if sharing is available (for iOS)
+  // Check if sharing is available (iOS/Android)
   const checkSharingAvailability = async () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       return await Sharing.isAvailableAsync();
@@ -199,7 +225,7 @@ export default function RoomsScreen() {
     return false;
   };
 
-  // Function to share QR code using ViewShot and expo-share
+  // Share QR code image using ViewShot and expo-sharing
   const shareQRCode = async () => {
     if (!qrCodeRef.current) {
       alert(i18n.t('qrCodeNotReady'));
@@ -230,6 +256,7 @@ export default function RoomsScreen() {
     }
   };
 
+  // Toggle expand/collapse for a category
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
   };
@@ -249,7 +276,7 @@ export default function RoomsScreen() {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header */}
+      {/* Header with search bar */}
       <Box px="$4" py="$4" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>{i18n.t('roomsTitle')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
@@ -275,7 +302,7 @@ export default function RoomsScreen() {
         </Button>
       </Box>
 
-      {/* Room List with Expandable Cards */}
+      {/* Room List grouped by categories (expandable) */}
       <VStack px="$4" py="$4" space="md">
         {filteredCategories.map((category) => {
           const categoryKey = String(category); // Ensure the category is a string
@@ -294,6 +321,7 @@ export default function RoomsScreen() {
               overflow="hidden"
               bg={Colors.white}
             >
+              {/* Category header (expand/collapse) */}
               <Pressable onPress={() => toggleCategory(categoryKey)}>
                 <Box p="$3">
                   <HStack justifyContent="space-between" alignItems="center" w="100%">
@@ -307,6 +335,7 @@ export default function RoomsScreen() {
                 </Box>
               </Pressable>
 
+              {/* List of rooms in this category */}
               {isExpanded && (
                 <Box px="$3" pb="$3">
                   <VStack space="sm">
@@ -321,6 +350,7 @@ export default function RoomsScreen() {
                         >
                           <Text fontWeight="$medium">{item.roomName}</Text>
                           <HStack space="sm">
+                            {/* Share QR code button */}
                             <Button
                               size="sm"
                               bg={Colors.text}
@@ -329,6 +359,7 @@ export default function RoomsScreen() {
                             >
                               <Icon as={Share2} size="sm" color={Colors.white} />
                             </Button>
+                            {/* Delete room button */}
                             <Button
                               size="sm"
                               bg={Colors.error}
@@ -370,6 +401,7 @@ export default function RoomsScreen() {
                 </FormControlLabelText>
               </FormControlLabel>
 
+              {/* New category input or select existing */}
               {isAddingCategory ? (
                 <HStack space="md" mt="$2" alignItems="center">
                   <Input flex={1}>
@@ -436,6 +468,7 @@ export default function RoomsScreen() {
 
           <ModalFooter>
             <HStack space="sm" justifyContent="flex-end" w="100%">
+              {/* Cancel button */}
               <Button
                 variant="outline"
                 borderColor={Colors.text}
@@ -451,6 +484,7 @@ export default function RoomsScreen() {
               >
                 <Text color={Colors.text}>{i18n.t('cancel')}</Text>
               </Button>
+              {/* Create room button */}
               <Button
                 onPress={handleAddRoom}
                 bg={Colors.text}
@@ -463,7 +497,7 @@ export default function RoomsScreen() {
         </ModalContent>
       </Modal>
 
-      {/* QR Code Modal with ViewShot */}
+      {/* QR Code Modal with ViewShot for sharing */}
       <Modal isOpen={qrModalVisible} onClose={() => setQrModalVisible(false)}>
         <ModalBackdrop />
         <ModalContent>
@@ -476,7 +510,7 @@ export default function RoomsScreen() {
               <Text textAlign="center" fontWeight="$medium">
                 {currentRoomName}
               </Text>
-              {/* The ViewShot component needs to be properly positioned */}
+              {/* QR code image for sharing */}
               <View style={styles.qrContainer}>
                 <ViewShot
                   ref={qrCodeRef}
@@ -503,6 +537,7 @@ export default function RoomsScreen() {
 
           <ModalFooter>
             <HStack space="sm" justifyContent="space-between" w="100%">
+              {/* Share QR code button */}
               <Button
                 onPress={shareQRCode}
                 bg={Colors.text}
@@ -511,6 +546,7 @@ export default function RoomsScreen() {
                 <Icon as={Share2} color={Colors.white} mr={5} />
                 <Text color={Colors.white}>{i18n.t('shareQrCode')}</Text>
               </Button>
+              {/* Close modal button */}
               <Button
                 onPress={() => setQrModalVisible(false)}
                 variant="outline"

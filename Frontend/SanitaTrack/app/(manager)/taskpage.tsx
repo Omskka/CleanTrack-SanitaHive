@@ -39,6 +39,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 // Mock API functions (to be replaced with actual API calls)
 import { fetchTasks, fetchRooms, fetchAllUsers, createTask, updateTask, deleteTask, fetchTeamByManager } from '@/api/apiService';
 
+// Task, Room, and User interfaces for type safety
 interface Task {
   taskId: string;
   managerId: string;
@@ -72,22 +73,36 @@ interface User {
 }
 
 const TaskManagerScreen = () => {
+  // State for currently selected date in the calendar
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // State for all tasks for the selected date
   const [tasks, setTasks] = useState<Task[]>([]);
+  // State for current manager's user ID
   const [userID, setUserID] = useState('');
+  // State to show/hide the calendar
   const [calendarVisible, setCalendarVisible] = useState<boolean>(true);
+  // State to show/hide the task modal (create/edit)
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  // State to show/hide the delete confirmation modal
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState<boolean>(false);
+  // State to determine if creating a new task or editing
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  // State for all rooms fetched from backend
   const [rooms, setRooms] = useState<Room[]>([]);
+  // State for all team members fetched from backend
   const [teamMembers, setTeamMembers] = useState<User[]>([]);
+  // State for loading spinner
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // State for pull-to-refresh
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  // State for error messages
   const [error, setError] = useState<string>('');
+  // Language context for i18n
   const { language, changeLanguage } = useLanguage();
+  // Find the selected member for display in select
   const selectedMember = teamMembers.find(member => member.userId === taskEmployee);
 
-  // For editing / creating tasks
+  // States for task form fields
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
   const [taskTitle, setTaskTitle] = useState<string>('');
   const [taskDescription, setTaskDescription] = useState<string>('');
@@ -96,12 +111,13 @@ const TaskManagerScreen = () => {
   const [taskStartTime, setTaskStartTime] = useState<Date>(new Date());
   const [taskEndTime, setTaskEndTime] = useState<Date>(new Date(Date.now() + 60 * 60 * 1000));
 
-  // For DateTimePicker
+  // States for DateTimePicker
   const [showStartTimePicker, setShowStartTimePicker] = useState<boolean>(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState<boolean>(false);
   const [startTimeMode, setStartTimeMode] = useState<'date' | 'time'>('date');
   const [endTimeMode, setEndTimeMode] = useState<'date' | 'time'>('date');
 
+  // Fetch manager user ID from AsyncStorage on mount
   useEffect(() => {
     const fetchUserID = async () => {
       try {
@@ -128,6 +144,7 @@ const TaskManagerScreen = () => {
     fetchUserID();
   }, []);
 
+  // Fetch tasks, rooms, and team members when userID changes
   useEffect(() => {
     if (userID) {
       fetchTasksData();
@@ -136,12 +153,14 @@ const TaskManagerScreen = () => {
     }
   }, [userID]);
 
+  // Fetch tasks again when selected date changes
   useEffect(() => {
     if (userID) {
       fetchTasksData();
     }
   }, [selectedDate]);
 
+  // Fetch tasks from backend and filter by manager and date
   const fetchTasksData = async () => {
     setIsLoading(true);
     try {
@@ -163,6 +182,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Fetch all rooms from backend
   const fetchRoomsData = async () => {
     try {
       const roomsData = await fetchRooms();
@@ -172,6 +192,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Fetch all team members for this manager from backend
   const fetchTeamMembersData = async () => {
     try {
       console.log('Fetching team members for userID:', userID);
@@ -203,6 +224,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Pull-to-refresh handler
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchTasksData();
@@ -210,10 +232,12 @@ const TaskManagerScreen = () => {
     fetchTeamMembersData();
   }, [userID, selectedDate]);
 
+  // Handler for selecting a day in the calendar
   const onDayPress = (day: DateData) => {
     setSelectedDate(new Date(day.dateString));
   };
 
+  // Show modal for creating or editing a task
   const handleShowModal = (task?: Task) => {
     // Don't allow editing for completed tasks
     if (task && task.done) {
@@ -244,17 +268,21 @@ const TaskManagerScreen = () => {
     setModalVisible(true);
   };
 
+  // Close the create/edit modal and clear errors
   const handleCloseModal = () => {
     setModalVisible(false);
     setError('');
   };
 
+  // Save a new or edited task to the backend
   const handleSaveTask = async () => {
+    // Validate required fields
     if (!taskDescription || !taskRoom || !taskEmployee) {
       setError(i18n.t('allFieldsRequired'));
       return;
     }
 
+    // Validate time logic
     if (taskEndTime <= taskStartTime) {
       setError(i18n.t('endTimeMustBeAfterStart'));
       return;
@@ -262,6 +290,7 @@ const TaskManagerScreen = () => {
 
     setIsLoading(true);
     try {
+      // Prepare task data
       const taskID = isCreating ? UUID.v4() : (currentTask?.taskId || UUID.v4());
       const taskData = {
         taskId: taskID,
@@ -282,6 +311,7 @@ const TaskManagerScreen = () => {
         done: currentTask?.done || false
       };
 
+      // Create or update task
       if (isCreating) {
         await createTask(taskData);
       } else if (currentTask) {
@@ -298,6 +328,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Show delete confirmation modal for a task
   const handleShowDeleteModal = (task: Task) => {
     // Don't allow deleting completed tasks
     if (task.done) {
@@ -307,6 +338,7 @@ const TaskManagerScreen = () => {
     setIsDeleteModalVisible(true);
   };
 
+  // Delete a task from the backend
   const handleDeleteTask = async () => {
     if (!currentTask) return;
 
@@ -323,6 +355,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Handle changes from the start time picker
   const handleStartTimeChange = (event: any, selectedDate?: Date) => {
     setShowStartTimePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -340,6 +373,7 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Handle changes from the end time picker
   const handleEndTimeChange = (event: any, selectedDate?: Date) => {
     setShowEndTimePicker(Platform.OS === 'ios');
     if (selectedDate) {
@@ -352,16 +386,19 @@ const TaskManagerScreen = () => {
     }
   };
 
+  // Show the start time picker modal
   const showStartTimePickerModal = (mode: 'date' | 'time') => {
     setStartTimeMode(mode);
     setShowStartTimePicker(true);
   };
 
+  // Show the end time picker modal
   const showEndTimePickerModal = (mode: 'date' | 'time') => {
     setEndTimeMode(mode);
     setShowEndTimePicker(true);
   };
 
+  // Render details for each task in the timeline
   const renderDetail = (rowData: Task) => {
     // Calculate total time
     const startTime = new Date(rowData.startTime);
@@ -424,6 +461,7 @@ const TaskManagerScreen = () => {
     );
   };
 
+  // Format date and time for display in input fields
   const formatDateForDisplay = (date: Date): string => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -507,12 +545,14 @@ const TaskManagerScreen = () => {
             style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
 
+          {/* Show message if no tasks found */}
           {tasks.length === 0 && !isLoading && !refreshing && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
             </Box>
           )}
 
+          {/* Show loading message if refreshing or loading */}
           {(isLoading || refreshing) && tasks.length === 0 && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('loading')}</Text>
@@ -525,6 +565,7 @@ const TaskManagerScreen = () => {
       {/* Footer Actions - Similar to RoomsScreen */}
       <Box bg={Colors.white} px="$4" py="$4">
         <HStack space="md" justifyContent="space-between">
+          {/* Button to open modal for creating a new task */}
           <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => handleShowModal()}>
             <HStack alignItems="center" justifyContent="center" space="sm">
               <Icon as={Plus} color={Colors.white} size="sm" />
@@ -532,6 +573,7 @@ const TaskManagerScreen = () => {
             </HStack>
           </Button>
 
+          {/* Button to toggle calendar visibility */}
           <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
             <HStack alignItems="center" justifyContent="center" space="sm">
               <Icon as={CalendarIcon} color={Colors.white} size="sm" />
@@ -555,6 +597,7 @@ const TaskManagerScreen = () => {
           <Modal.Body>
             {error ? <Text color={Colors.error} mb="$2">{error}</Text> : null}
 
+            {/* Room selection */}
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('selectRoom')}</FormControlLabelText>
@@ -582,6 +625,7 @@ const TaskManagerScreen = () => {
               </Select>
             </FormControl>
 
+            {/* Employee selection */}
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('assignTo')}</FormControlLabelText>
@@ -616,6 +660,7 @@ const TaskManagerScreen = () => {
               </Select>
             </FormControl>
 
+            {/* Task description */}
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('description')}</FormControlLabelText>
@@ -629,6 +674,7 @@ const TaskManagerScreen = () => {
               </Textarea>
             </FormControl>
 
+            {/* Start time picker */}
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('startTime')}</FormControlLabelText>
@@ -640,6 +686,7 @@ const TaskManagerScreen = () => {
               </TouchableOpacity>
             </FormControl>
 
+            {/* End time picker */}
             <FormControl mb="$4">
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('endTime')}</FormControlLabelText>
@@ -651,6 +698,7 @@ const TaskManagerScreen = () => {
               </TouchableOpacity>
             </FormControl>
 
+            {/* DateTimePickers for start and end time */}
             {showStartTimePicker && (
               <DateTimePicker
                 value={taskStartTime}
@@ -672,6 +720,7 @@ const TaskManagerScreen = () => {
             )}
           </Modal.Body>
 
+          {/* Modal footer with cancel/save buttons */}
           <Modal.Footer>
             <Button variant="outline" mr="$3" onPress={handleCloseModal}>
               <Text>{i18n.t('cancel')}</Text>

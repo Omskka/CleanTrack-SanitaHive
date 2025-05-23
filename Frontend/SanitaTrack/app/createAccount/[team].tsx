@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import {
     Box,
     VStack,
@@ -21,28 +21,31 @@ import UUID from 'react-native-uuid';
 import { registerUser } from '@/api/apiService';
 import axiosInstance from '@/api/axiosInstance'; // Ensure axiosInstance is imported
 
-
 export default function CreateAccount() {
-    const [teamCode, setTeamCode] = useState('');
-    const [name, setName] = useState('');
-    const [surname, setSurname] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [language, setLanguage] = useState(getCurrentLanguage());
-    const [loading, setLoading] = useState(false);
+    // State variables for form fields and UI
+    const [teamCode, setTeamCode] = useState(''); // Team code entered by user
+    const [name, setName] = useState(''); // User's first name
+    const [surname, setSurname] = useState(''); // User's last name
+    const [phone, setPhone] = useState(''); // User's phone number
+    const [password, setPassword] = useState(''); // User's password
+    const [error, setError] = useState(''); // Error message to display
+    const [language, setLanguage] = useState(getCurrentLanguage()); // Current language
+    const [loading, setLoading] = useState(false); // Loading state for async actions
 
     useEffect(() => {
-        // Update component when language changes
+        // Update language state if the language changes elsewhere in the app
         setLanguage(getCurrentLanguage());
     }, [language]);
 
+    // Handler to change the app language
     const changeLanguage = (newLanguage: string) => {
         setLanguage(newLanguage);
         i18n.locale = newLanguage;
     };
 
+    // Main registration handler for the form
     const handleRegister = async () => {
+        // Validate all fields before proceeding
         if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim() || !teamCode.trim()) {
             setError(i18n.t('allFieldsRequired'));
             return;
@@ -51,52 +54,65 @@ export default function CreateAccount() {
         setLoading(true);
 
         try {
+            // 1. Generate a unique user ID for the new user
             const userId = UUID.v4();
 
-            // 2. Register the user (your registerUser function handles this)
+            // 2. Prepare the new user object to send to the backend
             const newUser = {
                 userId,
                 name: name.trim(),
                 surname: surname.trim(),
                 phoneNumber: phone.trim(),
                 password: password.trim(),
-                isManager: false,
+                isManager: false, // This is a regular user, not a manager
                 lang: language,
             };
 
+            // 3. Register the user in the backend (creates the user)
             const userData = await registerUser(newUser);
 
-            // 1. Fetch the team using the /by-teamcode/{teamCode} endpoint
+            // 4. Fetch the team info using the provided team code
+            //    This checks if the team exists and gets its managerId
             const teamResponse = await fetch(`http://10.0.2.2:8080/api/v1/teams/by-teamcode/${teamCode}`);
             const teamData = await teamResponse.json();
 
+            // 5. If the team code is invalid or the team does not have a manager, show an error
             if (!teamResponse.ok || !teamData || !teamData.managerId) {
                 setError(i18n.t('invalidTeamCode'));
                 setLoading(false);
                 return;
             }
 
-            // 3. Update the team: Add the new user's ID to the employeeId array
-            const updateResponse = await fetch(`http://10.0.2.2:8080/api/v1/teams/add-employee/${teamData.managerId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ employeeId: userId }),
-            });
+            // 6. Add the new user's ID to the employee list of the team
+            //    This updates the team by sending the new employeeId to the backend
+            const updateResponse = await fetch(
+                `http://10.0.2.2:8080/api/v1/teams/add-employee/${teamData.managerId}`,
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employeeId: userId }),
+                }
+            );
 
             console.log('Response status:', updateResponse.status);
 
+            // 7. If updating the team fails, show an error
             if (!updateResponse.ok) {
                 throw new Error(i18n.t('teamUpdateFailed'));
             }
 
             console.log('User registered successfully:', userData);
 
+            // 8. Registration successful, clear errors and show success message
             setError('');
             alert(i18n.t('registrationSuccess'));
+
+            // 9. Redirect to login page after a short delay
             setTimeout(() => {
                 router.push('/');
             }, 100);
         } catch (error: any) {
+            // Handle registration errors (e.g., duplicate phone number, network issues)
             console.error('Error during registration:', error);
             if (error.message?.includes('Phone number already exists')) {
                 setError(i18n.t('phoneExists'));
@@ -108,14 +124,13 @@ export default function CreateAccount() {
         }
     };
 
-
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <LinearGradient
                 colors={['#E0F7FF', '#0044CC']}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             >
-                {/* CleanTrack */}
+                {/* App title/logo at the top */}
                 <Text
                     color={Colors.text}
                     fontWeight="bold"
@@ -127,7 +142,7 @@ export default function CreateAccount() {
                     CleanTrack
                 </Text>
 
-                {/* Language Selection Button */}
+                {/* Language Selection Button in the top right */}
                 <Pressable
                     position="absolute"
                     top="$16"
@@ -140,21 +155,23 @@ export default function CreateAccount() {
                     </Text>
                 </Pressable>
 
-                {/* Form Area */}
+                {/* Registration Form Area */}
                 <Box w="90%" maxWidth="$80" p="$7" bg={Colors.white} rounded="$2xl" boxShadow="$4">
+                    {/* Form title */}
                     <Heading size="xl" color={Colors.heading} textAlign="center">
                         {i18n.t('registerTitle')}
                     </Heading>
 
                     <VStack space="lg" mt="$4">
-                        {/* Team Code */}
+                        {/* Team Code Field */}
                         <FormControl isInvalid={!!error && !teamCode.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('teamCode')}</Text>
                             </FormControlLabel>
-
                             <Input>
-                                <InputField fontSize="$sm" placeholder={i18n.t('teamCodePlaceholder')}
+                                <InputField
+                                    fontSize="$sm"
+                                    placeholder={i18n.t('teamCodePlaceholder')}
                                     value={teamCode}
                                     onChangeText={(text) => {
                                         setTeamCode(text);
@@ -162,21 +179,23 @@ export default function CreateAccount() {
                                     }}
                                 />
                             </Input>
-
+                            {/* Show error if team code is missing */}
                             {!!error && !teamCode.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                                     <Text color={Colors.error} fontSize="$xs">{i18n.t('enterTeamCode')}</Text>
                                 </FormControlError>
                             )}
                         </FormControl>
-                        {/* Name */}
+
+                        {/* Name Field */}
                         <FormControl isInvalid={!!error && !name.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('name')}</Text>
                             </FormControlLabel>
-
                             <Input>
-                                <InputField fontSize="$sm" placeholder={i18n.t('namePlaceholder')}
+                                <InputField
+                                    fontSize="$sm"
+                                    placeholder={i18n.t('namePlaceholder')}
                                     value={name}
                                     onChangeText={(text) => {
                                         setName(text);
@@ -184,7 +203,7 @@ export default function CreateAccount() {
                                     }}
                                 />
                             </Input>
-
+                            {/* Show error if name is missing */}
                             {!!error && !name.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                                     <Text color={Colors.error} fontSize="$xs">{i18n.t('enterName')}</Text>
@@ -192,14 +211,15 @@ export default function CreateAccount() {
                             )}
                         </FormControl>
 
-                        {/* Surname */}
+                        {/* Surname Field */}
                         <FormControl isInvalid={!!error && !surname.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('surname')}</Text>
                             </FormControlLabel>
-
                             <Input>
-                                <InputField fontSize="$sm" placeholder={i18n.t('surnamePlaceholder')}
+                                <InputField
+                                    fontSize="$sm"
+                                    placeholder={i18n.t('surnamePlaceholder')}
                                     value={surname}
                                     onChangeText={(text) => {
                                         setSurname(text);
@@ -207,7 +227,7 @@ export default function CreateAccount() {
                                     }}
                                 />
                             </Input>
-
+                            {/* Show error if surname is missing */}
                             {!!error && !surname.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                                     <Text color={Colors.error} fontSize="$xs">{i18n.t('enterSurname')}</Text>
@@ -215,14 +235,16 @@ export default function CreateAccount() {
                             )}
                         </FormControl>
 
-                        {/* Phone */}
+                        {/* Phone Field */}
                         <FormControl isInvalid={!!error && !phone.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('phoneLabel')}</Text>
                             </FormControlLabel>
-
                             <Input>
-                                <InputField fontSize="$sm" keyboardType='phone-pad' placeholder={i18n.t('phonePlaceholder')}
+                                <InputField
+                                    fontSize="$sm"
+                                    keyboardType='phone-pad'
+                                    placeholder={i18n.t('phonePlaceholder')}
                                     value={phone}
                                     onChangeText={(text) => {
                                         setPhone(text);
@@ -230,7 +252,7 @@ export default function CreateAccount() {
                                     }}
                                 />
                             </Input>
-
+                            {/* Show error if phone is missing */}
                             {!!error && !phone.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                                     <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
@@ -238,14 +260,16 @@ export default function CreateAccount() {
                             )}
                         </FormControl>
 
-                        {/* Password */}
+                        {/* Password Field */}
                         <FormControl isInvalid={!!error && !password.trim()}>
                             <FormControlLabel>
                                 <Text>{i18n.t('passwordLabel')}</Text>
                             </FormControlLabel>
-
                             <Input>
-                                <InputField fontSize="$sm" type='password' placeholder={i18n.t('passwordPlaceholder')}
+                                <InputField
+                                    fontSize="$sm"
+                                    type='password'
+                                    placeholder={i18n.t('passwordPlaceholder')}
                                     value={password}
                                     onChangeText={(text) => {
                                         setPassword(text);
@@ -254,7 +278,7 @@ export default function CreateAccount() {
                                     secureTextEntry
                                 />
                             </Input>
-
+                            {/* Show error if password is missing */}
                             {!!error && !password.trim() && (
                                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                                     <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
@@ -263,11 +287,17 @@ export default function CreateAccount() {
                         </FormControl>
 
                         {/* Register Button */}
-                        <Button onPress={handleRegister} bg={Colors.text} mt={"$1.5"} rounded="$xl" alignSelf="center">
+                        <Button
+                            onPress={handleRegister}
+                            bg={Colors.text}
+                            mt={"$1.5"}
+                            rounded="$xl"
+                            alignSelf="center"
+                        >
                             <Text color={Colors.white} fontWeight="bold">{i18n.t('registerButton')}</Text>
                         </Button>
 
-                        {/* Navigate to Login Page */}
+                        {/* Link to Login Page */}
                         <Box alignItems="center">
                             <Text fontSize="$sm">{i18n.t('alreadyHaveAccount')}</Text>
                             <Pressable>

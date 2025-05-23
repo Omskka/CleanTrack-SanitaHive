@@ -39,6 +39,7 @@ import * as FileSystem from 'expo-file-system';
 
 import { fetchAllUsers, fetchTasks, fetchTeam, getTaskStatus, markTaskAsDone, updateTask, uploadImage } from '@/api/apiService';
 
+// Task and User interfaces for type safety
 interface Task {
   taskId: string; // corresponds to `id: ObjectId`
   managerId: string;
@@ -70,6 +71,7 @@ interface UploadedImages {
 }
 
 const WorkerHomepage = () => {
+  // State variables for feedback form fields
   const [productUsage, setProductUsage] = useState<string[]>([]);
   const [challenges, setChallenges] = useState<string[]>([]);
   const [safety, setSafety] = useState<string[]>([]);
@@ -78,18 +80,19 @@ const WorkerHomepage = () => {
   const [otherDescription, setOtherDescription] = useState('');
   const [yesDescription, setYesDescription] = useState('');
 
-  const [refreshing, setRefreshing] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
-  const { language, changeLanguage } = useLanguage();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [userID, setUserID] = useState('');
-  const [uploadedImages, setUploadedImages] = useState<UploadedImages>({});
-  const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
+  // State variables for UI and data
+  const [refreshing, setRefreshing] = useState(false); // For pull-to-refresh
+  const [modalVisible, setModalVisible] = useState(false); // Feedback modal visibility
+  const [currentTaskId, setCurrentTaskId] = useState<string | null>(null); // Task being submitted
+  const { language, changeLanguage } = useLanguage(); // Language context
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date()); // Selected date in calendar
+  const [tasks, setTasks] = useState<Task[]>([]); // All tasks
+  const [userID, setUserID] = useState(''); // Current user ID
+  const [uploadedImages, setUploadedImages] = useState<UploadedImages>({}); // Uploaded images per task
+  const [calendarVisible, setCalendarVisible] = useState<boolean>(false); // Calendar visibility
+  const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString)); // Calendar day select
 
+  // Logout function: removes user token and redirects to login
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userToken'); // Remove user token from AsyncStorage
@@ -99,7 +102,7 @@ const WorkerHomepage = () => {
     }
   };
 
-  // Reset modal form fields
+  // Reset modal form fields to initial state
   const resetForm = () => {
     setProductUsage(['']);
     setChallenges([]);
@@ -112,6 +115,7 @@ const WorkerHomepage = () => {
     setUploadedImages({});
   };
 
+  // Validate feedback form before submission
   const isFormValid = () => {
     if (!productUsage[0] || challenges.length === 0 || !safety[0] || !roomCondition || !satisfaction[0] ||
       !currentTaskId || !uploadedImages[currentTaskId] || uploadedImages[currentTaskId].length < 1 ||
@@ -122,18 +126,21 @@ const WorkerHomepage = () => {
     return true;
   };
 
+  // Remove an uploaded image from a task
   const removeImage = (taskId: string, imageUri: string) => {
     const updatedImages = { ...uploadedImages };
     updatedImages[taskId] = updatedImages[taskId].filter((uri: string) => uri !== imageUri);
     setUploadedImages(updatedImages);
   };
 
+  // Pull-to-refresh handler
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchTasksFromDatabase();
     setRefreshing(false);
   };
 
+  // Fetch user ID from AsyncStorage on mount
   useEffect(() => {
     const fetchUserID = async () => {
       try {
@@ -149,7 +156,7 @@ const WorkerHomepage = () => {
     fetchUserID();
   }, []);
 
-  // Call manager function
+  // Call manager function: finds manager's phone and initiates a call
   const callPhone = async () => {
     try {
       console.log("UserID :", userID);
@@ -161,6 +168,8 @@ const WorkerHomepage = () => {
       }
 
       // Step 1: Fetch the user's team
+
+      // Clean userId for comparison
       const cleanedUserID = userID.replace(/^"(.*)"$/, '$1').trim();
       const team = await fetchTeam(cleanedUserID);
 
@@ -197,6 +206,7 @@ const WorkerHomepage = () => {
 
   const cleanedUserId = userID.replace(/^"+|"+$/g, '').trim();
 
+  // Filter tasks for the selected date and current user
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       const taskDate = new Date(task.startTime).toISOString().split('T')[0];
@@ -210,6 +220,7 @@ const WorkerHomepage = () => {
     });
   }, [tasks, selectedDate, cleanedUserId]);
 
+  // Take a picture and add it to uploaded images for a task
   const takePicture = async (taskId: string) => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -237,6 +248,7 @@ const WorkerHomepage = () => {
     }
   };
 
+  // Merge new tasks with existing tasks, preserving done status
   const mergeTasks = (newTasks: Task[], existingTasks: Task[]): Task[] => {
     const existingTaskMap = new Map(existingTasks.map(task => [task.taskId, task]));
 
@@ -252,6 +264,7 @@ const WorkerHomepage = () => {
     });
   };
 
+  // Fetch tasks from backend and update state
   const fetchTasksFromDatabase = async () => {
     try {
       const response = await fetchTasks(); // Fetch tasks from the backend
@@ -262,13 +275,14 @@ const WorkerHomepage = () => {
     }
   };
 
+  // Fetch tasks when userID changes
   useEffect(() => {
     if (userID) {
       fetchTasksFromDatabase();
     }
   }, [userID]);
 
-  // submitTask function
+  // Submit feedback for a task
   const submitTask = async (
     taskId: string,
     updatedData: {
@@ -304,6 +318,7 @@ const WorkerHomepage = () => {
     }
   };
 
+  // Render details for each task in the timeline
   const renderDetail = (rowData: Task) => {
     // Ensure startTime and endTime are being properly parsed as Date objects
     const startTime = rowData.startTime ? new Date(rowData.startTime) : new Date();
@@ -326,19 +341,22 @@ const WorkerHomepage = () => {
 
     return (
       <Box bg={Colors.white} p="$4" borderRadius="$2xl" shadowColor={Colors.black} shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.5} shadowRadius={4} elevation={2}>
+        {/* Task title and room */}
         <HStack justifyContent="space-between" mb="$2">
           <Text fontSize="$md" fontWeight="$bold" color={Colors.heading}>{rowData.title}</Text>
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
         </HStack>
-
+        {/* Task description and time */}
         <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
         <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
+        {/* If task is done, show completed text, else show image upload and submit button */}
         {rowData.done ? (
           <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
         ) : (
           <>
+            {/* Uploaded images preview */}
             <HStack flexWrap="wrap" mb="$3">
               {uploadedImages[rowData.taskId]?.map((uri, index) => (
                 <Box key={index} position="relative">
@@ -363,7 +381,7 @@ const WorkerHomepage = () => {
                 </Box>
               ))}
             </HStack>
-
+            {/* Submit feedback button */}
             <HStack justifyContent="flex-end" space="md">
               <Button
                 bg={Colors.text}
@@ -385,18 +403,18 @@ const WorkerHomepage = () => {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header - Similar to ManagerHomepage */}
+      {/* Header with welcome, language switch, and logout */}
       <Box px="$4" py="$4" bg={Colors.white}>
         <HStack justifyContent="space-between" alignItems="center">
           <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
-
+          {/* Language switch button */}
           <HStack alignItems='center' space="md">
             <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
               <Text fontWeight="$bold" color={Colors.text}>
                 {language === 'en' ? 'TR' : 'EN'}
               </Text>
             </Pressable>
-
+            {/* Logout button */}
             <Button bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
               <Icon as={LogOut} color={Colors.white} size="md" />
             </Button>
@@ -404,6 +422,7 @@ const WorkerHomepage = () => {
         </HStack>
       </Box>
 
+      {/* Main content scrollable area */}
       <ScrollView
         flex={1}
         refreshControl={
@@ -445,7 +464,7 @@ const WorkerHomepage = () => {
           </Box>
         )}
 
-        {/* Timeline section */}
+        {/* Timeline section for tasks */}
         <Box flex={1} borderRadius="$2xl" mb="$4">
           <Timeline
             data={filteredTasks.map(task => ({
@@ -474,12 +493,14 @@ const WorkerHomepage = () => {
             style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
 
+          {/* Show message if no tasks found */}
           {filteredTasks.length === 0 && !refreshing && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
             </Box>
           )}
 
+          {/* Show loading message if refreshing */}
           {refreshing && filteredTasks.length === 0 && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('loading')}</Text>
@@ -488,16 +509,17 @@ const WorkerHomepage = () => {
         </Box>
       </ScrollView>
 
-      {/* Footer - Similar to ManagerHomepage */}
+      {/* Footer with contact manager and calendar toggle */}
       <Box bg={Colors.white} px="$4" py="$4">
         <HStack space="md" justifyContent="space-between">
+          {/* Contact manager button */}
           <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => callPhone()}>
             <HStack alignItems="center" justifyContent="center" space="sm">
               <Icon as={Phone} color={Colors.white} size="sm" />
               <Text color={Colors.white}>{i18n.t('contactManager')}</Text>
             </HStack>
           </Button>
-
+          {/* Calendar toggle button */}
           <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>
             <HStack alignItems="center" justifyContent="center" space="sm">
               <Icon as={CalendarIcon} color={Colors.white} size="sm" />
@@ -507,7 +529,7 @@ const WorkerHomepage = () => {
         </HStack>
       </Box>
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal for submitting task feedback */}
       <Modal
         isOpen={modalVisible}
         onClose={() => {
@@ -519,10 +541,12 @@ const WorkerHomepage = () => {
         <Modal.Content maxWidth="$96" height="85%">
           <Modal.CloseButton />
           <Modal.Header alignItems="center" justifyContent="center">
+            {/* Modal header with feedback title */}
             <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>{i18n.t('taskFeedback')}</Text>
           </Modal.Header>
           <Modal.Body>
             <VStack space="md">
+              {/* 1. Product Usage Question */}
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>1. {i18n.t('productUsageQuestion')}</Text>
               <RadioGroup value={productUsage[0] || ''} onChange={(value: string) => setProductUsage([value])}>
                 <Radio value="less" size="md">
@@ -545,6 +569,7 @@ const WorkerHomepage = () => {
                 </Radio>
               </RadioGroup>
 
+              {/* 2. Challenge Question */}
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>2. {i18n.t('challengeQuestion')}</Text>
               <VStack space="md">
                 {[
@@ -574,6 +599,8 @@ const WorkerHomepage = () => {
                   </Checkbox>
                 ))}
               </VStack>
+
+              {/* If 'other' is selected, show a textarea for description */}
               {challenges.includes('other') && (
                 <Textarea mt="$2">
                   <TextareaInput
@@ -584,6 +611,8 @@ const WorkerHomepage = () => {
                 </Textarea>
               )}
 
+
+              {/* 3. Safety Question */}
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>3. {i18n.t('safetyQuestion')}</Text>
               <RadioGroup value={safety[0] || ''} onChange={(value: string) => setSafety([value])}>
                 <Radio value="yes" size="md">
@@ -599,6 +628,7 @@ const WorkerHomepage = () => {
                   <RadioLabel ml="$1">{i18n.t('no')}</RadioLabel>
                 </Radio>
               </RadioGroup>
+              {/* If 'yes' is selected, show a textarea for description */}
               {safety[0] === 'yes' && (
                 <Textarea mt="$2">
                   <TextareaInput
@@ -609,6 +639,7 @@ const WorkerHomepage = () => {
                 </Textarea>
               )}
 
+              {/* 4. Room Condition */}
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>4. {i18n.t('roomCondition')}</Text>
               <RadioGroup value={roomCondition} onChange={(value: string) => setRoomCondition(value)}>
                 <Radio value="excellent" size="md">
@@ -647,6 +678,7 @@ const WorkerHomepage = () => {
                 </Radio>
               </RadioGroup>
 
+              {/* 5. Overall Satisfaction */}
               <Text fontWeight="$bold" ml="$2" mt="$1" color={Colors.text}>5. {i18n.t('overallSatisfaction')}</Text>
               <RadioGroup value={satisfaction[0] || ''} onChange={(value: string) => setSatisfaction([value])}>
                 <Radio value="verySatisfied" size="md">
@@ -681,6 +713,7 @@ const WorkerHomepage = () => {
                 </Radio>
               </RadioGroup>
 
+              {/* 6. Upload Image */}
               <Text color={Colors.text} fontWeight="$bold" mt="$1" ml="$2">6. {i18n.t('uploadImage')}</Text>
               <Button
                 bg={Colors.tint}
@@ -691,6 +724,7 @@ const WorkerHomepage = () => {
                 <Text color={Colors.text}>{i18n.t('uploadImage')}</Text>
               </Button>
 
+              {/* Uploaded images preview in modal */}
               <HStack flexWrap="wrap" mt="$3">
                 {currentTaskId &&
                   uploadedImages[currentTaskId]?.map((uri, index) => (
@@ -719,6 +753,7 @@ const WorkerHomepage = () => {
             </VStack>
           </Modal.Body>
 
+          {/* Modal footer with submit button */}
           <Modal.Footer>
             <Button
               onPress={async () => {

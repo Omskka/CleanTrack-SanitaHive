@@ -20,6 +20,7 @@ import { router } from 'expo-router';
 import { LogOut, Calendar as CalendarIcon } from 'lucide-react-native';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
+// Task interface for type safety
 interface Task {
   taskId: string;
   managerId: string;
@@ -33,12 +34,18 @@ interface Task {
 }
 
 const ManagerHomepage = () => {
+  // State for pull-to-refresh
   const [refreshing, setRefreshing] = useState(false);
+  // State for currently selected date in the calendar
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // State for all tasks fetched from the backend
   const [tasks, setTasks] = useState<Task[]>([]);
+  // State to show/hide the calendar
   const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
+  // Language context for i18n
   const { language, changeLanguage } = useLanguage();
 
+  // Logout function: removes user token and redirects to login
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userToken'); // Remove user token from AsyncStorage
@@ -48,6 +55,7 @@ const ManagerHomepage = () => {
     }
   };
 
+  // Pull-to-refresh handler
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchTasksFromDatabase();
@@ -63,10 +71,10 @@ const ManagerHomepage = () => {
     });
   }, [tasks, selectedDate]);
 
-  // This function will be triggered when a day is selected
+  // This function will be triggered when a day is selected in the calendar
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
 
-  // Function to fetch tasks from the backend
+  // Function to fetch tasks from the backend and update state
   const fetchTasksFromDatabase = async () => {
     try {
       const response = await fetchTasks(); // Fetch tasks from the backend
@@ -76,12 +84,14 @@ const ManagerHomepage = () => {
     }
   };
 
+  // Fetch tasks when the component mounts
   useEffect(() => {
-    fetchTasksFromDatabase(); // Fetch tasks when the component mounts
+    fetchTasksFromDatabase();
   }, []);
 
+  // Render details for each task in the timeline
   const renderDetail = (rowData: Task) => {
-    // Ensure startTime and endTime are being properly parsed as Date objects
+    // Parse start and end times
     const startTime = rowData.startTime ? new Date(rowData.startTime) : new Date();
     const endTime = rowData.endTime ? new Date(rowData.endTime) : new Date();
 
@@ -109,6 +119,7 @@ const ManagerHomepage = () => {
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
         <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
+        {/* Show completed status if task is done */}
         {rowData.done ? (
           <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
         ) : null}
@@ -118,18 +129,20 @@ const ManagerHomepage = () => {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header - Similar to TaskManagerScreen */}
+      {/* Header - shows welcome, language switch, and logout */}
       <Box px="$4" py="$4" bg={Colors.white}>
         <HStack justifyContent="space-between" alignItems="center">
           <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
           
           <HStack alignItems='center' space="md">
+            {/* Language switch button */}
             <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
               <Text fontWeight="$bold" color={Colors.text}>
                 {language === 'en' ? 'TR' : 'EN'}
               </Text>
             </Pressable>
 
+            {/* Logout button */}
             <Button bg={Colors.heading} borderRadius="$lg" onPress={() => logout()}>
               <Icon as={LogOut} color={Colors.white} size="md" />
             </Button>
@@ -137,6 +150,7 @@ const ManagerHomepage = () => {
         </HStack>
       </Box>
 
+      {/* Main content scrollable area */}
       <ScrollView
         flex={1}
         mb="$2"
@@ -179,7 +193,7 @@ const ManagerHomepage = () => {
           </Box>
         )}
 
-        {/* Timeline section */}
+        {/* Timeline section for tasks */}
         <Box flex={1} borderRadius="$2xl" mb="$4">
           <Timeline
             data={filteredTasks.map(task => ({
@@ -208,12 +222,14 @@ const ManagerHomepage = () => {
             style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
           
+          {/* Show message if no tasks found */}
           {filteredTasks.length === 0 && !refreshing && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('noTasksFound')}</Text>
             </Box>
           )}
 
+          {/* Show loading message if refreshing */}
           {refreshing && filteredTasks.length === 0 && (
             <Box alignItems="center" py="$6">
               <Text color={Colors.gray}>{i18n.t('loading')}</Text>
@@ -222,7 +238,7 @@ const ManagerHomepage = () => {
         </Box>
       </ScrollView>
 
-      {/* Footer - Similar to TaskManagerScreen */}
+      {/* Footer with calendar toggle button */}
       <Box bg={Colors.white} px="$4" py="$4">
         <HStack space="md" justifyContent="space-between">
           <Button flex={1} bg={Colors.text} borderRadius="$lg" onPress={() => setCalendarVisible(!calendarVisible)}>

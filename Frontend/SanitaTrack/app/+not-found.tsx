@@ -6,6 +6,7 @@ import { i18n, getCurrentLanguage } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 
 export default function NotFoundScreen() {
+  // State to hold the current language
   const [language, setLanguage] = useState(getCurrentLanguage());
 
   useEffect(() => {
@@ -13,6 +14,7 @@ export default function NotFoundScreen() {
     setLanguage(getCurrentLanguage());
   }, [language]);
 
+  // Handler to change the app language
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
@@ -20,13 +22,14 @@ export default function NotFoundScreen() {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header */}
+      {/* Header section with title and language toggle */}
       <Box px="$4" py="$6" bg={Colors.white} position="relative">
+        {/* Not Found title */}
         <Text fontSize="$2xl" fontWeight="$bold" color={Colors.heading}>
           {i18n.t('notFound') || 'Page Not Found'}
         </Text>
         
-        {/* Language Toggle Button */}
+        {/* Language Toggle Button in the top right */}
         <Pressable 
           position="absolute" 
           top={30} 
@@ -40,15 +43,18 @@ export default function NotFoundScreen() {
         </Pressable>
       </Box>
 
-      {/* Content */}
+      {/* Main content area */}
       <Center flex={1} px="$4">
         <VStack space="lg" alignItems="center">
+          {/* Warning icon */}
           <AlertCircle size={64} color={Colors.error} />
           
+          {/* Not found message */}
           <Text fontSize="$xl" fontWeight="$semibold" color={Colors.heading} textAlign="center">
             {i18n.t('pageNotFound') || 'This is not the page you are looking for.'}
           </Text>
           
+          {/* Button to return to home page */}
           <Box 
             bg={Colors.tint} 
             px="$4" 

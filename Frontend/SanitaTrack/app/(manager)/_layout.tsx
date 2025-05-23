@@ -8,13 +8,18 @@ import { i18n } from '@/hooks/i18n';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function TabLayout() {
+  // Get current language from context (triggers re-render on language change)
   const { language } = useLanguage();
 
   return (
+    // Define bottom tab navigation for manager screens
     <Tabs
       screenOptions={{
+        // Set active tab color
         tabBarActiveTintColor: Colors.heading,
+        // Hide the header for all tabs
         headerShown: false,
+        // Set tab bar style for iOS and Android
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
@@ -26,6 +31,7 @@ export default function TabLayout() {
         }),
       }}
     >
+      {/* Home tab */}
       <Tabs.Screen
         name="index"
         options={{
@@ -33,6 +39,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Icon as={House} size='xl' color={Colors.heading} />,
         }}
       />
+      {/* Team tab */}
       <Tabs.Screen
         name="team"
         options={{
@@ -40,6 +47,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Icon as={BookUser} size='xl' color={Colors.heading} />,
         }}
       />
+      {/* Rooms tab */}
       <Tabs.Screen
         name="rooms"
         options={{
@@ -47,6 +55,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Icon as={LayoutGrid} size='xl' color={Colors.heading} />,
         }}
       />
+      {/* Reports tab */}
       <Tabs.Screen
         name="reports"
         options={{
@@ -54,6 +63,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Icon as={ClipboardList} size='xl' color={Colors.heading} />,
         }}
       />
+      {/* Task Page tab */}
       <Tabs.Screen
         name="taskpage"
         options={{

@@ -9,39 +9,47 @@ import { config } from "@gluestack-ui/config"
 import { LanguageProvider } from '@/app/contexts/LanguageContext';
 import { LogBox, BackHandler } from 'react-native';
 
-// the splash screen from auto-hiding before asset loading is complete.
+// Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // Ignore specific warning logs in development
   LogBox.ignoreLogs([
     'VirtualizedLists should never be nested inside plain ScrollViews',
   ]);
 
   useEffect(() => {
+    // Disable hardware back button on Android (prevents navigating back)
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      () => true 
+      () => true // Returning true disables the default back action
     );
     return () => backHandler.remove();
   }, []);
 
+  // Load custom fonts before rendering the app
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   useEffect(() => {
+    // Hide splash screen once fonts are loaded
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
+  // If fonts are not loaded, render nothing (keep splash screen)
   if (!loaded) {
     return null;
   }
 
   return (
+    // Provide language context to the whole app
     <LanguageProvider>
+      {/* Provide Gluestack UI theme to the app */}
       <GluestackUIProvider config={config}>
+        {/* Define navigation stack and hide default headers */}
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />
@@ -52,6 +60,7 @@ export default function RootLayout() {
           <Stack.Screen name="feedback" />
           <Stack.Screen name="+not-found" />
         </Stack>
+        {/* Set status bar style */}
         <StatusBar style="light" />
       </GluestackUIProvider>
     </LanguageProvider>

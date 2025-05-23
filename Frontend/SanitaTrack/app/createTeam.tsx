@@ -13,7 +13,6 @@ import {
   FormControlLabel,
   FormControlError,
   Image,
-  get,
 } from '@gluestack-ui/themed';
 import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
 import { Colors } from '../constants/Colors';
@@ -22,6 +21,7 @@ import UUID from 'react-native-uuid';
 import { registerUser, createTeam } from '@/api/apiService';
 
 export default function CreateTeam() {
+  // State variables for form fields and UI
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [teamName, setTeamName] = useState('');
@@ -36,12 +36,15 @@ export default function CreateTeam() {
     setLanguage(getCurrentLanguage());
   }, [language]);
 
+  // Handler to change the app language
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
   };
 
+  // Main handler for creating a team and registering the manager
   const handleCreateTeam = async () => {
+    // Validate all required fields
     if (!name.trim() || !surname.trim() || !phone.trim() || !password.trim()) {
       setError(i18n.t('allFieldsRequired'));
       return;
@@ -50,7 +53,7 @@ export default function CreateTeam() {
     setLoading(true);
 
     try {
-      // Generate a unique userId
+      // Generate a unique userId for the manager
       const userId = UUID.v4();
 
       // 1️⃣ Register the Manager User
@@ -60,17 +63,20 @@ export default function CreateTeam() {
         surname: surname.trim(),
         phoneNumber: phone.trim(),
         password: password.trim(),
-        isManager: true,
+        isManager: true, // This user is a manager
         lang: language,
       };
 
+      // Call backend API to register the manager user
       const userData = await registerUser(newUser);
       console.log('User Data:', userData);
 
+      // If user registration fails, throw error
       if (!userData || !userData.userId) {
         throw new Error(i18n.t('userCreationError'));
       }
 
+      // Get the manager's userId from the response
       const managerId = userData.userId;
       console.log('--userID--:', managerId);
 
@@ -78,13 +84,14 @@ export default function CreateTeam() {
       const teamData = {
         teamName: teamName.trim(),
         managerId: managerId,
-        employeeId: [],
+        employeeId: [], // Start with an empty employee list
       };
 
+      // Call backend API to create the team
       const teamResult = await createTeam(teamData);
       console.log('Team created successfully:', teamResult);
 
-      // 3️⃣ Success: Show alert and navigate
+      // 3️⃣ Success: Show alert and navigate to login
       setError('');
       alert(i18n.t('teamCreatedSuccess'));
       setTimeout(() => {
@@ -92,6 +99,7 @@ export default function CreateTeam() {
       }, 100);
 
     } catch (error: any) {
+      // Handle errors during registration or team creation
       console.error('Error during team creation flow:', error);
       setError(error.message || i18n.t('networkError'));
     } finally {
@@ -111,7 +119,7 @@ export default function CreateTeam() {
         }}
       >
 
-        {/* Background Image */}
+        {/* Background Image for visual effect */}
         <Image
           source={require('@/assets/images/createTeam-3d-blob.png')}
           alt="Background Image"
@@ -125,7 +133,7 @@ export default function CreateTeam() {
           zIndex={-1}
         />
 
-        {/* Team Create Title */}
+        {/* App Title at the top */}
         <Text
           color={Colors.text}
           fontWeight="bold"
@@ -137,7 +145,7 @@ export default function CreateTeam() {
           CleanTrack
         </Text>
 
-        {/* Language Selection Button */}
+        {/* Language Selection Button in the top right */}
         <Pressable
           position="absolute"
           top="$16"
@@ -150,14 +158,14 @@ export default function CreateTeam() {
           </Text>
         </Pressable>
 
-        {/* Form Area */}
+        {/* Main Form Area */}
         <Box w="90%" maxWidth="$80" p="$7" bg={Colors.white} rounded="$2xl" boxShadow="$4">
           <Heading size="xl" color={Colors.heading} textAlign="center">
             {i18n.t('createTeamTitle')}
           </Heading>
 
           <VStack space="lg" mt="$4">
-            {/* Name */}
+            {/* Name Field */}
             <FormControl isInvalid={!!error && !name.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('name')}</Text>
@@ -175,6 +183,7 @@ export default function CreateTeam() {
                 />
               </Input>
 
+              {/* Show error if name is missing */}
               {!!error && !name.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterName')}</Text>
@@ -182,7 +191,7 @@ export default function CreateTeam() {
               )}
             </FormControl>
 
-            {/* Surname */}
+            {/* Surname Field */}
             <FormControl isInvalid={!!error && !surname.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('surname')}</Text>
@@ -200,6 +209,7 @@ export default function CreateTeam() {
                 />
               </Input>
 
+              {/* Show error if surname is missing */}
               {!!error && !surname.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterSurname')}</Text>
@@ -207,7 +217,7 @@ export default function CreateTeam() {
               )}
             </FormControl>
 
-            {/* Company Name */}
+            {/* Company/Team Name Field */}
             <FormControl isInvalid={!!error && !teamName.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('companyNameLabel')}</Text>
@@ -225,6 +235,7 @@ export default function CreateTeam() {
                 />
               </Input>
 
+              {/* Show error if company/team name is missing */}
               {!!error && !teamName.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterCompanyName')}</Text>
@@ -232,7 +243,7 @@ export default function CreateTeam() {
               )}
             </FormControl>
 
-            {/* Phone */}
+            {/* Phone Field */}
             <FormControl isInvalid={!!error && !phone.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('phoneLabel')}</Text>
@@ -251,6 +262,7 @@ export default function CreateTeam() {
                 />
               </Input>
 
+              {/* Show error if phone is missing */}
               {!!error && !phone.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
@@ -258,7 +270,7 @@ export default function CreateTeam() {
               )}
             </FormControl>
 
-            {/* Password */}
+            {/* Password Field */}
             <FormControl isInvalid={!!error && !password.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('passwordLabel')}</Text>
@@ -278,6 +290,7 @@ export default function CreateTeam() {
                 />
               </Input>
 
+              {/* Show error if password is missing */}
               {!!error && !password.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
@@ -290,7 +303,7 @@ export default function CreateTeam() {
               <Text color={Colors.white} fontWeight="bold">{i18n.t('createTeamButton')}</Text>
             </Button>
 
-            {/* Navigate to Login Page */}
+            {/* Link to Login Page */}
             <Box alignItems="center">
               <Text fontSize="$sm">{i18n.t('alreadyHaveAccount')}</Text>
               <Pressable>

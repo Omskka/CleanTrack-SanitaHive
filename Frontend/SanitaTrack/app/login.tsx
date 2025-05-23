@@ -10,17 +10,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';  // For st
 import { login } from '@/api/apiService';
 
 export default function LoginScreen() {
+  // State variables for form fields and UI
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [language, setLanguage] = useState(getCurrentLanguage());
   const router = useRouter();
 
+  // Handle login button press
   const handleLogin = async () => {
+    // Validate phone input
     if (!phone.trim()) {
       setError(i18n.t('enterPhone'));
       return;
     }
+    // Validate password input
     if (!password.trim()) {
       setError(i18n.t('enterPassword'));
       return;
@@ -28,18 +32,23 @@ export default function LoginScreen() {
 
     setError('');
     try {
+      // Call backend login API
       const result = await login(phone, password);
       console.log('Login successful', result);
 
+      // Get user ID from response
       const userID = result?.userId;
       if (userID) {
+        // Store user token in AsyncStorage
         await AsyncStorage.setItem('userToken', JSON.stringify(userID));
+        // Check if user is a manager and route accordingly
         const isManager = result?.manager;
         isManager ? router.push('/(manager)/team') : router.push('/workerHomepage');
       } else {
         setError(i18n.t('loginFailed'));
       }
     } catch (error) {
+      // Handle login errors
       console.error('Login Failed', error);
       setError(i18n.t('serverError'));
     }
@@ -50,6 +59,7 @@ export default function LoginScreen() {
     setLanguage(getCurrentLanguage());
   }, [language]);
 
+  // Change language handler
   const changeLanguage = (newLanguage: string) => {
     setLanguage(newLanguage);
     i18n.locale = newLanguage;
@@ -59,7 +69,7 @@ export default function LoginScreen() {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={{ flex: 1 }}>
         <Box flex={1} justifyContent="center" alignItems="center" bg={Colors.background} position="relative">
-          {/* Top Image */}
+          {/* Top decorative image */}
           <Image
             source={require('@/assets/images/login-img-top.png')}
             alt="Top Image"
@@ -70,7 +80,7 @@ export default function LoginScreen() {
             resizeMode="contain"
           />
 
-          {/* Bottom Image */}
+          {/* Bottom decorative image */}
           <Image
             source={require('@/assets/images/login-img-bottom.png')}
             alt="Bottom Image"
@@ -81,7 +91,7 @@ export default function LoginScreen() {
             resizeMode="contain"
           />
 
-          {/* CleanTrack */}
+          {/* App Title */}
           <Text
             color={Colors.text}
             fontWeight="bold"
@@ -112,7 +122,7 @@ export default function LoginScreen() {
               {i18n.t('loginTitle')}
             </Heading>
 
-            {/* Phone */}
+            {/* Phone Input Field */}
             <FormControl isInvalid={!!error && !phone.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('phoneLabel')}</Text>
@@ -128,6 +138,7 @@ export default function LoginScreen() {
                 />
               </Input>
 
+              {/* Show error if phone is missing */}
               {!!error && !phone.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPhone')}</Text>
@@ -135,7 +146,7 @@ export default function LoginScreen() {
               )}
             </FormControl>
 
-            {/* Password */}
+            {/* Password Input Field */}
             <FormControl isInvalid={!!error && !password.trim()}>
               <FormControlLabel>
                 <Text>{i18n.t('passwordLabel')}</Text>
@@ -152,6 +163,7 @@ export default function LoginScreen() {
                 />
               </Input>
 
+              {/* Show error if password is missing */}
               {!!error && !password.trim() && (
                 <FormControlError style={{ position: 'absolute', bottom: -14 }}>
                   <Text color={Colors.error} fontSize="$xs">{i18n.t('enterPassword')}</Text>
@@ -164,8 +176,9 @@ export default function LoginScreen() {
               <Text color={Colors.white} fontWeight="bold">{i18n.t('loginButton')}</Text>
             </Button>
 
-            {/* Create Team */}
+            {/* Links to Create Team and Register as Worker */}
             <HStack justifyContent="space-evenly">
+              {/* Manager registration link */}
               <Box alignItems="center" mt="$2">
                 <Text fontSize="$sm">{i18n.t('isManager')}</Text>
                 <Pressable>
@@ -174,6 +187,7 @@ export default function LoginScreen() {
                   </Link>
                 </Pressable>
               </Box>
+              {/* Worker registration link */}
               <Box alignItems="center" mt="$2">
                 <Text fontSize="$sm">{i18n.t('isWorker')}</Text>
                 <Pressable>

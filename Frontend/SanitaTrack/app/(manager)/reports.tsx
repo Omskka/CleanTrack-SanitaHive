@@ -40,7 +40,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 // Import API services (replace with your actual API services)
 import { fetchTasks, fetchFeedbacks, fetchRooms, fetchAllUsers, getTaskStatus, downloadImage } from '@/api/apiService';
 
-// Define interfaces
+// Define interfaces for type safety
 interface Task {
   taskId: string;
   managerId: string;
@@ -85,14 +85,21 @@ interface User {
 }
 
 const ReportsScreen = () => {
+  // State for current manager's user ID
   const [userID, setUserID] = useState('');
+  // State for all completed tasks
   const [tasks, setTasks] = useState<Task[]>([]);
+  // State for all feedbacks
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  // State for all rooms
   const [rooms, setRooms] = useState<Room[]>([]);
+  // State for all users
   const [users, setUsers] = useState<User[]>([]);
+  // Loading and error states
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
+  // Language context for i18n
   const { language } = useLanguage();
 
   // Search and filter states
@@ -108,11 +115,12 @@ const ReportsScreen = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
 
-  // Expandable states
+  // Expand/collapse states for task and feedback sections
   const [expandedTasks, setExpandedTasks] = useState(true);
   const [expandedFeedbacks, setExpandedFeedbacks] = useState(true);
 
   useEffect(() => {
+    // Fetch user ID from AsyncStorage on mount
     const fetchUserID = async () => {
       try {
         const storedUserID = await AsyncStorage.getItem('userToken');
@@ -133,15 +141,17 @@ const ReportsScreen = () => {
   }, []);
 
   useEffect(() => {
+    // Fetch all data when userID is available
     if (userID) {
       fetchData();
     }
   }, [userID]);
 
+  // Fetch all tasks, feedbacks, rooms, and users from backend
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch all necessary data
+      // Fetch all necessary data in parallel
       const [tasksData, feedbacksData, roomsData, usersData] = await Promise.all([
         fetchTasks(),
         fetchFeedbacks(),
@@ -149,10 +159,9 @@ const ReportsScreen = () => {
         fetchAllUsers()
       ]);
 
-      // Process tasks data - only include completed tasks for the report
+      // Only include completed tasks for the report
       const completedTasks = tasksData.filter((task: Task) => task.done && task.managerId === userID);
       console.log("feedbacks", feedbacksData);
-
 
       // Fetch status for each task using getTaskStatus API
       const tasksWithStatusPromises = completedTasks.map(async (task: Task) => {
@@ -177,7 +186,7 @@ const ReportsScreen = () => {
         }
       });
 
-      // Resolve all promises
+      // Wait for all status fetches to complete
       const tasksWithStatus = await Promise.all(tasksWithStatusPromises);
 
       // Sort tasks by submission time (newest first)
@@ -199,6 +208,7 @@ const ReportsScreen = () => {
     }
   };
 
+  // Pull-to-refresh handler
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchData();
@@ -288,16 +298,14 @@ const ReportsScreen = () => {
     return user ? `${user.name} ${user.surname}` : i18n.t('unknownUser');
   };
 
-  // Status badge component
+  // Status badge component for task status
   const StatusBadge = ({ statusData }: { statusData: string }) => {
     let bgColor = Colors.text;
-
     if (statusData === 'Urgent') {
       bgColor = '#FF9800';
     } else if (statusData === 'Critical') {
       bgColor = Colors.error;
     }
-
     return (
       <Badge bg={bgColor} borderRadius="$md" px="$2" py="$1">
         <Text color={Colors.white} fontSize="$xs">
@@ -307,10 +315,9 @@ const ReportsScreen = () => {
     );
   };
 
-  // Rating component
+  // Rating badge component for feedback rating
   const RatingDisplay = ({ rating }: { rating: number }) => {
     let bgColor = Colors.text;
-
     if (rating <= 2) {
       bgColor = Colors.error;
     } else if (rating <= 3) {
@@ -320,7 +327,6 @@ const ReportsScreen = () => {
     } else {
       bgColor = '#3F51B5';
     }
-
     return (
       <Badge bg={bgColor} borderRadius="$md" px="$2" py="$1">
         <Text color={Colors.white} fontSize="$xs">
@@ -338,7 +344,7 @@ const ReportsScreen = () => {
 
   return (
     <Box flex={1} bg={Colors.background}>
-      {/* Header */}
+      {/* Header with search and filter button */}
       <Box px="$4" py="$4" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>{i18n.t('reports')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
@@ -363,6 +369,7 @@ const ReportsScreen = () => {
         </HStack>
       </Box>
 
+      {/* Main scrollable content */}
       <ScrollView
         flex={1}
         refreshControl={
@@ -376,6 +383,7 @@ const ReportsScreen = () => {
       >
         {/* Task Submissions Section */}
         <Box px="$4" py="$4">
+          {/* Expand/collapse header */}
           <Pressable
             onPress={() => setExpandedTasks(!expandedTasks)}
             mb="$2"
@@ -392,6 +400,7 @@ const ReportsScreen = () => {
             </HStack>
           </Pressable>
 
+          {/* Task list */}
           {expandedTasks && (
             <VStack space="md">
               {loading && filteredTasks.length === 0 ? (
@@ -455,6 +464,7 @@ const ReportsScreen = () => {
 
         {/* Feedback Section */}
         <Box px="$4" py="$4">
+          {/* Expand/collapse header */}
           <Pressable
             onPress={() => setExpandedFeedbacks(!expandedFeedbacks)}
             mb="$2"
@@ -471,6 +481,7 @@ const ReportsScreen = () => {
             </HStack>
           </Pressable>
 
+          {/* Feedback list */}
           {expandedFeedbacks && (
             <VStack space="md">
               {loading && filteredFeedbacks.length === 0 ? (
@@ -530,7 +541,7 @@ const ReportsScreen = () => {
         </Box>
       </ScrollView>
 
-      {/* Filter Modal */}
+      {/* Filter Modal for advanced filtering */}
       <Modal isOpen={filterModalVisible} onClose={() => setFilterModalVisible(false)}>
         <ModalBackdrop />
         <ModalContent>
@@ -626,6 +637,7 @@ const ReportsScreen = () => {
           </ModalBody>
 
           <ModalFooter>
+            {/* Reset filters button */}
             <Button
               variant="outline"
               mr="$3"
@@ -637,6 +649,7 @@ const ReportsScreen = () => {
             >
               <Text>{i18n.t('resetFilters')}</Text>
             </Button>
+            {/* Apply filters button */}
             <Button
               bg={Colors.text}
               onPress={() => setFilterModalVisible(false)}
@@ -665,32 +678,37 @@ const ReportsScreen = () => {
 
                 <Divider />
 
+                {/* Task description */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('description')}</Text>
                   <Text color={Colors.black}>{selectedTask.description}</Text>
                 </VStack>
 
+                {/* Assigned employee */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('assignedTo')}</Text>
                   <Text color={Colors.black}>{getUserNameById(selectedTask.employeeId)}</Text>
                 </VStack>
 
+                {/* Start time */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('startTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedTask.startTime)}</Text>
                 </VStack>
 
+                {/* End time */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('endTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedTask.endTime)}</Text>
                 </VStack>
 
+                {/* Submission time */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('submissionTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedTask.submissionTime!)}</Text>
                 </VStack>
 
-                {/* Questionnaire responses - Just placeholders for now */}
+                {/* Questionnaire responses (if available) */}
                 {selectedTask.questionnaireOne && (
                   <VStack space="sm">
                     <Text color={Colors.text} fontWeight="$medium">{i18n.t('questionnaire')}</Text>
@@ -711,7 +729,7 @@ const ReportsScreen = () => {
                       )}
                     </VStack>
 
-                    {/* Download Button here */}
+                    {/* Download image button */}
                     <Button
                       mt="$3"
                       onPress={() => {
@@ -758,11 +776,13 @@ const ReportsScreen = () => {
 
                 <Divider />
 
+                {/* Feedback description */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('feedback')}</Text>
                   <Text color={Colors.black}>{selectedFeedback.description}</Text>
                 </VStack>
 
+                {/* Submission time */}
                 <VStack space="xs">
                   <Text color={Colors.text} fontWeight="$medium">{i18n.t('submissionTime')}</Text>
                   <Text color={Colors.black}>{formatDate(selectedFeedback.submissionTime)}</Text>
