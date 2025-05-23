@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { GluestackUIProvider } from "@gluestack-ui/themed"
 import { config } from "@gluestack-ui/config"
-import { LanguageProvider } from '@/app/contexts/LanguageContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { LogBox, BackHandler } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete

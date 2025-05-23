@@ -42,7 +42,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { Platform, View, StyleSheet } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import ViewShot from 'react-native-view-shot';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Room {
   roomId: string;

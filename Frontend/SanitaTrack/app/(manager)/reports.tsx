@@ -35,7 +35,7 @@ import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RefreshControl } from 'react-native';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Import API services (replace with your actual API services)
 import { fetchTasks, fetchFeedbacks, fetchRooms, fetchAllUsers, getTaskStatus, downloadImage } from '@/api/apiService';

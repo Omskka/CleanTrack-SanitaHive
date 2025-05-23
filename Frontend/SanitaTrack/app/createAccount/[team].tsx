@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import {
     Box,
@@ -14,12 +14,13 @@ import {
     FormControlError,
 } from '@gluestack-ui/themed';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
+import { i18n } from '@/hooks/i18n';  // For language support
 import { Link, router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import UUID from 'react-native-uuid';
 import { registerUser } from '@/api/apiService';
 import axiosInstance from '@/api/axiosInstance'; // Ensure axiosInstance is imported
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CreateAccount() {
     // State variables for form fields and UI
@@ -29,19 +30,8 @@ export default function CreateAccount() {
     const [phone, setPhone] = useState(''); // User's phone number
     const [password, setPassword] = useState(''); // User's password
     const [error, setError] = useState(''); // Error message to display
-    const [language, setLanguage] = useState(getCurrentLanguage()); // Current language
     const [loading, setLoading] = useState(false); // Loading state for async actions
-
-    useEffect(() => {
-        // Update language state if the language changes elsewhere in the app
-        setLanguage(getCurrentLanguage());
-    }, [language]);
-
-    // Handler to change the app language
-    const changeLanguage = (newLanguage: string) => {
-        setLanguage(newLanguage);
-        i18n.locale = newLanguage;
-    };
+    const { language, changeLanguage } = useLanguage(); // Function to change language
 
     // Main registration handler for the form
     const handleRegister = async () => {

@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 import { Box, VStack, Heading, Input, InputField, Button, Text, Pressable, FormControl, FormControlLabel, FormControlError, Image, HStack } from '@gluestack-ui/themed';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';
+import { i18n } from '@/hooks/i18n';
 import { Link } from 'expo-router';
 import { Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // For storing user token
 import { login } from '@/api/apiService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function LoginScreen() {
   // State variables for form fields and UI
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState(getCurrentLanguage());
   const router = useRouter();
+  const { language, changeLanguage } = useLanguage();
 
   // Handle login button press
   const handleLogin = async () => {
@@ -52,17 +53,6 @@ export default function LoginScreen() {
       console.error('Login Failed', error);
       setError(i18n.t('serverError'));
     }
-  };
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  // Change language handler
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
   };
 
   return (

@@ -34,7 +34,7 @@ import { Phone, Calendar as CalendarIcon, X, LogOut } from 'lucide-react-native'
 import { Linking, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import * as FileSystem from 'expo-file-system';
 
 import { fetchAllUsers, fetchTasks, fetchTeam, getTaskStatus, markTaskAsDone, updateTask, uploadImage } from '@/api/apiService';

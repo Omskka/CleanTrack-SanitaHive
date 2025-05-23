@@ -18,7 +18,7 @@ import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { LogOut, Calendar as CalendarIcon } from 'lucide-react-native';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Task interface for type safety
 interface Task {

@@ -5,7 +5,7 @@ import { Colors } from '@/constants/Colors';
 import { House, BookUser, ClipboardList, LayoutGrid, CalendarCheck } from 'lucide-react-native';
 import { Icon } from '@gluestack-ui/themed';
 import { i18n } from '@/hooks/i18n';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TabLayout() {
   // Get current language from context (triggers re-render on language change)

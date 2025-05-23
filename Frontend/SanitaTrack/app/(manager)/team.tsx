@@ -31,7 +31,7 @@ import { i18n } from '@/hooks/i18n';
 import { Colors } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchAllUsers, fetchTeamByManager, removeTeamMember } from '@/api/apiService';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // User type for team members
 type User = {

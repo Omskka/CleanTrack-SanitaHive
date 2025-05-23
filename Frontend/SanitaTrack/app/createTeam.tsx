@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dimensions, Keyboard, TouchableWithoutFeedback, View } from 'react-native';
 import {
   Box,
@@ -14,11 +14,12 @@ import {
   FormControlError,
   Image,
 } from '@gluestack-ui/themed';
-import { getCurrentLanguage, i18n } from '@/hooks/i18n';  // For language support
+import { i18n } from '@/hooks/i18n';  // For language support
 import { Colors } from '../constants/Colors';
 import { Link, router } from 'expo-router';
 import UUID from 'react-native-uuid';
 import { registerUser, createTeam } from '@/api/apiService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function CreateTeam() {
   // State variables for form fields and UI
@@ -28,19 +29,8 @@ export default function CreateTeam() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [language, setLanguage] = useState(getCurrentLanguage());  // For language state
+  const { language, changeLanguage } = useLanguage();  // For language state
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Update component when language changes
-    setLanguage(getCurrentLanguage());
-  }, [language]);
-
-  // Handler to change the app language
-  const changeLanguage = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.locale = newLanguage;
-  };
 
   // Main handler for creating a team and registering the manager
   const handleCreateTeam = async () => {
@@ -106,7 +96,6 @@ export default function CreateTeam() {
       setLoading(false);
     }
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
