@@ -404,7 +404,7 @@ const WorkerHomepage = () => {
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header with welcome, language switch, and logout */}
-      <Box px="$4" py="$4" bg={Colors.white}>
+      <Box p="$4" pt="$9" bg={Colors.white}>
         <HStack justifyContent="space-between" alignItems="center">
           <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
           {/* Language switch button */}

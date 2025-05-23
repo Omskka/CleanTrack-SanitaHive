@@ -277,7 +277,7 @@ export default function RoomsScreen() {
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header with search bar */}
-      <Box px="$4" py="$4" bg={Colors.white}>
+      <Box p="$4" pt="$9" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>{i18n.t('roomsTitle')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
           <Input flex={1}>

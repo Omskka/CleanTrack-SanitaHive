@@ -177,7 +177,7 @@ export default function TeamInfoScreen() {
   return (
     <Box flex={1} bg={Colors.background}>
       {/* Header and Search */}
-      <Box px="$4" py="$4" bg={Colors.white}>
+      <Box p="$4" pt="$9" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>
           {i18n.t('teamTitle')}
         </Heading>
