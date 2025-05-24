@@ -56,6 +56,7 @@ interface Task {
   questionnaireFour: string;
   questionnaireFive: string;
   done: boolean;
+  member?: User;
 }
 
 interface Room {
@@ -97,8 +98,6 @@ const TaskManagerScreen = () => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   // State for error messages
   const [error, setError] = useState<string>('');
-  // Find the selected member for display in select
-  const selectedMember = teamMembers.find(member => member.userId === taskEmployee);
   // Get current language from context (triggers re-render on language change)
   const { language } = useLanguage();
 
@@ -423,12 +422,11 @@ const TaskManagerScreen = () => {
         <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
 
         {/* Display employee name */}
-        {teamMembers.find(member => member.userId === rowData.employeeId) && (
+        {rowData.member && (
           <Text fontSize="$sm" color={Colors.text} mb="$3">
             {i18n.t('assignedTo')}: {
               (() => {
-                const member = teamMembers.find(m => m.userId === rowData.employeeId);
-                return member ? `${member.name} ${member.surname}` : 'Unknown';
+                return `${rowData.member.name} ${rowData.member.surname}`;
               })()
             }
           </Text>
@@ -527,6 +525,7 @@ const TaskManagerScreen = () => {
               employeeId: task.employeeId,
               taskId: task.taskId,
               done: task.done, // Make sure to include the done property
+              member: teamMembers.find(x => x.userId == task.employeeId),
             }))}
             circleSize={20}
             circleColor="#000"
@@ -637,7 +636,6 @@ const TaskManagerScreen = () => {
                 <SelectTrigger variant="outline" size="md">
                   <SelectInput
                     placeholder={i18n.t('selectEmployee')}
-                    aria-label={selectedMember ? `${selectedMember.name} ${selectedMember.surname}` : undefined}
                   />
                   <SelectIcon>
                     <Icon as={ChevronDown} />
