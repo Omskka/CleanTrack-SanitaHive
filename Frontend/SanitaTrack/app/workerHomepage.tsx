@@ -353,7 +353,7 @@ const WorkerHomepage = () => {
 
         {/* If task is done, show completed text, else show image upload and submit button */}
         {rowData.done ? (
-          <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
+          <Text mt="$2" color={Colors.text} fontWeight="$bold">{i18n.t('completed')}</Text>
         ) : (
           <>
             {/* Uploaded images preview */}

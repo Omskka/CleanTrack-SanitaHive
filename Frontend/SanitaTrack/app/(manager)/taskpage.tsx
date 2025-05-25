@@ -419,11 +419,11 @@ const TaskManagerScreen = () => {
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
         </HStack>
 
-        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
+        <Text fontSize="$sm" color={Colors.text}>{rowData.description}</Text>
 
         {/* Display employee name */}
         {rowData.member && (
-          <Text fontSize="$sm" color={Colors.text} mb="$3">
+          <Text fontSize="$sm" fontWeight="$bold" color={Colors.text} mb="$3">
             {i18n.t('assignedTo')}: {
               (() => {
                 return `${rowData.member.name} ${rowData.member.surname}`;
@@ -561,7 +561,6 @@ const TaskManagerScreen = () => {
       </ScrollView>
 
       {/* Footer - Similar to RoomsScreen */}
-      {/* Footer Actions - Similar to RoomsScreen */}
       <Box bg={Colors.white} px="$4" py="$4">
         <HStack space="md" justifyContent="space-between">
           {/* Button to open modal for creating a new task */}

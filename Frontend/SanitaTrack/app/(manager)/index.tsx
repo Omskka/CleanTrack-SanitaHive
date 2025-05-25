@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RefreshControl } from 'react-native';
-import { 
-  Box, 
-  Text, 
-  ScrollView, 
-  HStack, 
-  Pressable, 
-  Button, 
-  Icon, 
-  Heading 
+import {
+  Box,
+  Text,
+  ScrollView,
+  HStack,
+  Pressable,
+  Button,
+  Icon,
+  Heading
 } from '@gluestack-ui/themed';
 import Timeline from 'react-native-timeline-flatlist';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Colors } from '@/constants/Colors';
-import { fetchTasks } from '@/api/apiService'; // Function to fetch data from the backend
+import { fetchTasks, fetchTeamByManager, fetchAllUsers } from '@/api/apiService'; // Function to fetch data from the backend
 import { i18n } from '@/hooks/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -31,9 +31,21 @@ interface Task {
   endTime: Date;   // ISO format
   time: string; // e.g., '14:30'
   done: boolean;
+  member?: User;
+}
+
+interface User {
+  userId: string;
+  name: string;
+  surname: string;
+  phoneNumber: string;
 }
 
 const ManagerHomepage = () => {
+  // State for current manager's user ID
+  const [userID, setUserID] = useState('');
+  // State for all team members fetched from backend
+  const [teamMembers, setTeamMembers] = useState<User[]>([]);
   // State for pull-to-refresh
   const [refreshing, setRefreshing] = useState(false);
   // State for currently selected date in the calendar
@@ -44,6 +56,65 @@ const ManagerHomepage = () => {
   const [calendarVisible, setCalendarVisible] = useState<boolean>(false);
   // Language context for i18n
   const { language, changeLanguage } = useLanguage();
+
+  // Fetch team members when userID changes
+  useEffect(() => {
+    if (userID) {
+      fetchTeamMembersData();
+    }
+  }, [userID]);
+
+  // Fetch manager user ID from AsyncStorage on mount
+  useEffect(() => {
+    const fetchUserID = async () => {
+      try {
+        const storedUserID = await AsyncStorage.getItem('userToken');
+        if (storedUserID) {
+          // Parse the userToken if it's stored as a JSON string
+          try {
+            const parsedUserID = JSON.parse(storedUserID);
+            setUserID(parsedUserID);
+            console.log('User ID set:', parsedUserID);
+          } catch (e) {
+            // If parsing fails, use the raw string
+            setUserID(storedUserID);
+            console.log('User ID set (raw):', storedUserID);
+          }
+        } else {
+          console.warn('No userToken found in AsyncStorage');
+        }
+      } catch (error) {
+        console.error('Error fetching userID from AsyncStorage:', error);
+      }
+    };
+
+    fetchUserID();
+  }, []);
+
+  // Fetch all team members for this manager from backend
+  const fetchTeamMembersData = async () => {
+    try {
+      // 1. Get all users
+      const allUsers = await fetchAllUsers();
+
+      // 2. Fetch team to get employee IDs
+      const team = await fetchTeamByManager(userID);
+
+      // 3. Ensure employeeId is an array
+      const employeeIds = Array.isArray(team.employeeId)
+        ? team.employeeId
+        : team.employeeId
+          ? [team.employeeId]
+          : [];
+
+      // 4. Filter users to get team members
+      const members = allUsers.filter((user: User) => employeeIds.includes(user.userId));
+
+      setTeamMembers(members);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    }
+  };
 
   // Logout function: removes user token and redirects to login
   const logout = async () => {
@@ -115,13 +186,21 @@ const ManagerHomepage = () => {
           <Text fontSize="$sm" color={Colors.text}>{i18n.t('room')}: {rowData.title}</Text>
         </HStack>
 
-        <Text fontSize="$sm" color={Colors.text} mb="$3">{rowData.description}</Text>
+        <Text fontSize="$sm" color={Colors.text}>{rowData.description}</Text>
+
+        {/* Display employee name */}
+        {rowData.member && (
+          <Text fontSize="$sm" fontWeight="$bold" color={Colors.text} mb="$3">
+            {i18n.t('assignedTo')}: {rowData.member.name} {rowData.member.surname}
+          </Text>
+        )}
+
         <Text fontSize="$sm" color={Colors.black} fontWeight="$bold">{formattedStart} - {formattedEnd}</Text>
         <Text fontSize="$sm" color={Colors.black}>{i18n.t('totalTime')}: {formattedTotalTime}</Text>
 
         {/* Show completed status if task is done */}
         {rowData.done ? (
-          <Text mt="$2" color={Colors.text}>{i18n.t('completed')}</Text>
+          <Text mt="$2" color={Colors.text} fontWeight="$bold">{i18n.t('completed')}</Text>
         ) : null}
       </Box>
     );
@@ -133,7 +212,7 @@ const ManagerHomepage = () => {
       <Box p="$4" pt="$9" bg={Colors.white}>
         <HStack justifyContent="space-between" alignItems="center">
           <Heading size="lg" color={Colors.heading}>{i18n.t('welcome')}</Heading>
-          
+
           <HStack alignItems='center' space="md">
             {/* Language switch button */}
             <Pressable onPress={() => changeLanguage(language === 'en' ? 'tr' : 'en')}>
@@ -204,6 +283,7 @@ const ManagerHomepage = () => {
               endTime: task.endTime,
               taskId: task.taskId,
               done: task.done,
+              member: teamMembers.find(x => x.userId == task.employeeId),
             }))}
             circleSize={20}
             circleColor="#000"
@@ -221,7 +301,7 @@ const ManagerHomepage = () => {
             innerCircle={'dot'}
             style={{ flex: 1, marginTop: 20, marginRight: 20 }}
           />
-          
+
           {/* Show message if no tasks found */}
           {filteredTasks.length === 0 && !refreshing && (
             <Box alignItems="center" py="$6">
