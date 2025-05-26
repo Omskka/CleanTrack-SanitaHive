@@ -658,7 +658,7 @@ const TaskManagerScreen = () => {
               <FormControlLabel>
                 <FormControlLabelText>{i18n.t('description')}</FormControlLabelText>
               </FormControlLabel>
-              <Textarea>
+              <Textarea borderColor={Colors.text}>
                 <TextareaInput
                   value={taskDescription}
                   onChangeText={setTaskDescription}

@@ -736,6 +736,7 @@ const ReportsScreen = () => {
                       onPress={() => {
                         downloadImage(selectedTask.imageUrl); 
                       }}
+                      bgColor={Colors.text}
                     >
                       <Text color={Colors.white}>Download Image</Text>
                     </Button>
