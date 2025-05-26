@@ -1,8 +1,8 @@
 export const Colors = {
-    text: '#2563EB',        // blue600
-    heading: '#1E40AF',     // blue800
-    background: '#E0F7FF',
-    tint: '#DBEAFE',        // blue100
+    text: '#91b38e',    
+    heading: '#5a855f',    
+    background: '#c5dcc2',
+    tint: '#b9d5bc',        
     white: '#FFFFFF',
     black: '#000000',
     gray: '#9CA3AF',        // Tailwind gray

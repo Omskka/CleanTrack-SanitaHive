@@ -90,7 +90,7 @@ export default function LoginScreen() {
             position="absolute"
             zIndex={1}
           >
-            CleanTrack
+            SanitaHive
           </Text>
 
           {/* Language Selection Button */}
@@ -118,7 +118,7 @@ export default function LoginScreen() {
                 <Text>{i18n.t('phoneLabel')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField fontSize="$sm" keyboardType='phone-pad' placeholder={i18n.t('phonePlaceholder')}
                   value={phone}
                   onChangeText={(text) => {
@@ -142,7 +142,7 @@ export default function LoginScreen() {
                 <Text>{i18n.t('passwordLabel')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField fontSize="$sm" type='password' placeholder={i18n.t('passwordPlaceholder')}
                   value={password}
                   onChangeText={(text) => {

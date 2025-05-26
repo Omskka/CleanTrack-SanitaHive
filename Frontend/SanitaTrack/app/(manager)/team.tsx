@@ -184,7 +184,7 @@ export default function TeamInfoScreen() {
 
         <HStack space="sm" mt="$4" alignItems="center">
           {/* Search input for filtering team members */}
-          <Input flex={1}>
+          <Input borderColor={Colors.text} flex={1}>
             <InputSlot pl="$3">
               <Icon as={Search} size="lg" color={Colors.text} />
             </InputSlot>
@@ -299,6 +299,7 @@ export default function TeamInfoScreen() {
               <Button
                 variant="outline"
                 action="secondary"
+                borderColor={Colors.text}
                 onPress={() => setShowDeleteConfirm(false)}
               >
                 <ButtonText>{i18n.t('cancel')}</ButtonText>

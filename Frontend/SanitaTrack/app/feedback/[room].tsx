@@ -126,15 +126,15 @@ export default function FeedbackScreen() {
                 key={cat}
                 onPress={() => setSelectedCategory(cat)}
                 borderWidth={1}
-                borderColor={selectedCategory === cat ? Colors.text : Colors.gray}
-                bg={selectedCategory === cat ? Colors.tint : Colors.white}
+                borderColor={selectedCategory === cat ? Colors.heading : Colors.text}
+                bg={selectedCategory === cat ? 	'#d3ecdc' : Colors.white}
                 borderRadius="$lg"
                 px="$3"
                 py="$2"
                 mr="$2"
                 mb="$2"
               >
-                <Text color={selectedCategory === cat ? Colors.text : Colors.black}>
+                <Text color={selectedCategory === cat ? Colors.heading : Colors.black}>
                   {i18n.t(`${cat.toLocaleLowerCase()}`)}
                 </Text>
               </Pressable>
@@ -150,7 +150,7 @@ export default function FeedbackScreen() {
           <Textarea
             minHeight={120}
             mb="$4"
-            borderColor={Colors.gray}
+            borderColor={Colors.text}
             borderRadius="$lg"
             bgColor={Colors.white}
           >

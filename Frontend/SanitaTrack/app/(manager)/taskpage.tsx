@@ -528,8 +528,8 @@ const TaskManagerScreen = () => {
               member: teamMembers.find(x => x.userId == task.employeeId),
             }))}
             circleSize={20}
-            circleColor="#000"
-            lineColor="#6C63FF"
+            circleColor="#5a855f"
+            lineColor={Colors.heading}
             timeStyle={{
               textAlign: 'center',
               color: '#333',
@@ -604,11 +604,9 @@ const TaskManagerScreen = () => {
                 selectedValue={taskRoom}
                 onValueChange={value => setTaskRoom(value)}
               >
-                <SelectTrigger variant="outline" size="md">
+                <SelectTrigger variant="outline" borderColor={Colors.text} size="md">
                   <SelectInput placeholder={i18n.t('selectRoom')} />
-                  <SelectIcon>
-                    <Icon as={ChevronDown} />
-                  </SelectIcon>
+                  <Select.Icon as={ChevronDown} mr="$2"/>
                 </SelectTrigger>
                 <SelectPortal>
                   <SelectContent>
@@ -632,13 +630,11 @@ const TaskManagerScreen = () => {
                 selectedValue={taskEmployee}
                 onValueChange={value => setTaskEmployee(value)}
               >
-                <SelectTrigger variant="outline" size="md">
+                <SelectTrigger variant="outline" borderColor={Colors.text} size="md">
                   <SelectInput
                     placeholder={i18n.t('selectEmployee')}
                   />
-                  <SelectIcon>
-                    <Icon as={ChevronDown} />
-                  </SelectIcon>
+                  <Select.Icon as={ChevronDown} mr="$2"/>
                 </SelectTrigger>
                 <SelectPortal>
                   <SelectContent>
@@ -677,7 +673,7 @@ const TaskManagerScreen = () => {
                 <FormControlLabelText>{i18n.t('startTime')}</FormControlLabelText>
               </FormControlLabel>
               <TouchableOpacity onPress={() => showStartTimePickerModal('date')}>
-                <Input isDisabled={true}>
+                <Input borderColor={Colors.text} isDisabled={true}>
                   <InputField value={formatDateForDisplay(taskStartTime)} />
                 </Input>
               </TouchableOpacity>
@@ -689,7 +685,7 @@ const TaskManagerScreen = () => {
                 <FormControlLabelText>{i18n.t('endTime')}</FormControlLabelText>
               </FormControlLabel>
               <TouchableOpacity onPress={() => showEndTimePickerModal('date')}>
-                <Input isDisabled={true}>
+                <Input borderColor={Colors.text} isDisabled={true}>
                   <InputField value={formatDateForDisplay(taskEndTime)} />
                 </Input>
               </TouchableOpacity>
@@ -719,7 +715,7 @@ const TaskManagerScreen = () => {
 
           {/* Modal footer with cancel/save buttons */}
           <Modal.Footer>
-            <Button variant="outline" mr="$3" onPress={handleCloseModal}>
+            <Button variant="outline" borderColor={Colors.text} mr="$3" onPress={handleCloseModal}>
               <Text>{i18n.t('cancel')}</Text>
             </Button>
             <Button bg={Colors.text} onPress={handleSaveTask} isDisabled={isLoading}>
@@ -747,7 +743,7 @@ const TaskManagerScreen = () => {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="outline" mr="$3" onPress={() => setIsDeleteModalVisible(false)}>
+            <Button variant="outline" borderColor={Colors.text} mr="$3" onPress={() => setIsDeleteModalVisible(false)}>
               <Text>{i18n.t('cancel')}</Text>
             </Button>
             <Button bg={Colors.error} onPress={handleDeleteTask} isDisabled={isLoading}>

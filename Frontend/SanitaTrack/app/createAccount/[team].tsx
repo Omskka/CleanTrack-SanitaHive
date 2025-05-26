@@ -119,7 +119,7 @@ export default function CreateAccount() {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <LinearGradient
-                colors={['#E0F7FF', '#0044CC']}
+                colors={['#d3ecdc', '#5a855f']}
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
             >
                 {/* App title/logo at the top */}
@@ -131,7 +131,7 @@ export default function CreateAccount() {
                     position="absolute"
                     zIndex={1}
                 >
-                    CleanTrack
+                    SanitaHive
                 </Text>
 
                 {/* Language Selection Button in the top right */}
@@ -160,7 +160,7 @@ export default function CreateAccount() {
                             <FormControlLabel>
                                 <Text>{i18n.t('teamCode')}</Text>
                             </FormControlLabel>
-                            <Input>
+                            <Input borderColor={Colors.text}>
                                 <InputField
                                     fontSize="$sm"
                                     placeholder={i18n.t('teamCodePlaceholder')}
@@ -184,7 +184,7 @@ export default function CreateAccount() {
                             <FormControlLabel>
                                 <Text>{i18n.t('name')}</Text>
                             </FormControlLabel>
-                            <Input>
+                            <Input borderColor={Colors.text}>
                                 <InputField
                                     fontSize="$sm"
                                     placeholder={i18n.t('namePlaceholder')}
@@ -208,7 +208,7 @@ export default function CreateAccount() {
                             <FormControlLabel>
                                 <Text>{i18n.t('surname')}</Text>
                             </FormControlLabel>
-                            <Input>
+                            <Input borderColor={Colors.text}>
                                 <InputField
                                     fontSize="$sm"
                                     placeholder={i18n.t('surnamePlaceholder')}
@@ -232,7 +232,7 @@ export default function CreateAccount() {
                             <FormControlLabel>
                                 <Text>{i18n.t('phoneLabel')}</Text>
                             </FormControlLabel>
-                            <Input>
+                            <Input borderColor={Colors.text}>
                                 <InputField
                                     fontSize="$sm"
                                     keyboardType='phone-pad'
@@ -257,7 +257,7 @@ export default function CreateAccount() {
                             <FormControlLabel>
                                 <Text>{i18n.t('passwordLabel')}</Text>
                             </FormControlLabel>
-                            <Input>
+                            <Input borderColor={Colors.text}>
                                 <InputField
                                     fontSize="$sm"
                                     type='password'

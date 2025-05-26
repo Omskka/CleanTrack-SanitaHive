@@ -477,8 +477,8 @@ const WorkerHomepage = () => {
               done: task.done,
             }))}
             circleSize={20}
-            circleColor="#000"
-            lineColor="#6C63FF"
+            circleColor="#5a855f"
+            lineColor={Colors.heading}
             timeStyle={{
               textAlign: 'center',
               color: '#333',

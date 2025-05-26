@@ -20,6 +20,7 @@ import { Link, router } from 'expo-router';
 import UUID from 'react-native-uuid';
 import { registerUser, createTeam } from '@/api/apiService';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function CreateTeam() {
   // State variables for form fields and UI
@@ -100,28 +101,10 @@ export default function CreateTeam() {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: Colors.background
-        }}
+      <LinearGradient
+          colors={['#d3ecdc', '#5a855f']}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
       >
-
-        {/* Background Image for visual effect */}
-        <Image
-          source={require('@/assets/images/createTeam-3d-blob.png')}
-          alt="Background Image"
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          width={Dimensions.get('window').width}
-          height={Dimensions.get('window').height}
-          resizeMode="cover" // Expand the image to fit the screen while maintaining its aspect ratio
-          zIndex={-1}
-        />
 
         {/* App Title at the top */}
         <Text
@@ -132,7 +115,7 @@ export default function CreateTeam() {
           position="absolute"
           zIndex={1}
         >
-          CleanTrack
+          SanitaHive
         </Text>
 
         {/* Language Selection Button in the top right */}
@@ -161,7 +144,7 @@ export default function CreateTeam() {
                 <Text>{i18n.t('name')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   fontSize="$sm"
                   placeholder={i18n.t('namePlaceholder')}
@@ -187,7 +170,7 @@ export default function CreateTeam() {
                 <Text>{i18n.t('surname')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   fontSize="$sm"
                   placeholder={i18n.t('surnamePlaceholder')}
@@ -213,7 +196,7 @@ export default function CreateTeam() {
                 <Text>{i18n.t('companyNameLabel')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   fontSize="$sm"
                   placeholder={i18n.t('companyNamePlaceholder')}
@@ -239,7 +222,7 @@ export default function CreateTeam() {
                 <Text>{i18n.t('phoneLabel')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   fontSize="$sm"
                   keyboardType="phone-pad"
@@ -266,7 +249,7 @@ export default function CreateTeam() {
                 <Text>{i18n.t('passwordLabel')}</Text>
               </FormControlLabel>
 
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   fontSize="$sm"
                   type="password"
@@ -304,7 +287,7 @@ export default function CreateTeam() {
             </Box>
           </VStack>
         </Box>
-      </View>
+      </LinearGradient>
     </TouchableWithoutFeedback>
   );
 }

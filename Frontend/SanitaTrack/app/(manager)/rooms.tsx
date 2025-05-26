@@ -280,7 +280,7 @@ export default function RoomsScreen() {
       <Box p="$4" pt="$9" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>{i18n.t('roomsTitle')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
-          <Input flex={1}>
+          <Input borderColor={Colors.text} flex={1}>
             <InputSlot pl="$3">
               <Icon as={Search} size="lg" color={Colors.text} />
             </InputSlot>
@@ -404,7 +404,7 @@ export default function RoomsScreen() {
               {/* New category input or select existing */}
               {isAddingCategory ? (
                 <HStack space="md" mt="$2" alignItems="center">
-                  <Input flex={1}>
+                  <Input borderColor={Colors.text} flex={1}>
                     <InputField
                       placeholder={i18n.t('enterNewCategory')}
                       value={newCategory}
@@ -422,7 +422,7 @@ export default function RoomsScreen() {
                     selectedValue={selectedCategory}
                     onValueChange={(value) => setSelectedCategory(value)}
                   >
-                    <SelectTrigger variant="outline" size="md" borderColor={Colors.gray}>
+                    <SelectTrigger variant="outline" size="md" borderColor={Colors.text}>
                       <SelectInput placeholder={i18n.t('chooseCategory')} />
                       <SelectIcon as={ChevronDown} mr={5} />
                     </SelectTrigger>
@@ -449,7 +449,7 @@ export default function RoomsScreen() {
               <FormControlLabel>
                 <FormControlLabelText><Text>{i18n.t('roomName')}</Text></FormControlLabelText>
               </FormControlLabel>
-              <Input>
+              <Input borderColor={Colors.text}>
                 <InputField
                   placeholder={i18n.t('roomName')}
                   value={roomName}

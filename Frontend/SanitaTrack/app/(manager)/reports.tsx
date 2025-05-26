@@ -348,7 +348,7 @@ const ReportsScreen = () => {
       <Box p="$4" pt="$9" bg={Colors.white}>
         <Heading size="lg" color={Colors.heading}>{i18n.t('reports')}</Heading>
         <HStack space="sm" mt="$4" alignItems="center">
-          <Input flex={1}>
+          <Input borderColor={Colors.text} flex={1}>
             <InputSlot pl="$3">
               <Icon as={Search} size="lg" color={Colors.text} />
             </InputSlot>
@@ -558,7 +558,7 @@ const ReportsScreen = () => {
                   selectedValue={dateFilter}
                   onValueChange={(value) => setDateFilter(value)}
                 >
-                  <SelectTrigger variant="outline" size="md">
+                  <SelectTrigger variant="outline" borderColor={Colors.text} size="md">
                     <SelectInput placeholder={i18n.t('selectDateFilter')} />
                     <SelectIcon>
                       <Icon as={ChevronDown} />
@@ -585,7 +585,7 @@ const ReportsScreen = () => {
                   selectedValue={statusFilter}
                   onValueChange={(value) => setStatusFilter(value)}
                 >
-                  <SelectTrigger variant="outline" size="md">
+                  <SelectTrigger variant="outline" borderColor={Colors.text} size="md">
                     <SelectInput placeholder={i18n.t('selectStatusFilter')} />
                     <SelectIcon>
                       <Icon as={ChevronDown} />
@@ -612,7 +612,7 @@ const ReportsScreen = () => {
                   selectedValue={ratingFilter}
                   onValueChange={(value) => setRatingFilter(value)}
                 >
-                  <SelectTrigger variant="outline" size="md">
+                  <SelectTrigger variant="outline" borderColor={Colors.text} size="md">
                     <SelectInput placeholder={i18n.t('selectRatingFilter')} />
                     <SelectIcon>
                       <Icon as={ChevronDown} />
@@ -640,6 +640,7 @@ const ReportsScreen = () => {
             {/* Reset filters button */}
             <Button
               variant="outline"
+              borderColor={Colors.text}
               mr="$3"
               onPress={() => {
                 setDateFilter('all');

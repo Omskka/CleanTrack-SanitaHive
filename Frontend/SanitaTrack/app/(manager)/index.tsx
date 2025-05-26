@@ -287,8 +287,8 @@ const ManagerHomepage = () => {
               member: teamMembers.find(x => x.userId == task.employeeId),
             }))}
             circleSize={20}
-            circleColor="#000"
-            lineColor="#6C63FF"
+            circleColor="#5a855f"
+            lineColor={Colors.heading}
             timeStyle={{
               textAlign: 'center',
               color: '#333',
