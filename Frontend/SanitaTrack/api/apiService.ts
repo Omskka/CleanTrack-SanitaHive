@@ -176,13 +176,13 @@ export const uploadImage = async (fileUri: string) => {
   const filename = message.split(':').pop()?.trim();
 
   // Construct full URL manually if needed
-  const baseUrl = `https://cleanhivebucket.s3.eu-north-1.amazonaws.com/${filename}`; // Replace with your actual base path
   return {
-    url: `${baseUrl}${filename}`,
+    url: `${filename}`,
   };
 };
 
-export const downloadImage = async (fileUrl: string) => {
+// Download image and save to gallery
+export const downloadImage = async (fileName: string) => {
   try {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== 'granted') {
@@ -190,22 +190,42 @@ export const downloadImage = async (fileUrl: string) => {
       return;
     }
 
-    const fileName = fileUrl.split('/').pop() ?? 'downloaded-image.jpg';
-    const fileUri = FileSystem.documentDirectory! + fileName;
+    // Backend URL for downloading file
+    const backendUrl = `http://10.0.2.2:8080/api/v1/file/download/${fileName}`;
+    // Fetch file as blob using axios
+    const response = await axiosInstance.get(backendUrl, {
+      responseType: 'blob',
+    });
 
-    const downloadResumable = FileSystem.createDownloadResumable(fileUrl, fileUri);
-    const result = await downloadResumable.downloadAsync();
+    // Convert blob to base64 (expo-file-system needs base64 or a file URI)
+    const reader = new FileReader();
 
-    if (!result) {
-      alert('Failed to download file');
-      return;
-    }
+    const base64Data: string = await new Promise((resolve, reject) => {
+      reader.onerror = () => {
+        reader.abort();
+        reject(new Error('Problem parsing blob to base64.'));
+      };
+      reader.onload = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(response.data);
+    });
 
-    await MediaLibrary.saveToLibraryAsync(result.uri);
+    // Remove "data:<mime>;base64," prefix to get pure base64
+    const base64Str = base64Data.split(',')[1];
+
+    // Save base64 file to local file system
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    await FileSystem.writeAsStringAsync(fileUri, base64Str, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Save to gallery
+    await MediaLibrary.saveToLibraryAsync(fileUri);
     alert('Image downloaded to gallery!');
   } catch (error) {
     console.error('Download failed:', error);
     alert('Download failed!');
   }
 };
-
