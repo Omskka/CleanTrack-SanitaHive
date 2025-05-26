@@ -27,6 +27,7 @@ export default function CreateTeam() {
   const [surname, setSurname] = useState('');
   const [teamName, setTeamName] = useState('');
   const [phone, setPhone] = useState('');
+  const [manager, setManager] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { language, changeLanguage } = useLanguage();  // For language state
@@ -53,7 +54,7 @@ export default function CreateTeam() {
         surname: surname.trim(),
         phoneNumber: phone.trim(),
         password: password.trim(),
-        isManager: true, // This user is a manager
+        manager: true,
         lang: language,
       };
 

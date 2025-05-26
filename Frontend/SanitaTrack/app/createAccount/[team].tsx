@@ -54,9 +54,11 @@ export default function CreateAccount() {
                 surname: surname.trim(),
                 phoneNumber: phone.trim(),
                 password: password.trim(),
-                isManager: false, // This is a regular user, not a manager
+                manager: false, // This is a regular user, not a manager
                 lang: language,
             };
+
+            console.log('New user data:', newUser);
 
             // 3. Register the user in the backend (creates the user)
             const userData = await registerUser(newUser);

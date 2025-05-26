@@ -79,6 +79,11 @@
 		<artifactId>aws-java-sdk-s3</artifactId>
 		<version>1.12.664</version> <!-- Use latest compatible version -->
 	</dependency>
+	<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-crypto</artifactId>
+    <version>5.8.3</version> <!-- or your Spring Boot compatible version -->
+	</dependency>
 	</dependencies>
 
 	<build>

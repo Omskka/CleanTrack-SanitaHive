@@ -43,8 +43,8 @@ export default function LoginScreen() {
         // Store user token in AsyncStorage
         await AsyncStorage.setItem('userToken', JSON.stringify(userID));
         // Check if user is a manager and route accordingly
-        const isManager = result?.manager;
-        isManager ? router.push('/(manager)/team') : router.push('/workerHomepage');
+        const manager = result?.manager;
+        manager ? router.push('/(manager)/team') : router.push('/workerHomepage');
       } else {
         setError(i18n.t('loginFailed'));
       }

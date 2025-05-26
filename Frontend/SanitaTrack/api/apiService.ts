@@ -125,7 +125,7 @@ export const registerUser = async (user: {
   surname: string;
   phoneNumber: string;
   password: string;
-  isManager: boolean;
+  manager: boolean;
   lang: string;
 }) => {
   const response = await axiosInstance.post('/users', user);

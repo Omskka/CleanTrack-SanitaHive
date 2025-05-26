@@ -133,14 +133,15 @@ const ManagerHomepage = () => {
     setRefreshing(false);
   };
 
-  // Filter tasks by the selected date
+  // tasks: all fetched tasks
+  // selectedDate and userID are dependencies
   const filteredTasks = useMemo(() => {
+    const selected = selectedDate.toISOString().split('T')[0];
     return tasks.filter(task => {
-      const taskDate = new Date(task.startTime).toISOString().split('T')[0];  // 'YYYY-MM-DD' format
-      const selectedDateStr = selectedDate.toISOString().split('T')[0];
-      return taskDate === selectedDateStr;  // Show tasks if the dates match
+      const taskDate = new Date(task.startTime).toISOString().split('T')[0];
+      return task.managerId === userID && taskDate === selected;
     });
-  }, [tasks, selectedDate]);
+  }, [tasks, selectedDate, userID]);
 
   // This function will be triggered when a day is selected in the calendar
   const onDayPress = (day: DateData) => setSelectedDate(new Date(day.dateString));
