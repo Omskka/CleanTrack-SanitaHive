@@ -47,7 +47,7 @@ export default function CreateTeam() {
       // Generate a unique userId for the manager
       const userId = UUID.v4();
 
-      // 1️⃣ Register the Manager User
+      // 1. Register the Manager User
       const newUser = {
         userId: userId as string, // UUID.v4() returns string | number[], so we cast it
         name: name.trim(),
@@ -60,7 +60,6 @@ export default function CreateTeam() {
 
       // Call backend API to register the manager user
       const userData = await registerUser(newUser);
-      console.log('User Data:', userData);
 
       // If user registration fails, throw error
       if (!userData || !userData.userId) {
@@ -69,9 +68,8 @@ export default function CreateTeam() {
 
       // Get the manager's userId from the response
       const managerId = userData.userId;
-      console.log('--userID--:', managerId);
 
-      // 2️⃣ Create a Team for this Manager
+      // 2️. Create a Team for this Manager
       const teamData = {
         teamName: teamName.trim(),
         managerId: managerId,
@@ -80,9 +78,8 @@ export default function CreateTeam() {
 
       // Call backend API to create the team
       const teamResult = await createTeam(teamData);
-      console.log('Team created successfully:', teamResult);
 
-      // 3️⃣ Success: Show alert and navigate to login
+      // 3️. Success: Show alert and navigate to login
       setError('');
       alert(i18n.t('teamCreatedSuccess'));
       setTimeout(() => {

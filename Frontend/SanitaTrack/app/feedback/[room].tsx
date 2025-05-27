@@ -33,7 +33,6 @@ export default function FeedbackScreen() {
 
   // Use the useRoute hook to get route parameters, including roomId
   const roomId: any = useLocalSearchParams();
-  console.log("roomId :", roomId);
 
   // Handle feedback form submission
   const handleSubmit = async () => {
@@ -56,10 +55,8 @@ export default function FeedbackScreen() {
     };
 
     try {
-      console.log('Payload:', payload);
       // Call backend API to save feedback
       const updated = await createFeedback(payload);
-      console.log('Feedback saved successfully:', updated);
       // Optionally reset the form or show a success message
       alert(i18n.t('feedbackSuccess'));
       // Reset form or navigate to another page if necessary

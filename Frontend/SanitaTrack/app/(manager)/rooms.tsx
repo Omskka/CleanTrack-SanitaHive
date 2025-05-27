@@ -242,7 +242,6 @@ export default function RoomsScreen() {
 
       // Capture the QR code as an image
       const uri = await qrCodeRef.current.capture();
-      console.log('Captured QR code URI:', uri);
 
       // Use expo-sharing to share the captured image
       await Sharing.shareAsync(uri, {
