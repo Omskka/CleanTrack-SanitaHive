@@ -161,14 +161,12 @@ const ReportsScreen = () => {
 
       // Only include completed tasks for the report
       const completedTasks = tasksData.filter((task: Task) => task.done && task.managerId === userID);
-      console.log("feedbacks", feedbacksData);
 
       // Fetch status for each task using getTaskStatus API
       const tasksWithStatusPromises = completedTasks.map(async (task: Task) => {
         try {
           // Call the getTaskStatus API to get the task's status
           const statusData = await getTaskStatus(task.taskId);
-          console.log("statusData", statusData);
 
           return {
             ...task,

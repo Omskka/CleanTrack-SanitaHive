@@ -58,8 +58,6 @@ export default function CreateAccount() {
                 lang: language,
             };
 
-            console.log('New user data:', newUser);
-
             // 3. Register the user in the backend (creates the user)
             const userData = await registerUser(newUser);
 
@@ -86,14 +84,10 @@ export default function CreateAccount() {
                 }
             );
 
-            console.log('Response status:', updateResponse.status);
-
             // 7. If updating the team fails, show an error
             if (!updateResponse.ok) {
                 throw new Error(i18n.t('teamUpdateFailed'));
             }
-
-            console.log('User registered successfully:', userData);
 
             // 8. Registration successful, clear errors and show success message
             setError('');

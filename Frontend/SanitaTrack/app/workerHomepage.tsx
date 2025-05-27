@@ -159,10 +159,8 @@ const WorkerHomepage = () => {
   // Call manager function: finds manager's phone and initiates a call
   const callPhone = async () => {
     try {
-      console.log("UserID :", userID);
-
       if (!userID) {
-        console.error("❌ userID is not set yet.");
+        console.error("userID is not set yet.");
         alert(i18n.t('userIdUnavailable'));
         return;
       }
@@ -173,12 +171,9 @@ const WorkerHomepage = () => {
       const cleanedUserID = userID.replace(/^"(.*)"$/, '$1').trim();
       const team = await fetchTeam(cleanedUserID);
 
-      console.log("Team:", team);
-
       const managerUserID = team.managerId;
-      console.log("Manager UserID:", managerUserID);
       if (!managerUserID) {
-        console.error("❌ Manager UserID is not available.");
+        console.error("Manager UserID is not available.");
         alert(i18n.t('managerIdUnavailable'));
         return;
       }
@@ -188,18 +183,17 @@ const WorkerHomepage = () => {
       const manager = allUsers.find((user: User) => user.userId === managerUserID);
 
       if (!manager) {
-        console.error("❌ Manager not found in user list.");
+        console.error("Manager not found in user list.");
         alert(i18n.t('managerNotFound'));
         return;
       }
 
       const phoneNumber = manager.phoneNumber;
-      console.log("📞 Calling phone number:", phoneNumber);
 
       // Step 3: Call the manager
       Linking.openURL(`tel:${phoneNumber}`);
     } catch (error) {
-      console.error("❌ Error calling manager:", error);
+      console.error("Error calling manager:", error);
       alert(i18n.t('callFailed'));
     }
   };
@@ -301,7 +295,6 @@ const WorkerHomepage = () => {
 
       // Use fallback imageUrl if not provided
       const imageUrlToUse = updatedData.imageUrl || existingTask.imageUrl || '';
-      console.log('Using imageUrl for update:', imageUrlToUse);
       const updatedTask = {
         ...existingTask,
         ...updatedData,
@@ -766,7 +759,6 @@ const WorkerHomepage = () => {
                     if (localUri && localUri.startsWith('file://')) {
                       const uploadedImageData = await uploadImage(localUri);
                       imageUrl = uploadedImageData.url;
-                      console.log('Uploaded image data:', uploadedImageData);
                     } else {
                       imageUrl = localUri || '';
                     }

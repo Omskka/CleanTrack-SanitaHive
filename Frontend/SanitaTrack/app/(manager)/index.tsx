@@ -74,11 +74,9 @@ const ManagerHomepage = () => {
           try {
             const parsedUserID = JSON.parse(storedUserID);
             setUserID(parsedUserID);
-            console.log('User ID set:', parsedUserID);
           } catch (e) {
             // If parsing fails, use the raw string
             setUserID(storedUserID);
-            console.log('User ID set (raw):', storedUserID);
           }
         } else {
           console.warn('No userToken found in AsyncStorage');
