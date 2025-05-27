@@ -35,7 +35,6 @@ export default function LoginScreen() {
     try {
       // Call backend login API
       const result = await login(phone, password);
-      console.log('Login successful', result);
 
       // Get user ID from response
       const userID = result?.userId;
@@ -181,7 +180,7 @@ export default function LoginScreen() {
               <Box alignItems="center" mt="$2">
                 <Text fontSize="$sm">{i18n.t('isWorker')}</Text>
                 <Pressable>
-                  <Link href="/createAccount/user">
+                  <Link href="/createAccount">
                     <Text color={Colors.text} fontWeight="bold">{i18n.t('register')}</Text>
                   </Link>
                 </Pressable>

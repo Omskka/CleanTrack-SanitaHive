@@ -83,7 +83,6 @@ export const deleteTask = async (taskId: string,) => {
 
 export const markTaskAsDone = async (taskId: string) => {
   const url = `/tasks/${taskId}/complete`;
-  console.log('Request URL:', url); // Log URL here
   const response = await axiosInstance.put(url);
   return response.data;
 };
@@ -168,8 +167,6 @@ export const uploadImage = async (fileUri: string) => {
       'Content-Type': 'multipart/form-data',
     },
   });
-
-  console.log('Raw upload response:', response.data); // Debug log
 
   // If the response is just a message like "File uploaded : filename.jpg"
   const message = response.data as string;

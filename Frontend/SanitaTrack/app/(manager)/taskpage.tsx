@@ -126,11 +126,9 @@ const TaskManagerScreen = () => {
           try {
             const parsedUserID = JSON.parse(storedUserID);
             setUserID(parsedUserID);
-            console.log('User ID set:', parsedUserID);
           } catch (e) {
             // If parsing fails, use the raw string
             setUserID(storedUserID);
-            console.log('User ID set (raw):', storedUserID);
           }
         } else {
           console.warn('No userToken found in AsyncStorage');
@@ -205,15 +203,11 @@ const TaskManagerScreen = () => {
   // Fetch all team members for this manager from backend
   const fetchTeamMembersData = async () => {
     try {
-      console.log('Fetching team members for userID:', userID);
-
       // 1. Get all users
       const allUsers = await fetchAllUsers();
-      console.log('All users fetched:', allUsers);
 
       // 2. Fetch team to get employee IDs
       const team = await fetchTeamByManager(userID);
-      console.log('Team data:', team);
 
       // 3. Ensure employeeId is an array
       const employeeIds = Array.isArray(team.employeeId)
@@ -222,12 +216,8 @@ const TaskManagerScreen = () => {
           ? [team.employeeId]
           : [];
 
-      console.log('Employee IDs:', employeeIds);
-
       // 4. Filter users to get team members
       const members = allUsers.filter((user: User) => employeeIds.includes(user.userId));
-      console.log('Filtered team members:', members);
-
       setTeamMembers(members);
     } catch (error) {
       console.error('Error fetching team members:', error);

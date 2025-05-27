@@ -162,7 +162,7 @@ const WorkerHomepage = () => {
       console.log("UserID :", userID);
 
       if (!userID) {
-        console.error("❌ userID is not set yet.");
+        console.error("userID is not set yet.");
         alert(i18n.t('userIdUnavailable'));
         return;
       }
@@ -178,7 +178,7 @@ const WorkerHomepage = () => {
       const managerUserID = team.managerId;
       console.log("Manager UserID:", managerUserID);
       if (!managerUserID) {
-        console.error("❌ Manager UserID is not available.");
+        console.error("Manager UserID is not available.");
         alert(i18n.t('managerIdUnavailable'));
         return;
       }
@@ -188,18 +188,17 @@ const WorkerHomepage = () => {
       const manager = allUsers.find((user: User) => user.userId === managerUserID);
 
       if (!manager) {
-        console.error("❌ Manager not found in user list.");
+        console.error("Manager not found in user list.");
         alert(i18n.t('managerNotFound'));
         return;
       }
 
       const phoneNumber = manager.phoneNumber;
-      console.log("📞 Calling phone number:", phoneNumber);
 
       // Step 3: Call the manager
       Linking.openURL(`tel:${phoneNumber}`);
     } catch (error) {
-      console.error("❌ Error calling manager:", error);
+      console.error("Error calling manager:", error);
       alert(i18n.t('callFailed'));
     }
   };
