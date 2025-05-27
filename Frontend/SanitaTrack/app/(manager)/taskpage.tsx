@@ -185,9 +185,19 @@ const TaskManagerScreen = () => {
   const fetchRoomsData = async () => {
     try {
       const roomsData = await fetchRooms();
-      setRooms(roomsData);
+      if (!roomsData || roomsData.length === 0) return;
+
+      // Normalize teamId (remove quotes if they exist)
+      const normalizeTeamId = (id: string) => id.replace(/"/g, "");
+
+      // Filter rooms with the manager ID
+      const filteredRooms = roomsData.filter(
+        (room: Room) => normalizeTeamId(room.teamId) === userID
+      );
+
+      setRooms(filteredRooms);
     } catch (error) {
-      console.error('Error fetching rooms:', error);
+      console.error("Error fetching rooms:", error);
     }
   };
 
