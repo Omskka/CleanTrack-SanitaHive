@@ -200,7 +200,7 @@ const ManagerHomepage = () => {
         {/* Show completed status if task is done */}
         {rowData.done ? (
           <Text mt="$2" color={Colors.text} fontWeight="$bold">{i18n.t('completed')}</Text>
-        ) : null}
+        ) : <Text mt="$2" color={Colors.error} fontWeight="$bold">{i18n.t('notCompleted')}</Text>}
       </Box>
     );
   };
