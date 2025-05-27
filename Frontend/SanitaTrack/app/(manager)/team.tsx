@@ -97,7 +97,6 @@ export default function TeamInfoScreen() {
           phone: u.phoneNumber || 'Number Unavailable'
         }));
 
-      console.log('Filtered team members:', members);
       setTeamMembers(members);
     } catch (e) {
       console.error('Error during team init:', e);
@@ -150,7 +149,6 @@ export default function TeamInfoScreen() {
     if (!selectedUserId) return;
 
     try {
-      console.log("selectedUserId : ", selectedUserId);
       await removeTeamMember(userID, selectedUserId);
       // Update local state without refetching
       setTeamMembers(prev => prev.filter(member => member.userId !== selectedUserId));
