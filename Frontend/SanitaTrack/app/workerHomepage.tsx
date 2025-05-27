@@ -721,7 +721,7 @@ const WorkerHomepage = () => {
                   if (currentTaskId) takePicture(currentTaskId);
                 }}
               >
-                <Text color={Colors.text}>{i18n.t('uploadImage')}</Text>
+                <Text color={Colors.white}>{i18n.t('uploadImage')}</Text>
               </Button>
 
               {/* Uploaded images preview in modal */}

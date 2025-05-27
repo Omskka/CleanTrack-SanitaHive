@@ -97,7 +97,7 @@ export default function CreateAccount() {
 
             // 8. Registration successful, clear errors and show success message
             setError('');
-            alert(i18n.t('registrationSuccess'));
+            alert(i18n.t('registerSuccess'));
 
             // 9. Redirect to login page after a short delay
             setTimeout(() => {
