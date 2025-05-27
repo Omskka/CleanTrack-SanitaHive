@@ -174,6 +174,10 @@ export const translations = {
     smell: "Smell",
     equipment: "Equipment",
     overall: "Overall",
+    Suggestion: "Suggestion",
+    Smell: "Smell",
+    Equipment: "Equipment",
+    Overall: "Overall",
 
     yourFeedback: "Provide your feedback:",
     roomIdError: 'Room ID is required to submit feedback',
@@ -414,6 +418,10 @@ export const translations = {
     smell: "Koku",
     equipment: "Ekipman",
     overall: "Genel",
+    Suggestion: "Öneri",
+    Smell: "Koku",
+    Equipment: "Ekipman",
+    Overall: "Genel",
 
     yourFeedback: "Geri bildiriminizi giriniz:",
     roomIdError: 'Geri bildirim göndermek için oda kimliği gereklidir',
