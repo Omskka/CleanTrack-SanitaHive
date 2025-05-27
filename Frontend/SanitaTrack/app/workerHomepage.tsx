@@ -159,8 +159,6 @@ const WorkerHomepage = () => {
   // Call manager function: finds manager's phone and initiates a call
   const callPhone = async () => {
     try {
-      console.log("UserID :", userID);
-
       if (!userID) {
         console.error("userID is not set yet.");
         alert(i18n.t('userIdUnavailable'));
@@ -173,10 +171,7 @@ const WorkerHomepage = () => {
       const cleanedUserID = userID.replace(/^"(.*)"$/, '$1').trim();
       const team = await fetchTeam(cleanedUserID);
 
-      console.log("Team:", team);
-
       const managerUserID = team.managerId;
-      console.log("Manager UserID:", managerUserID);
       if (!managerUserID) {
         console.error("Manager UserID is not available.");
         alert(i18n.t('managerIdUnavailable'));
@@ -300,7 +295,6 @@ const WorkerHomepage = () => {
 
       // Use fallback imageUrl if not provided
       const imageUrlToUse = updatedData.imageUrl || existingTask.imageUrl || '';
-      console.log('Using imageUrl for update:', imageUrlToUse);
       const updatedTask = {
         ...existingTask,
         ...updatedData,
@@ -765,7 +759,6 @@ const WorkerHomepage = () => {
                     if (localUri && localUri.startsWith('file://')) {
                       const uploadedImageData = await uploadImage(localUri);
                       imageUrl = uploadedImageData.url;
-                      console.log('Uploaded image data:', uploadedImageData);
                     } else {
                       imageUrl = localUri || '';
                     }
